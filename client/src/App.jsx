@@ -1,25 +1,15 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './pages/account/Login.jsx';
+import Home from './pages/Home';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-      <div className="flex h-screen items-center justify-center">
-      <GoogleLogin
-        onSuccess={async (credentialResponse) => {
-          await axios.post('http://localhost:4000/api/auth/google', {
-            id_token: credentialResponse.credential,
-          }, { withCredentials: true });
-        }}
-        onError={() => console.log('Login Failed')}
-      />
-    </div>
-  )
+    <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/home" element={<Home />} />
+    </Routes>
+  </BrowserRouter>
+);
 }
-
-export default App
