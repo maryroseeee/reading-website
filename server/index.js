@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.js';
+import booksRoutes from './routes/books.js';
 
 dotenv.config();
 const app = express();
@@ -17,5 +18,7 @@ mongoose
   .catch((e) => console.error('Mongo error', e));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/books', booksRoutes);
 
 app.listen(4000, () => console.log('API listening on :4000'));
+
