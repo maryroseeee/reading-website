@@ -18,35 +18,44 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="grid h-screen grid-cols-3">
-    <div className="col-span-1 p-4 flex flex-col items-center space-y-2">
-      <img
-        src="/public/default-avatar.png"
-        alt="Default avatar"
-        className="w-32 h-32 rounded-full"
-      />
-      <div>{email}</div>
-    </div>
-    <div className="col-span-2 p-4 space-y-4">
-      <input
-        placeholder="Search books"
-        onFocus={() => navigate('/search')}
-        readOnly
-        className="border p-2 w-full"
-      />
-      <h2 className="text-xl">Your Books</h2>
-      <div className="space-y-2">
-        {books.map((b) => (
-          <div key={b._id} className="flex gap-2 items-center">
-            {b.thumbnail && <img src={b.thumbnail} alt={b.title} className="w-16" />}
-            <div>
-              <div>{b.title}</div>
-              <div className="text-sm text-gray-500">
-                {(b.authors || []).join(', ')} • {b.publishedYear} • {b.pageCount} pages
+    <div className="container-fluid vh-100">
+      <div className="row h-100">
+        <div className="col-md-4 d-flex flex-column align-items-center py-4">
+          <img
+            src="/public/default-avatar.png"
+            alt="Default avatar"
+            className="rounded-circle mb-2"
+            style={{ width: '8rem', height: '8rem' }}
+          />
+          <div>{email}</div>
+        </div>
+        <div className="col-md-8 py-4">
+          <input
+            placeholder="Search books"
+            onFocus={() => navigate('/search')}
+            readOnly
+            className="form-control mb-4"
+          />
+          <h2 className="h5">Your Books</h2>
+          <div className="d-flex flex-column gap-2">
+            {books.map((b) => (
+              <div key={b._id} className="d-flex align-items-center gap-2">
+                {b.thumbnail && (
+                  <img
+                    src={b.thumbnail}
+                    alt={b.title}
+                    style={{ width: '4rem' }}
+                  />
+                )}
+                <div>
+                  <div>{b.title}</div>
+                  <div className="text-muted small">
+                    {(b.authors || []).join(', ')} • {b.publishedYear} • {b.pageCount} pages
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
         ))}
+        </div>
       </div>
       </div>
     </div>
