@@ -16,7 +16,7 @@ export default function Login() {
             },
             { withCredentials: true }
           );
-          navigate('/home');
+          navigate('/dashboard');
         }}
         onError={() => console.log('Login Failed')}
       />
