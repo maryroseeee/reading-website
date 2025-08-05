@@ -18,8 +18,16 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-4 space-y-4">
-      <h1>Welcome {email}</h1>
+    <div className="grid h-screen grid-cols-3">
+    <div className="col-span-1 p-4 flex flex-col items-center space-y-2">
+      <img
+        src="/public/default-avatar.png"
+        alt="Default avatar"
+        className="w-32 h-32 rounded-full"
+      />
+      <div>{email}</div>
+    </div>
+    <div className="col-span-2 p-4 space-y-4">
       <input
         placeholder="Search books"
         onFocus={() => navigate('/search')}
@@ -39,6 +47,7 @@ export default function Dashboard() {
             </div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );
