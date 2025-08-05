@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-
 export default function Home() {
   const [email, setEmail] = useState('');
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [books, setBooks] = useState([]);
+  const shelfRef = useRef(null);
 
   const fetchBooks = () => {
     axios
@@ -37,6 +35,7 @@ export default function Home() {
       { withCredentials: true }
     );
     fetchBooks();
+    shelfRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -53,6 +52,12 @@ export default function Home() {
           Search
         </button>
       </form>
+      <button
+        onClick={() => shelfRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        className="border px-4"
+      >
+        My Shelf
+      </button>
       <div className="space-y-2">
         {results.map((item) => {
           const info = item.volumeInfo || {};
@@ -81,7 +86,7 @@ export default function Home() {
           );
         })}
       </div>
-      <h2 className="text-xl">Your Books</h2>
+      <h2 ref={shelfRef} className="text-xl">Your Books</h2>
       <div className="space-y-2">
         {books.map((b) => (
           <div key={b._id} className="flex gap-2 items-center">
