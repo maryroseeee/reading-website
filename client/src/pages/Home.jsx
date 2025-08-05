@@ -1,3 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+
 export default function Home() {
   const [email, setEmail] = useState('');
   const [query, setQuery] = useState('');
@@ -28,10 +31,21 @@ export default function Home() {
     setResults(res.data.items || []);
   };
 
-  const addBook = async (bookId) => {
+  const addBook = async (item) => {
+    const info = item.volumeInfo || {};
     await axios.post(
       'http://localhost:4000/api/books',
-      { bookId },
+      {
+        googleId: item.id,
+        title: info.title,
+        authors: info.authors || [],
+        pageCount: info.pageCount,
+        publishedYear: info.publishedDate
+          ? parseInt(info.publishedDate.split('-')[0], 10)
+          : undefined,
+        categories: info.categories || [],
+        thumbnail: info.imageLinks?.thumbnail,
+      },
       { withCredentials: true }
     );
     fetchBooks();
@@ -77,7 +91,7 @@ export default function Home() {
                 </div>
               </div>
               <button
-                onClick={() => addBook(item.id)}
+                onClick={() => addBook(item)}
                 className="border px-2 py-1"
               >
                 Add
@@ -90,11 +104,13 @@ export default function Home() {
       <div className="space-y-2">
         {books.map((b) => (
           <div key={b._id} className="flex gap-2 items-center">
-            {b.cover && <img src={b.cover} alt={b.title} className="w-16" />}
+            {b.thumbnail && (
+              <img src={b.thumbnail} alt={b.title} className="w-16" />
+            )}
             <div>
               <div>{b.title}</div>
               <div className="text-sm text-gray-500">
-                {b.authors.join(', ')} • {b.publishedYear} • {b.pageCount} pages
+              {(b.authors || []).join(', ')} • {b.publishedYear} • {b.pageCount} pages
               </div>
             </div>
           </div>
