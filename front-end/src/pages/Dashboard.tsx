@@ -42,9 +42,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* RIGHT 2/3: search + shelf (separate cards, like the mock) */}
       <div className="min-w-0 flex flex-col gap-4">
-        {/* Top-right search */}
         <div className="flex justify-end">
           <Input
             placeholder="Search"
@@ -54,15 +52,12 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Shelf card with neobrutalist carousel + only right arrow */}
         <ShelfCard
           books={books}
           className="min-w-0"
-          // showPrev // keep hidden to match the goal
           nextOffsetClassName="right-3"
         />
 
-        {/* Separate neobrutalist button to the right, like the mock */}
         <div className="flex justify-end -mt-1">
           <button
             onClick={() => navigate("/read")}
@@ -72,7 +67,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Optional: lower wide orange panel (placeholder) */}
         <div className="rounded-base border-2 border-border bg-main shadow-shadow h-48" />
       </div>
     </div>

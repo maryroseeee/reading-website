@@ -19,7 +19,7 @@ export default function DeleteButton({ onConfirm }: DeleteButtonProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="bg-background">Delete</Button>
+        <Button className="bg-main">Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

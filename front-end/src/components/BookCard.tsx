@@ -8,6 +8,7 @@ interface BookCardProps {
 
 export default function BookCard({ book, onDelete }: BookCardProps) {
   return (
+    <div>
     <div
       className="overflow-hidden rounded-base border-2 border-border bg-main shadow-shadow text-center"
     >
@@ -29,9 +30,12 @@ export default function BookCard({ book, onDelete }: BookCardProps) {
         {((book.categories || [])[0] && book.pageCount) ? " · " : ""}
         {book.pageCount ?? ""}
       </div>
-      <div className="mt-2">
-        <DeleteButton onConfirm={() => onDelete(book._id!)} />
-      </div>
     </div>
+
+    <div className="mt-2">
+    <DeleteButton onConfirm={() => onDelete(book._id!)} />
+    </div>
+    </div>
+    
   );
 }
