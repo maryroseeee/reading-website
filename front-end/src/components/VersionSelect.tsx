@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import type { Book } from "@/components/ShelfCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Dialog,
     DialogContent,
@@ -23,6 +23,11 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
     const [pageCount, setPageCount] = useState("" + (selected.pageCount ?? ""));
     const [cover, setCover] = useState<string | undefined>(selected.thumbnail);
   
+    useEffect(() => {
+        setPageCount("" + (selected.pageCount ?? ""));
+        setCover(selected.thumbnail);
+      }, [selected]);
+      
     const handleSave = () => {
       onChange({
         ...selected,
@@ -85,7 +90,9 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  setCover(URL.createObjectURL(file));
+                    const reader = new FileReader();
+                    reader.onload = () => setCover(reader.result as string);
+                    reader.readAsDataURL(file);
                 }
               }}
             />
