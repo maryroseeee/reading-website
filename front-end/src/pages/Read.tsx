@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import ImageCard from "@/components/ui/image-card";
+import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom";
 import {
   Pagination,
@@ -10,7 +10,18 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination";
-import type { Book } from "@/components/ShelfCard";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from "@/components/ui/alert-dialog"
+  import type { Book } from "@/components/ShelfCard";
 
 const PAGE_SIZE = 20;
 
@@ -40,7 +51,7 @@ export default function Read() {
       <button onClick={() => navigate("/dashboard")} className="text-xl">
         ←
       </button>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {currentBooks.map((book) => (
           <div
           key={book._id}
@@ -53,18 +64,47 @@ export default function Read() {
               className="w-full aspect-[2/3] object-cover"
             />
           )}
-            <div className="border-t-2 border-border p-2 text-sm font-medium line-clamp-2">
-            {book.title}
-          </div>
-            <button
+            <div className="text-[13px] font-medium leading-tight line-clamp-2">
+                  {book.title}
+                </div>
+                <div className="text-[11px] opacity-80 line-clamp-1">
+                  by {(book.authors || [])[0] || "Unknown"}
+                </div>
+                <div className="text-[10px] opacity-80 mt-0.5">
+                  {(book.categories || [])[0] ?? ""}
+                  {((book.categories || [])[0] && book.pageCount) ? " · " : ""}
+                  {book.pageCount ?? ""}
+                </div>
+          <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button>Delete</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You can always re-add the book later.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>       
+            Cancel
+            </AlertDialogCancel>
+          <AlertDialogAction> <button
               onClick={() => deleteBook(book._id!)}
-              className="w-full border-t-2 border-border py-1 text-xs"
             >
-              Delete
-            </button>
+                Delete
+            </button></AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+        
+
           </div>
+          
         ))}
       </div>
+      
       <Pagination>
         <PaginationContent>
           <PaginationItem>
