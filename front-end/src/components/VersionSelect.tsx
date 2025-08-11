@@ -80,10 +80,21 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
           <div>
             <label className="block mb-1 text-sm">Cover URL</label>
             <Input
-              value={cover ?? ""}
-              onChange={(e) => setCover(e.target.value)}
-              placeholder="https://example.com/cover.jpg"
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setCover(URL.createObjectURL(file));
+                }
+              }}
             />
+            {cover && (
+              <div className="mt-2">
+                <img src={cover} alt="" className="w-8 h-12 object-cover" />
+              </div>
+            )}
+            
             {versions.some((v) => v.thumbnail) && (
               <div className="flex gap-2 mt-2">
                 {versions
