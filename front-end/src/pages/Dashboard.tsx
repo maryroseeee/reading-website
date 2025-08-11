@@ -68,7 +68,7 @@ export default function Dashboard() {
             onClick={() => navigate("/read")}
             className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
           >
-            Go to read
+            Go to read books
           </button>
         </div>
 
