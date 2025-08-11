@@ -1,27 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Button } from "@/components/ui/button"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationPrevious,
+    PaginationNext,
+  } from "@/components/ui/pagination";
+import BookCard from "@/components/BookCard";
+import type { Book } from "@/components/ShelfCard";
 import { useNavigate } from "react-router-dom";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-} from "@/components/ui/pagination";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-  } from "@/components/ui/alert-dialog"
-  import type { Book } from "@/components/ShelfCard";
 
 const PAGE_SIZE = 20;
 
@@ -53,55 +42,7 @@ export default function Read() {
       </button>
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {currentBooks.map((book) => (
-          <div
-          key={book._id}
-          className="overflow-hidden rounded-base border-2 border-border bg-main shadow-shadow text-center"
-        >
-          {book.thumbnail && (
-            <img
-              src={book.thumbnail}
-              alt={book.title}
-              className="w-full aspect-[2/3] object-cover"
-            />
-          )}
-            <div className="text-[13px] font-medium leading-tight line-clamp-2">
-                  {book.title}
-                </div>
-                <div className="text-[11px] opacity-80 line-clamp-1">
-                  by {(book.authors || [])[0] || "Unknown"}
-                </div>
-                <div className="text-[10px] opacity-80 mt-0.5">
-                  {(book.categories || [])[0] ?? ""}
-                  {((book.categories || [])[0] && book.pageCount) ? " · " : ""}
-                  {book.pageCount ?? ""}
-                </div>
-          <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button>Delete</Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            You can always re-add the book later.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>       
-            Cancel
-            </AlertDialogCancel>
-          <AlertDialogAction> <button
-              onClick={() => deleteBook(book._id!)}
-            >
-                Delete
-            </button></AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-        
-
-          </div>
-          
+          <BookCard key={book._id} book={book} onDelete={deleteBook} />
         ))}
       </div>
       
