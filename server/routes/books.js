@@ -51,6 +51,11 @@ router.get('/', async (req, res) => {
   res.json(books);
 });
 
+router.delete('/:id', async (req, res) => {
+  await Book.deleteOne({ _id: req.params.id, userId: req.user.uid });
+  res.json({ success: true });
+});
+
 router.post('/', async (req, res) => {
   const book = await Book.findOneAndUpdate(
     { userId: req.user.uid, googleId: req.body.googleId },
