@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard, { type Book } from "@/components/ShelfCard";
+import ReadingTable from "@/components/ReadingTable";
 
 export default function Dashboard() {
 
@@ -26,12 +27,10 @@ export default function Dashboard() {
       style={{ height: "100vh", display: "grid", gridTemplateColumns: "1fr 2fr" }}
       className="gap-8 p-6 items-start"
     >
-      {/* LEFT 1/3: avatar + email (chunky card) */}
       <div className="rounded-base border-2 border-border bg-main p-6 shadow-shadow text-main-foreground">
         <div className="mb-4 rounded-base border-2 border-border bg-background shadow-shadow p-3">
           <div className="rounded-base border-2 border-border bg-background flex items-center justify-center h-52">
             <Avatar className="h-44 w-44">
-              {/* Vite public assets */}
               <AvatarImage src="/default-avatar.png" alt="Default avatar" />
               <AvatarFallback>ME</AvatarFallback>
             </Avatar>
@@ -52,6 +51,8 @@ export default function Dashboard() {
           />
         </div>
 
+        <ReadingTable 
+        books={books}/>
         <ShelfCard
           books={books}
           className="min-w-0"
