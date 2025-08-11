@@ -6,7 +6,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard, { type Book } from "@/components/ShelfCard";
 
 export default function Dashboard() {
-  console.log("Dashboard SHELF MODE ✅");
 
   const [email, setEmail] = useState("");
   const [books, setBooks] = useState<Book[]>([]);

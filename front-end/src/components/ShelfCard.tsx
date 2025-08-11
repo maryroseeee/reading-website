@@ -37,7 +37,7 @@ export default function ShelfCard({
   return (
     <div
       className={
-        "rounded-base border-2 border-border bg-main shadow-shadow text-main-foreground p-3 relative " +
+        "rounded-base border-2 border-border bg-main shadow-shadow text-main-foreground p-2 relative " +
         className
       }
     >
@@ -47,19 +47,19 @@ export default function ShelfCard({
           {books.map((b) => (
             <CarouselItem
               key={b._id ?? b.title}
-              className="pl-2 basis-[190px] md:basis-[210px] lg:basis-[230px]"
+              className="pl-2 basis-[150px]"
             >
-              <div className="rounded-base border-2 border-border bg-main shadow-shadow p-2">
+              <div className="rounded-base border-2 border-border bg-background shadow-shadow p-1">
                 {/* Fixed 2:3 ratio; smaller to reduce shelf height */}
                 <div
-                  className="w-full mb-2 border-2 border-border rounded-sm overflow-hidden bg-background"
-                  style={{ aspectRatio: "2 / 3" }}
+                  className="w-full mb-1 border-2 border-border rounded-sm overflow-hidden bg-background"
+                  style={{ aspectRatio: "1 / 1.5" }}
                 >
                   {b.thumbnail && (
                     <img
                       src={b.thumbnail}
                       alt={b.title}
-                      className="w-full h-full object-cover"
+                      className="w-[128px] h-[192px] mb-1 border-2 border-border rounded-sm overflow-hidden bg-background"
                     />
                   )}
                 </div>
