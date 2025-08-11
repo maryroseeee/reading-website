@@ -81,18 +81,16 @@ export default function Search() {
             action={
               <div className="flex gap-2">
                 {isAdded(item.selected.googleId!) ? (
-                  <>
-                    <Button className="bg-green-500 text-white" disabled>
-                      Added
-                    </Button>
-                    <DeleteButton
-                      onConfirm={() =>
-                        deleteBook(
-                          books.find((b) => b.googleId === item.selected.googleId)!._id!
-                        )
-                      }
-                    />
-                  </>
+                  <Button
+                  className="bg-green-500 text-white"
+                  onClick={() =>
+                    deleteBook(
+                      books.find((b) => b.googleId === item.selected.googleId)!._id!
+                    )
+                  }
+                >
+                  Added
+                </Button>
                 ) : (
                   <Button onClick={() => addBook(item.selected)} className="bg-main">
                     Add

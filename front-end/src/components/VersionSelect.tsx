@@ -24,7 +24,7 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
                 <img src={v.thumbnail} alt="" className="w-8 h-12 object-cover" />
               )}
               <span className="text-left">
-                {v.publishedYear ?? "Unknown"} · {v.pageCount ?? "?"} pages
+                {v.pageCount ?? "?"} pages
               </span>
             </div>
           </SelectItem>

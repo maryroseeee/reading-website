@@ -40,7 +40,7 @@ router.get('/search', async (req, res) => {
       publishedYear,
       categories: info.categories || [],
       thumbnail: info.imageLinks?.thumbnail,
-      points: 1 + (pageCount / 100),
+      points: pageCount ? 1 + (pageCount / 100) : 0,
     };
   });
   res.json(items);
@@ -66,6 +66,18 @@ router.post('/', async (req, res) => {
     { userId: req.user.uid, googleId: req.body.googleId },
     data,
     { upsert: true, new: true }
+  );
+  res.json(book);
+});
+
+router.put('/:id', async (req, res) => {
+  const data = { ...req.body, userId: req.user.uid };
+  const pageCount = req.body.pageCount;
+  data.points = pageCount ? pageCount / 100 : 0;
+  const book = await Book.findOneAndUpdate(
+    { _id: req.params.id, userId: req.user.uid },
+    data,
+    { new: true }
   );
   res.json(book);
 });

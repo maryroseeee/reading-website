@@ -12,12 +12,14 @@ import BookCard from "@/components/BookCard";
 import type { Book } from "@/components/ShelfCard";
 import { useNavigate } from "react-router-dom";
 import DeleteButton from "@/components/DeleteButton";
+import VersionSelect from "@/components/VersionSelect";
 
 const PAGE_SIZE = 20;
 
 export default function Read() {
   const [books, setBooks] = useState<Book[]>([]);
   const [page, setPage] = useState(1);
+  const [versions, setVersions] = useState<Record<string, Book[]>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +27,32 @@ export default function Read() {
       .get<Book[]>("http://localhost:4000/api/books", { withCredentials: true })
       .then((res) => setBooks(res.data));
   }, []);
+  useEffect(() => {
+    books.forEach((b) => {
+      const query = [b.title, ...(b.authors || [])].join(" ");
+      axios
+        .get<Book[]>("http://localhost:4000/api/books/search", {
+          params: { q: query },
+        })
+        .then((res) => {
+          const grouped = Object.values(
+            res.data.reduce((acc, book) => {
+              const key = `${book.title.toLowerCase()}|${(book.authors || []).join(',').toLowerCase()}`;
+              acc[key] = acc[key] || [];
+              acc[key].push(book);
+              return acc;
+            }, {} as Record<string, Book[]>)
+          );
+          const key = `${b.title.toLowerCase()}|${(b.authors || []).join(',').toLowerCase()}`;
+          const match =
+            grouped.find((g) => {
+              const k = `${g[0].title.toLowerCase()}|${(g[0].authors || []).join(',').toLowerCase()}`;
+              return k === key;
+            }) || [b];
+          setVersions((prev) => ({ ...prev, [b._id!]: match }));
+        });
+    });
+  }, [books]);
 
   const totalPages = Math.max(1, Math.ceil(books.length / PAGE_SIZE));
   const currentBooks = books.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -35,6 +63,13 @@ export default function Read() {
     });
     setBooks((prev) => prev.filter((b) => b._id !== id));
   };
+  const changeVersion = async (id: string, book: Book) => {
+    const res = await axios.put<Book>(`http://localhost:4000/api/books/${id}`, book, {
+      withCredentials: true,
+    });
+    setBooks((prev) => prev.map((b) => (b._id === id ? res.data : b)));
+  };
+
 
   return (
     <div className="p-4 space-y-4">
@@ -46,7 +81,16 @@ export default function Read() {
           <BookCard
           key={book._id}
           book={book}
-          action={<DeleteButton onConfirm={() => deleteBook(book._id!)} />}
+          action={
+            <div className="flex gap-2">
+              <VersionSelect
+                versions={versions[book._id!] || [book]}
+                selected={book}
+                onChange={(b) => changeVersion(book._id!, b)}
+              />
+              <DeleteButton onConfirm={() => deleteBook(book._id!)} />
+            </div>
+          }
         />
         ))}
       </div>
