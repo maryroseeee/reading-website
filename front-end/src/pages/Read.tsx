@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import ImageCard from "@/components/ui/image-card";
 import { useNavigate } from "react-router-dom";
 import {
   Pagination,
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/pagination";
 import type { Book } from "@/components/ShelfCard";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 20;
 
 export default function Read() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -39,20 +40,25 @@ export default function Read() {
       <button onClick={() => navigate("/dashboard")} className="text-xl">
         ←
       </button>
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {currentBooks.map((book) => (
-          <div key={book._id} className="text-center">
-            {book.thumbnail && (
-              <img
-                src={book.thumbnail}
-                alt={book.title}
-                className="mx-auto mb-2 w-24 h-36 object-cover"
-              />
-            )}
-            <div className="text-sm font-medium line-clamp-2">{book.title}</div>
+          <div
+          key={book._id}
+          className="overflow-hidden rounded-base border-2 border-border bg-main shadow-shadow text-center"
+        >
+          {book.thumbnail && (
+            <img
+              src={book.thumbnail}
+              alt={book.title}
+              className="w-full aspect-[2/3] object-cover"
+            />
+          )}
+            <div className="border-t-2 border-border p-2 text-sm font-medium line-clamp-2">
+            {book.title}
+          </div>
             <button
               onClick={() => deleteBook(book._id!)}
-              className="mt-2 border px-2 py-1 text-xs"
+              className="w-full border-t-2 border-border py-1 text-xs"
             >
               Delete
             </button>
