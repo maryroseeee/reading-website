@@ -49,7 +49,14 @@ export default function Read() {
               const k = `${g[0].title.toLowerCase()}|${(g[0].authors || []).join(',').toLowerCase()}`;
               return k === key;
             }) || [b];
-          setVersions((prev) => ({ ...prev, [b._id!]: match }));
+          setVersions((prev) => {
+            const prevList = prev[b._id!] || [];
+            const unique = new Map<string, Book>();
+            [...prevList, ...match, b].forEach((v) => {
+              if (v.googleId) unique.set(v.googleId, v);
+            });
+            return { ...prev, [b._id!]: Array.from(unique.values()) };
+          });
         });
     });
   }, [books]);
