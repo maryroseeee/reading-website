@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-
+import DeleteButton from "@/components/DeleteButton";
 import BookCard from '@/components/BookCard';
 import type { Book } from '@/components/ShelfCard';
 
@@ -38,6 +38,13 @@ export default function Search() {
     setBooks((prev) => [...prev, res.data]);
   };
 
+  const deleteBook = async (id: string) => {
+    await axios.delete(`http://localhost:4000/api/books/${id}`, {
+      withCredentials: true,
+    });
+    setBooks((prev) => prev.filter((b) => b._id !== id));
+  };
+
   const isAdded = (googleId: string) =>
     books.some((b) => b.googleId === googleId);
 
@@ -63,15 +70,24 @@ export default function Search() {
            key={item.googleId}
            book={item}
            action={
-             isAdded(item.googleId!) ? (
-               <button className="border px-2 py-1 bg-green-500 text-white" disabled>
-                 Added
-               </button>
-             ) : (
-               <button onClick={() => addBook(item)} className="border px-2 py-1">
-                 Add
-               </button>
-             )
+            isAdded(item.googleId!) ? (
+              <div className="flex gap-2">
+                <Button className="bg-green-500 text-white" disabled>
+                  Added
+                </Button>
+                <DeleteButton
+                  onConfirm={() =>
+                    deleteBook(
+                      books.find((b) => b.googleId === item.googleId)!._id!
+                    )
+                  }
+                />
+              </div>
+            ) : (
+              <Button onClick={() => addBook(item)} className="bg-main">
+                Add
+              </Button>
+            )
            }
          />
         ))}

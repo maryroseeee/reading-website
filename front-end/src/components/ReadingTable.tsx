@@ -32,8 +32,7 @@ export default function ReadingTable({
 
   const count = rows.length; // =COUNT
   const pagesTotal = rows.reduce((s, r) => s + r.pages, 0);
-  const pagesHundreds = pagesTotal / 100; // =SUM(Pages)/100
-  const pointsSum = rows.reduce((s, r) => s + r.points, 0); // =SUM(Points)
+  const pointsSum = rows.reduce((s, r) => s + r.points, 0);
 
   return (
     <div>
@@ -76,7 +75,7 @@ export default function ReadingTable({
           <TableRow>
             <TableCell className="font-medium">Total: {count}</TableCell>
             <TableCell className="text-right tabular-nums">
-              {pagesHundreds.toFixed(2)}
+              {pagesTotal}
             </TableCell>
             <TableCell />
             <TableCell className="text-right tabular-nums">
