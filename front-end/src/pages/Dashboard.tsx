@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import "../index.css";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -58,7 +57,6 @@ export default function Dashboard() {
 
         {/* Shelf card with neobrutalist carousel + only right arrow */}
         <ShelfCard
-          title="Books Read"
           books={books}
           className="min-w-0"
           // showPrev // keep hidden to match the goal
