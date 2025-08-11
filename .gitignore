@@ -19,6 +19,7 @@ out/
 .cache/
 .vite/
 *.tsbuildinfo
+*.json
 
 # Logs
 logs/
