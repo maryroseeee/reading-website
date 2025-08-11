@@ -5,10 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import DeleteButton from "@/components/DeleteButton";
 import BookCard from '@/components/BookCard';
 import type { Book } from '@/components/ShelfCard';
+import VersionSelect from '@/components/VersionSelect';
 
 export default function Search() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Book[]>([]);
+  const [results, setResults] = useState<{ versions: Book[]; selected: Book }[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
 
@@ -28,7 +29,15 @@ export default function Search() {
         params: { q: query },
       },
     );
-    setResults(res.data);
+    const grouped = Object.values(
+      res.data.reduce((acc, book) => {
+        const key = `${book.title.toLowerCase()}|${(book.authors || []).join(',').toLowerCase()}`;
+        acc[key] = acc[key] || [];
+        acc[key].push(book);
+        return acc;
+      }, {} as Record<string, Book[]>)
+    ).map((versions) => ({ versions, selected: versions[0] }));
+    setResults(grouped);
   };
 
   const addBook = async (item: Book) => {
@@ -65,31 +74,42 @@ export default function Search() {
         </Button>
       </form>
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        {results.map((item) => (
-           <BookCard
-           key={item.googleId}
-           book={item}
-           action={
-            isAdded(item.googleId!) ? (
+      {results.map((item, idx) => (
+          <BookCard
+            key={item.selected.googleId}
+            book={item.selected}
+            action={
               <div className="flex gap-2">
-                <Button className="bg-green-500 text-white" disabled>
-                  Added
-                </Button>
-                <DeleteButton
-                  onConfirm={() =>
-                    deleteBook(
-                      books.find((b) => b.googleId === item.googleId)!._id!
+                {isAdded(item.selected.googleId!) ? (
+                  <>
+                    <Button className="bg-green-500 text-white" disabled>
+                      Added
+                    </Button>
+                    <DeleteButton
+                      onConfirm={() =>
+                        deleteBook(
+                          books.find((b) => b.googleId === item.selected.googleId)!._id!
+                        )
+                      }
+                    />
+                  </>
+                ) : (
+                  <Button onClick={() => addBook(item.selected)} className="bg-main">
+                    Add
+                  </Button>
+                )}
+                <VersionSelect
+                  versions={item.versions}
+                  selected={item.selected}
+                  onChange={(book) =>
+                    setResults((prev) =>
+                      prev.map((r, i) => (i === idx ? { ...r, selected: book } : r))
                     )
                   }
                 />
               </div>
-            ) : (
-              <Button onClick={() => addBook(item)} className="bg-main">
-                Add
-              </Button>
-            )
-           }
-         />
+            }
+            />
         ))}
       </div>
     </div>
