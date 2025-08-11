@@ -1,13 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import axios from 'axios';
+import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 
-interface Book {
-  googleId: string;
-  title: string;
-  thumbnail?: string;
-  authors?: string[];
-}
+import BookCard from '@/components/BookCard';
+import type { Book } from '@/components/ShelfCard';
 
 export default function Search() {
   const [query, setQuery] = useState('');
@@ -56,38 +53,27 @@ export default function Search() {
           placeholder="Search books"
           className="border p-2 flex-1"
         />
-        <button type="submit" className="border px-4">
+        <Button type="submit" className="border px-4">
           Search
-        </button>
+        </Button>
       </form>
-      <div className="space-y-2">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {results.map((item) => (
-          <div key={item.googleId} className="flex gap-2 items-center">
-            {item.thumbnail && (
-              <img src={item.thumbnail} alt={item.title} className="w-16" />
-            )}
-            <div className="flex-1">
-              <div>{item.title}</div>
-              <div className="text-sm text-gray-500">
-                {(item.authors || []).join(', ')}
-              </div>
-            </div>
-            {isAdded(item.googleId) ? (
-              <button
-                className="border px-2 py-1 bg-green-500 text-white"
-                disabled
-              >
-                Added
-              </button>
-            ) : (
-              <button
-                onClick={() => addBook(item)}
-                className="border px-2 py-1"
-              >
-                Add
-              </button>
-            )}
-          </div>
+           <BookCard
+           key={item.googleId}
+           book={item}
+           action={
+             isAdded(item.googleId!) ? (
+               <button className="border px-2 py-1 bg-green-500 text-white" disabled>
+                 Added
+               </button>
+             ) : (
+               <button onClick={() => addBook(item)} className="border px-2 py-1">
+                 Add
+               </button>
+             )
+           }
+         />
         ))}
       </div>
     </div>

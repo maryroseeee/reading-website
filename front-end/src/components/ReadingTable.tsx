@@ -3,7 +3,6 @@ import type { Book } from "@/components/ShelfCard";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableFooter,
   TableHead,
@@ -22,7 +21,7 @@ function toRow(b: Book) {
   const pages = Number(b.pageCount ?? 0);
   const author = (b.authors && b.authors[0]) || "Unknown";
   const genre = (b.categories && b.categories[0]) || "";
-  const points = pages / 100; // mirrors Excel-style points
+  const points = 1 + (pages / 100); 
   return { title, pages, author, points, genre };
 }
 

@@ -31,14 +31,16 @@ router.get('/search', async (req, res) => {
     const publishedYear = info.publishedDate
       ? parseInt(info.publishedDate.split('-')[0], 10)
       : undefined;
+      const pageCount = info.pageCount;
     return {
       googleId: item.id,
       title: info.title,
       authors: info.authors || [],
-      pageCount: info.pageCount,
+      pageCount,
       publishedYear,
       categories: info.categories || [],
       thumbnail: info.imageLinks?.thumbnail,
+      points: 1 + (pageCount / 100),
     };
   });
   res.json(items);
@@ -57,9 +59,12 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+  const data = { ...req.body, userId: req.user.uid };
+  const pageCount = req.body.pageCount;
+  data.points = pageCount ? pageCount / 100 : 0;
   const book = await Book.findOneAndUpdate(
     { userId: req.user.uid, googleId: req.body.googleId },
-    { ...req.body, userId: req.user.uid },
+    data,
     { upsert: true, new: true }
   );
   res.json(book);

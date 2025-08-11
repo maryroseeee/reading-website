@@ -11,6 +11,7 @@ import {
 import BookCard from "@/components/BookCard";
 import type { Book } from "@/components/ShelfCard";
 import { useNavigate } from "react-router-dom";
+import DeleteButton from "@/components/DeleteButton";
 
 const PAGE_SIZE = 20;
 
@@ -42,7 +43,11 @@ export default function Read() {
       </button>
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {currentBooks.map((book) => (
-          <BookCard key={book._id} book={book} onDelete={deleteBook} />
+          <BookCard
+          key={book._id}
+          book={book}
+          action={<DeleteButton onConfirm={() => deleteBook(book._id!)} />}
+        />
         ))}
       </div>
       

@@ -9,6 +9,7 @@ const bookSchema = new mongoose.Schema({
   publishedYear: Number,
   categories: [String],
   thumbnail: String,
+  points: Number,
 });
 
 bookSchema.index({ userId: 1, googleId: 1 }, { unique: true });
