@@ -17,9 +17,13 @@ router.post('/google', async (req, res) => {
 
     await User.findOneAndUpdate(
       { googleId: payload.sub },
-      { email: payload.email },
+      {
+        email: payload.email,
+        name: payload.name,
+        profilePicture: payload.picture,
+      },
       { upsert: true }
-    );
+    ); 
 
     const token = jwt.sign(
       { uid: payload.sub, email: payload.email },
@@ -35,14 +39,38 @@ router.post('/google', async (req, res) => {
   }
 });
 
-router.get('/me', (req, res) => {
+
+router.get('/me', async (req, res) => {
   const { rc_token } = req.cookies;
   if (!rc_token) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const data = jwt.verify(rc_token, process.env.JWT_SECRET);
-    res.json({ email: data.email });
+    const user = await User.findOne({ googleId: data.uid }).select(
+      'email name username bio profilePicture'
+    );
+    res.json(user);
   } catch {
     res.status(401).json({ error: 'Unauthorized' });
+  }
+});
+
+router.put('/me', async (req, res) => {
+  const { rc_token } = req.cookies;
+  if (!rc_token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const data = jwt.verify(rc_token, process.env.JWT_SECRET);
+    const { name, username, bio, profilePicture } = req.body;
+    const updated = await User.findOneAndUpdate(
+      { googleId: data.uid },
+      { name, username, bio, profilePicture },
+      { new: true, runValidators: true }
+    ).select('email name username bio profilePicture');
+    res.json(updated);
+  } catch (e) {
+    if (e.code === 11000 && e.keyPattern?.username) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+    res.status(400).json({ error: 'Unable to update profile' });
   }
 });
 

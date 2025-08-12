@@ -7,15 +7,14 @@ import ShelfCard, { type Book } from "@/components/ShelfCard";
 import ReadingTable from "@/components/ReadingTable";
 
 export default function Dashboard() {
-
-  const [email, setEmail] = useState("");
+  const [user, setUser] = useState<{ email: string; name?: string; profilePicture?: string }>({ email: "" });
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     axios
       .get("http://localhost:4000/api/auth/me", { withCredentials: true })
-      .then((res) => setEmail(res.data.email))
+      .then((res) => setUser(res.data))
       .catch(() => {});
     axios
       .get("http://localhost:4000/api/books", { withCredentials: true })
@@ -31,14 +30,27 @@ export default function Dashboard() {
         <div className="mb-4 rounded-base border-2 border-border bg-background shadow-shadow p-3">
           <div className="rounded-base border-2 border-border bg-background flex items-center justify-center h-52">
             <Avatar className="h-44 w-44">
-              <AvatarImage src="/default-avatar.png" alt="Default avatar" />
-              <AvatarFallback>ME</AvatarFallback>
+            <AvatarImage src={user.profilePicture || "/default-avatar.png"} alt="avatar" />
+              <AvatarFallback>
+                {(user.name || "ME").slice(0, 2).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </div>
         </div>
         <p className="break-all opacity-90 text-lg text-center">
-          {email || "name@email.com"}
+        {user.name || "Your Name"}
         </p>
+        <p className="break-all opacity-90 text-sm text-center">
+          {user.email || "name@email.com"}
+        </p>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => navigate("/profile")}
+            className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
+          >
+            Edit Profile
+          </button>
+        </div>
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">

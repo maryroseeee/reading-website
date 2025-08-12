@@ -3,6 +3,7 @@ import Login from './pages/account/Login';
 import Dashboard from './pages/Dashboard';
 import Search from './pages/Search';
 import Read from './pages/Read';
+import Profile from './pages/account/Profile';
 import './App.css';
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/search" element={<Search />} />
         <Route path="/read" element={<Read />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
