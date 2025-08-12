@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import axios from 'axios';
+import { Button } from "@/components/ui/button";
 
 interface ProfileData {
   name: string;
@@ -110,7 +111,7 @@ export default function EditProfileForm({ onSuccess }: { onSuccess: (data: Profi
         onChange={onFileChange}
         className="border p-2"
       />
-      <button type="submit" className="bg-blue-500 text-white p-2">Save</button>
+      <Button type="submit" className="bg-main text-white p-2">Save</Button>
       {message && <p>{message}</p>}
     </form>
   );
