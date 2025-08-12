@@ -16,6 +16,7 @@ export type Book = {
   categories?: string[];
   thumbnail?: string;
   points?: number;
+  completedDate?: string;
 };
 
 interface ShelfCardProps {
