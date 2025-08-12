@@ -3,6 +3,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+
+
 :root {
   --background: oklch(95.38% 0.0357 72.89);
   --secondary-background: oklch(100% 0 0);

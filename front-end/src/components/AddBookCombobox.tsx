@@ -77,33 +77,52 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
             onValueChange={setQuery}
           />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
+            {results.length === 0 && (
+              <CommandEmpty>No results found.</CommandEmpty>
+            )}
             {results.slice(0, 5).map((item, idx) => (
-              <CommandItem key={item.selected.googleId || idx} value={item.selected.title}>
-                <div className="flex flex-col gap-1 w-full">
-                  <div className="font-medium leading-tight">{item.selected.title}</div>
-                  <div className="text-xs opacity-80">{(item.selected.authors || []).join(", ")}</div>
-                  <div className="flex gap-2 mt-1 items-center">
-                    <Button
-                      size="sm"
-                      className="h-6 px-2"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addBook(item.selected);
-                      }}
-                    >
-                      Add
-                    </Button>
-                    <VersionSelect
-                      versions={item.versions}
-                      selected={item.selected}
-                      onChange={(book) =>
-                        setResults((prev) =>
-                          prev.map((r, i) => (i === idx ? { ...r, selected: book } : r)),
-                        )
-                      }
+             
+              <CommandItem
+                key={item.selected.googleId || idx}
+                value={`${item.selected.title} ${(item.selected.authors || []).join(" ")}`}
+              >
+                <div className="flex gap-2 w-full">
+                  {item.selected.thumbnail && (
+                    <img
+                      src={item.selected.thumbnail}
+                      alt={item.selected.title}
+                      className="w-10 h-14 object-cover flex-none rounded-sm"
                     />
+                  )}
+                  <div className="flex flex-col gap-1 w-full">
+                    <div className="font-medium leading-tight">{item.selected.title}</div>
+                    <div className="text-xs opacity-80">
+                      {(item.selected.authors || []).join(", ")}
+                    </div>
+                    <div className="flex gap-2 mt-1 items-center">
+                      <Button
+                        size="sm"
+                        className="h-6 px-2"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addBook(item.selected);
+                        }}
+                      >
+                        Add
+                      </Button>
+                      <VersionSelect
+                        versions={item.versions}
+                        selected={item.selected}
+                        onChange={(book) =>
+                          setResults((prev) =>
+                            prev.map((r, i) =>
+                              i === idx ? { ...r, selected: book } : r,
+                            ),
+                          )
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </CommandItem>
