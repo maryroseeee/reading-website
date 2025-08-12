@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard, { type Book } from "@/components/ShelfCard";
 import ReadingTable from "@/components/ReadingTable";
 import {Button} from "@/components/ui/button"
+import AddBookCombobox from "@/components/AddBookCombobox";
 import {
   Dialog,
   DialogContent,
@@ -102,12 +102,10 @@ export default function Dashboard() {
 
       <div className="min-w-0 flex flex-col gap-4">
         <div className="flex justify-end">
-          <Input
-            placeholder="Add Books"
-            onFocus={() => navigate("/search")}
-            readOnly
-            className="w-64 rounded-base border-2 border-border bg-main shadow-shadow text-main-foreground"
-          />
+          
+        <AddBookCombobox
+            books={books}
+            onBookAdded={(b) => setBooks((prev) => [...prev, b])} />
         </div>
 
         <ReadingTable 

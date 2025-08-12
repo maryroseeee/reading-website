@@ -26,7 +26,13 @@ router.get('/search', async (req, res) => {
   }
   const resp = await fetch(url);
   const data = await resp.json();
-  const items = (data.items || []).map((item) => {
+  const items = (data.items || [])
+    .sort(
+      (a, b) =>
+        (b.volumeInfo?.ratingsCount || 0) -
+        (a.volumeInfo?.ratingsCount || 0)
+    )
+    .map((item) => {
     const info = item.volumeInfo;
     const publishedYear = info.publishedDate
       ? parseInt(info.publishedDate.split('-')[0], 10)
@@ -45,6 +51,7 @@ router.get('/search', async (req, res) => {
   });
   res.json(items);
 });
+
 
 router.use(auth);
 
