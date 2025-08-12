@@ -2,7 +2,6 @@ import { useEffect, useState, type FormEvent } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import DeleteButton from "@/components/DeleteButton";
 import BookCard from '@/components/BookCard';
 import type { Book } from '@/components/ShelfCard';
 import VersionSelect from '@/components/VersionSelect';

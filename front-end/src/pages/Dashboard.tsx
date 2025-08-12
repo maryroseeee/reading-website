@@ -5,11 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard, { type Book } from "@/components/ShelfCard";
 import ReadingTable from "@/components/ReadingTable";
+import Profile from "@/pages/account/Profile";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import EditProfileForm from "@/components/EditProfileForm";
 
 export default function Dashboard() {
-  const [user, setUser] = useState<{ email: string; name?: string; profilePicture?: string }>({ email: "" });
+  const [user, setUser] = useState<{
+    email: string;
+    name?: string;
+    bio?: string;
+    profilePicture?: string;
+  }>({ email: "" });
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     axios
@@ -38,18 +53,37 @@ export default function Dashboard() {
           </div>
         </div>
         <p className="break-all opacity-90 text-lg text-center">
+        
         {user.name || "Your Name"}
         </p>
+        {user.bio && (
+          <p className="break-all opacity-90 text-sm text-center">{user.bio}</p>
+        )}
+        
         <p className="break-all opacity-90 text-sm text-center">
           {user.email || "name@email.com"}
         </p>
         <div className="flex justify-center mt-4">
-          <button
-            onClick={() => navigate("/profile")}
-            className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
-          >
-            Edit Profile
-          </button>
+        
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <button className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm">
+                Edit Profile
+              </button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Profile</DialogTitle>
+              </DialogHeader>
+              <EditProfileForm
+                onSuccess={(data) => {
+                  setUser((u) => ({ ...u, ...data }));
+                  setOpen(false);
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+          
         </div>
       </div>
 
