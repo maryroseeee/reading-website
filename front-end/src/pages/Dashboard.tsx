@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard, { type Book } from "@/components/ShelfCard";
 import ReadingTable from "@/components/ReadingTable";
 import Profile from "@/pages/account/Profile";
+import {Button} from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -67,9 +68,9 @@ export default function Dashboard() {
         
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <button className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm">
+              <Button className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm">
                 Edit Profile
-              </button>
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -106,12 +107,12 @@ export default function Dashboard() {
         />
 
         <div className="flex justify-end -mt-1">
-          <button
+          <Button
             onClick={() => navigate("/read")}
             className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
           >
             Go to read books
-          </button>
+          </Button>
         </div>
 
         <div className="rounded-base border-2 border-border bg-main shadow-shadow h-48" />

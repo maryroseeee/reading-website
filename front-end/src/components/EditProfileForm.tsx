@@ -61,7 +61,11 @@ export default function EditProfileForm({ onSuccess }: { onSuccess: (data: Profi
           size,
           size
         );
-        const dataUrl = canvas.toDataURL('image/png');
+        const mimeType =
+          file.type && file.type.startsWith('image/')
+            ? file.type
+            : 'image/png';
+        const dataUrl = canvas.toDataURL(mimeType);
         setForm((prev) => ({ ...prev, profilePicture: dataUrl }));
       };
       img.src = ev.target?.result as string;
