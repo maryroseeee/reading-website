@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard, { type Book } from "@/components/ShelfCard";
 import ReadingTable from "@/components/ReadingTable";
-import Profile from "@/pages/account/Profile";
 import {Button} from "@/components/ui/button"
 import {
   Dialog,
@@ -21,6 +20,7 @@ export default function Dashboard() {
     email: string;
     name?: string;
     bio?: string;
+    username?: string;
     profilePicture?: string;
   }>({ email: "" });
   const [books, setBooks] = useState<Book[]>([]);
@@ -36,6 +36,11 @@ export default function Dashboard() {
       .get("http://localhost:4000/api/books", { withCredentials: true })
       .then((res) => setBooks(res.data));
   }, []);
+
+  const handleLogout = async () => {
+    await axios.post("http://localhost:4000/api/auth/logout", {}, { withCredentials: true });
+    navigate("/");
+  };
 
   return (
     <div
@@ -57,14 +62,15 @@ export default function Dashboard() {
         
         {user.name || "Your Name"}
         </p>
+        <p className="break-all opacity-90 text-sm text-center">
+        {user.username ? `@${user.username}` : "@username"}
+        </p>
         {user.bio && (
           <p className="break-all opacity-90 text-sm text-center">{user.bio}</p>
         )}
         
-        <p className="break-all opacity-90 text-sm text-center">
-          {user.email || "name@email.com"}
-        </p>
-        <div className="flex justify-center mt-4">
+        
+        <div className="flex justify-center mt-4 gap-2">
         
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -84,14 +90,20 @@ export default function Dashboard() {
               />
             </DialogContent>
           </Dialog>
-          
+
+           <Button
+            onClick={handleLogout}
+            className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+          >
+            Logout
+          </Button>
         </div>
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">
         <div className="flex justify-end">
           <Input
-            placeholder="Search"
+            placeholder="Add Books"
             onFocus={() => navigate("/search")}
             readOnly
             className="w-64 rounded-base border-2 border-border bg-main shadow-shadow text-main-foreground"

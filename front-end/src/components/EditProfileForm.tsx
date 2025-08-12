@@ -81,8 +81,13 @@ export default function EditProfileForm({ onSuccess }: { onSuccess: (data: Profi
       });
       setMessage('Profile updated');
       onSuccess(form);
-    } catch {
-      setMessage('Update failed');
+    
+    } catch (error) {
+        const errMessage =
+          axios.isAxiosError(error) && error.response?.data?.error
+            ? error.response.data.error
+            : 'Update failed';
+        setMessage(errMessage);
     }
   };
 

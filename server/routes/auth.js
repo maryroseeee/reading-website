@@ -19,9 +19,11 @@ router.post('/google', async (req, res) => {
     await User.findOneAndUpdate(
       { googleId: payload.sub },
       {
-        email: payload.email,
-        name: payload.name,
-        profilePicture: payload.picture,
+        $set: {
+          email: payload.email,
+          name: payload.name,
+        },
+        $setOnInsert: { profilePicture: payload.picture },
       },
       { upsert: true }
     ); 
@@ -73,6 +75,10 @@ router.put('/me', async (req, res) => {
     }
     res.status(400).json({ error: 'Unable to update profile' });
   }
+});
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('rc_token', { httpOnly: true, sameSite: 'lax' }).json({ ok: true });
 });
 
 export default router;
