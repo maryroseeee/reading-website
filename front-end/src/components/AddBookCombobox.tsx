@@ -16,26 +16,6 @@ import {
 } from "@/components/ui/command";
 import VersionSelect from "@/components/VersionSelect";
 import type { Book } from "@/components/ShelfCard";
-import { Calendar } from "@/components/ui/calendar";
-
-function DatePicker({ book, onPick }: { book: Book; onPick: (b: Book) => void }) {
-    const [date, setDate] = useState<Date | undefined>();
-  
-    return (
-      <div className="p-2">
-        <Calendar mode="single" selected={date} onSelect={setDate} />
-        <Button
-          size="sm"
-          className="mt-2 w-full"
-          onClick={() => date && onPick({ ...book, completedDate: date.toISOString() })}
-          disabled={!date}
-        >
-          Confirm
-        </Button>
-      </div>
-    );
-  }
-  
 
 interface GroupedResult {
   versions: Book[];
@@ -44,6 +24,7 @@ interface GroupedResult {
 
 interface AddBookComboboxProps {
   onBookAdded: (book: Book) => void;
+  books?: Book[];      
 }
 
 export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
@@ -120,26 +101,17 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                       {(item.selected.authors || []).join(", ")}
                     </div>
                     <div className="flex gap-2 mt-1 items-center">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            size="sm"
-                            className="h-6 px-2"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                          >
-                            Add
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <DatePicker
-                            book={item.selected}
-                            onPick={(bookWithDate) => addBook(bookWithDate)}
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <Button
+                        size="sm"
+                        className="h-6 px-2"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addBook(item.selected);
+                        }}
+                      >
+                        Add
+                      </Button>
                       <VersionSelect
                         versions={item.versions}
                         selected={item.selected}
