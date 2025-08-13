@@ -24,10 +24,22 @@ function toRow(b: Book) {
   return { title, pages, author, points, genre };
 }
 
-export default function ReadingTable({
-  books,
-}: ReadingTableProps) {
-  const rows = books.map(toRow);
+const CURRENT_YEAR = new Date().getFullYear();
+
+export default function ReadingTable({ books }: ReadingTableProps) {
+  const rows = books
+    .filter(
+      (b) =>
+        b.completedDate &&
+        new Date(b.completedDate).getFullYear() === CURRENT_YEAR
+    )
+    .sort((a, b) => {
+      const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
+      const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
+      return dateB - dateA;
+    })
+    .map(toRow);
+
 
   const count = rows.length; // =COUNT
   const pagesTotal = rows.reduce((s, r) => s + r.pages, 0);
