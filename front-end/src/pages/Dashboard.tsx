@@ -7,7 +7,7 @@ import ReadingTable from "@/components/ReadingTable";
 import {Button} from "@/components/ui/button"
 import AddBookCombobox from "@/components/AddBookCombobox";
 import YearSelect from "@/components/YearSelect";
-import FriendsCard, { type Friend } from "@/components/FriendsCard";
+import FriendsCard from "@/components/FriendsCard";
 import {
   Dialog,
   DialogContent,
@@ -25,17 +25,12 @@ export default function Dashboard() {
     username?: string;
     profilePicture?: string;
   }>({ email: "" });
-  const [friends, setFriends] = useState<Friend[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    axios
-      .get("http://localhost:4000/api/friends", { withCredentials: true })
-      .then((res) => setFriends(res.data))
-      .catch(() => {});
     axios
       .get("http://localhost:4000/api/auth/me", { withCredentials: true })
       .then((res) => setUser(res.data))
@@ -62,14 +57,6 @@ export default function Dashboard() {
     years.sort((a, b) => b - a);
   }
 
-  const handleAddFriend = async (username: string) => {
-    const res = await axios.post(
-      "http://localhost:4000/api/friends",
-      { username },
-      { withCredentials: true }
-    );
-    setFriends((prev) => [...prev, res.data]);
-  };
 
   return (
     <div
@@ -129,7 +116,7 @@ export default function Dashboard() {
           </Button>
         </div>
         </div>
-        <FriendsCard friends={friends} onAddFriend={handleAddFriend} />
+        <FriendsCard />
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">
