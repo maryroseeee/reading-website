@@ -104,20 +104,22 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                     <div className="text-xs opacity-80">
                       {(item.selected.authors || []).join(", ")}
                     </div>
-                    <div className="flex gap-2 mt-1 items-center">
+                    <div className="flex gap-2 mt-1 items-start">
+                      <div className="flex flex-col gap-2">
+                        <CompletionDatePicker
+                          date={item.completedDate}
+                          onChange={(d) =>
+                            setResults((prev) =>
+                              prev.map((r, i) =>
+                                i === idx ? { ...r, completedDate: d } : r,
+                              ),
+                            )
+                          }
+                        />
 
-                    <CompletionDatePicker
-                        date={item.completedDate}
-                        onChange={(d) =>
-                          setResults((prev) =>
-                            prev.map((r, i) =>
-                              i === idx ? { ...r, completedDate: d } : r,
-                            ),
-                          )
-                        }
-                      />
 
-                      <Button
+
+<Button
                         size="sm"
                         className="h-6 px-2"
                         disabled={!item.completedDate}
@@ -131,17 +133,20 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                       >
                         Add
                       </Button>
+                      </div>
                       <VersionSelect
-                        versions={item.versions}
-                        selected={item.selected}
-                        onChange={(book) =>
-                          setResults((prev) =>
-                            prev.map((r, i) =>
-                              i === idx ? { ...r, selected: book } : r,
-                            ),
-                          )
-                        }
-                      />
+                          versions={item.versions}
+                          selected={item.selected}
+                          onChange={(book) =>
+                            setResults((prev) =>
+                              prev.map((r, i) =>
+                                i === idx ? { ...r, selected: book } : r,
+                              ),
+                            )
+                          }
+                        />
+                      
+                      
                     </div>
                   </div>
                 </div>

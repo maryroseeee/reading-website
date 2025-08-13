@@ -101,6 +101,8 @@ export default function Read() {
           book={book}
           action={
             <div className="flex gap-2">
+
+              <div className="flex flex-col gap-2">
                 <CompletionDatePicker
                 date={book.completedDate ? new Date(book.completedDate) : undefined}
                 onChange={(d) => changeDate(book._id!, d)}
@@ -110,6 +112,7 @@ export default function Read() {
                 selected={book}
                 onChange={(b) => changeVersion(book._id!, b)}
               />
+            </div>
               <DeleteButton onConfirm={() => deleteBook(book._id!)} />
             </div>
           }
