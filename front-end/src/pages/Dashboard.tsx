@@ -62,6 +62,15 @@ export default function Dashboard() {
     years.sort((a, b) => b - a);
   }
 
+  const handleAddFriend = async (username: string) => {
+    const res = await axios.post(
+      "http://localhost:4000/api/friends",
+      { username },
+      { withCredentials: true }
+    );
+    setFriends((prev) => [...prev, res.data]);
+  };
+
   return (
     <div
       style={{ height: "100vh", display: "grid", gridTemplateColumns: "1fr 2fr" }}
@@ -120,7 +129,7 @@ export default function Dashboard() {
           </Button>
         </div>
         </div>
-        <FriendsCard friends={friends} />
+        <FriendsCard friends={friends} onAddFriend={handleAddFriend} />
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">

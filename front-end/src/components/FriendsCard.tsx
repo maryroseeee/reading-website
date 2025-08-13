@@ -61,6 +61,11 @@ export default function FriendsCard() {
                   <p className="mt-1 text-xs break-all text-center">
                     {f.name || f.username}
                   </p>
+                  {f.username && (
+                    <p className="text-[10px] break-all text-center opacity-80">
+                      @{f.username}
+                    </p>
+                  )}
                 </div>
               </CarouselItem>
             ))}
