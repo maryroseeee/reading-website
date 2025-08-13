@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import DeleteButton from "@/components/DeleteButton";
 import VersionSelect from "@/components/VersionSelect";
 import CompletionDatePicker from "@/components/CompletionDatePicker";
+import { normalizeText } from "@/lib/utils";
 
 const PAGE_SIZE = 20;
 
@@ -45,21 +46,27 @@ export default function Read() {
       const query = [b.title, ...(b.authors || [])].join(" ");
       axios
         .get<Book[]>("http://localhost:4000/api/books/search", {
-          params: { q: query },
+        params: { q: normalizeText(query) },
         })
         .then((res) => {
           const grouped = Object.values(
             res.data.reduce((acc, book) => {
-              const key = `${book.title.toLowerCase()}|${(book.authors || []).join(',').toLowerCase()}`;
+              const key = `${normalizeText(book.title)}|${normalizeText(
+                (book.authors || []).join(',')
+              )}`;
               acc[key] = acc[key] || [];
               acc[key].push(book);
               return acc;
             }, {} as Record<string, Book[]>)
           );
-          const key = `${b.title.toLowerCase()}|${(b.authors || []).join(',').toLowerCase()}`;
+          const key = `${normalizeText(b.title)}|${normalizeText(
+            (b.authors || []).join(',')
+          )}`;
           const match =
             grouped.find((g) => {
-              const k = `${g[0].title.toLowerCase()}|${(g[0].authors || []).join(',').toLowerCase()}`;
+              const k = `${normalizeText(g[0].title)}|${normalizeText(
+                (g[0].authors || []).join(',')
+              )}`;
               return k === key;
             }) || [b];
           setVersions((prev) => {

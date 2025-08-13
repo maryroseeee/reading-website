@@ -7,6 +7,7 @@ import ReadingTable from "@/components/ReadingTable";
 import {Button} from "@/components/ui/button"
 import AddBookCombobox from "@/components/AddBookCombobox";
 import YearSelect from "@/components/YearSelect";
+import FriendsCard, { type Friend } from "@/components/FriendsCard";
 import {
   Dialog,
   DialogContent,
@@ -24,12 +25,17 @@ export default function Dashboard() {
     username?: string;
     profilePicture?: string;
   }>({ email: "" });
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
+    axios
+      .get("http://localhost:4000/api/friends", { withCredentials: true })
+      .then((res) => setFriends(res.data))
+      .catch(() => {});
     axios
       .get("http://localhost:4000/api/auth/me", { withCredentials: true })
       .then((res) => setUser(res.data))
@@ -61,7 +67,8 @@ export default function Dashboard() {
       style={{ height: "100vh", display: "grid", gridTemplateColumns: "1fr 2fr" }}
       className="gap-8 p-6 items-start"
     >
-      <div className="rounded-base border-2 border-border bg-main p-6 shadow-shadow text-main-foreground">
+     <div className="flex flex-col gap-4">
+        <div className="rounded-base border-2 border-border bg-main p-6 shadow-shadow text-main-foreground">
         <div className="mb-4 rounded-base border-2 border-border bg-background shadow-shadow p-3">
           <div className="rounded-base border-2 border-border bg-background flex items-center justify-center h-52">
             <Avatar className="h-44 w-44">
@@ -112,6 +119,8 @@ export default function Dashboard() {
             Logout
           </Button>
         </div>
+        </div>
+        <FriendsCard friends={friends} />
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">

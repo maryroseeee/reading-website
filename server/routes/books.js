@@ -4,6 +4,11 @@ import Book from '../models/Book.js';
 
 const router = Router();
 
+function normalize(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+
 function auth(req, res, next) {
   const { rc_token } = req.cookies;
   if (!rc_token) return res.status(401).json({ error: 'Unauthorized' });
@@ -18,8 +23,9 @@ function auth(req, res, next) {
 router.get('/search', async (req, res) => {
   const { q } = req.query;
   if (!q) return res.json([]);
+  const normalizedQuery = normalize(String(q).toLowerCase());
   const url = new URL('https://www.googleapis.com/books/v1/volumes');
-  url.searchParams.set('q', q);
+  url.searchParams.set('q', normalizedQuery);
   url.searchParams.set('maxResults', '10');
   if (process.env.GOOGLE_BOOKS_API_KEY) {
     url.searchParams.set('key', process.env.GOOGLE_BOOKS_API_KEY);
@@ -27,6 +33,14 @@ router.get('/search', async (req, res) => {
   const resp = await fetch(url);
   const data = await resp.json();
   const items = (data.items || [])
+  .filter((item) => {
+    const info = item.volumeInfo || {};
+    const text = normalize(
+      `${info.title || ''} ${(info.authors || []).join(' ')}`
+    ).toLowerCase();
+    return text.includes(normalizedQuery);
+  })
+
     .sort(
       (a, b) =>
         (b.volumeInfo?.ratingsCount || 0) -

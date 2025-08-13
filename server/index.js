@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.js';
 import booksRoutes from './routes/books.js';
-
+import friendsRoutes from './routes/friends.js';
 dotenv.config();
 const app = express();
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
@@ -19,5 +19,6 @@ mongoose
 
 app.use('/api/auth', authRoutes);
 app.use('/api/books', booksRoutes);
+app.use('/api/friends', friendsRoutes);
 
 app.listen(4000, () => console.log('API listening on :4000'));

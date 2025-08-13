@@ -29,9 +29,13 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
       }, [selected]);
       
     const handleSave = () => {
+      const id =
+        selected.googleId && selected.googleId.startsWith("custom-")
+          ? selected.googleId
+          : `custom-${crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)}`;
       onChange({
         ...selected,
-        googleId: "custom",
+        googleId: id,
         pageCount: pageCount ? parseInt(pageCount, 10) : undefined,
         thumbnail: cover,
       });

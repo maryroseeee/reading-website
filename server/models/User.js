@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, sparse: true },
   bio: String,
   profilePicture: String,
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 
 export default mongoose.model('User', userSchema);

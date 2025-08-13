@@ -50,7 +50,7 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
     if (calMonth.getFullYear() !== next.getFullYear() || calMonth.getMonth() !== next.getMonth()) {
       setCalMonth(next);
     }
-  }, [isEditing, mm, yyyy]); // keep focused on typing
+  }, [isEditing, mm, yyyy]); 
 
   const label = useMemo(() => {
     if (yyyy.length === 4 && mm.length === 2 && dd.length === 2) {
@@ -190,7 +190,7 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
               inputMode="numeric"
               pattern="[0-9]*"
               placeholder="YYYY"
-              className="w-20 h-8 text-xs"
+              className="bg-background w-20 h-8 text-xs"
               value={yyyy}
               onFocus={(e) => { setIsEditing("y"); e.currentTarget.select(); }}
               onChange={(e) => handleYearChange(e.currentTarget.value)}

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import BookCard from '@/components/BookCard';
 import type { Book } from '@/components/ShelfCard';
 import VersionSelect from '@/components/VersionSelect';
+import { normalizeText } from '@/lib/utils';
 
 export default function Search() {
   const [query, setQuery] = useState('');
@@ -25,12 +26,12 @@ export default function Search() {
     const res = await axios.get<Book[]>(
       'http://localhost:4000/api/books/search',
       {
-        params: { q: query },
+        params: { q: normalizeText(query) },
       },
     );
     const grouped = Object.values(
       res.data.reduce((acc, book) => {
-        const key = `${book.title.toLowerCase()}|${(book.authors || []).join(',').toLowerCase()}`;
+        const key = `${normalizeText(book.title)}|${normalizeText((book.authors || []).join(','))}`;
         acc[key] = acc[key] || [];
         acc[key].push(book);
         return acc;
