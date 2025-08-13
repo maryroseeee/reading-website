@@ -24,10 +24,9 @@ interface GroupedResult {
   completedDate?: Date;
 }
 
-
 interface AddBookComboboxProps {
   onBookAdded: (book: Book) => void;
-  books?: Book[];      
+  books?: Book[];
 }
 
 export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
@@ -44,16 +43,22 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
     const handler = setTimeout(async () => {
       const res = await axios.get<Book[]>(
         "http://localhost:4000/api/books/search",
-        { params: { q: query } },
+        { params: { q: query } }
       );
       const grouped = Object.values(
         res.data.reduce((acc, book) => {
-          const key = `${book.title.toLowerCase()}|${(book.authors || []).join(',').toLowerCase()}`;
+          const key = `${book.title.toLowerCase()}|${(book.authors || [])
+            .join(",")
+            .toLowerCase()}`;
           acc[key] = acc[key] || [];
           acc[key].push(book);
           return acc;
         }, {} as Record<string, Book[]>)
-        ).map((versions) => ({ versions, selected: versions[0], completedDate: undefined }));
+      ).map((versions) => ({
+        versions,
+        selected: versions[0],
+        completedDate: undefined,
+      }));
       setResults(grouped);
     }, 300);
     return () => clearTimeout(handler);
@@ -61,9 +66,13 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
 
   const addBook = async (item: Book, completedDate?: Date) => {
     const payload = { ...item, completedDate: completedDate?.toISOString() };
-    const res = await axios.post<Book>("http://localhost:4000/api/books", payload, {
-      withCredentials: true,
-    });
+    const res = await axios.post<Book>(
+      "http://localhost:4000/api/books",
+      payload,
+      {
+        withCredentials: true,
+      }
+    );
     onBookAdded(res.data);
     setOpen(false);
     setQuery("");
@@ -86,10 +95,11 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
               <CommandEmpty>No results found.</CommandEmpty>
             )}
             {results.slice(0, 5).map((item, idx) => (
-             
               <CommandItem
                 key={item.selected.googleId || idx}
-                value={`${item.selected.title} ${(item.selected.authors || []).join(" ")}`}
+                value={`${item.selected.title} ${(
+                  item.selected.authors || []
+                ).join(" ")}`}
               >
                 <div className="flex gap-2 w-full">
                   {item.selected.thumbnail && (
@@ -100,7 +110,9 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                     />
                   )}
                   <div className="flex flex-col gap-1 w-full">
-                    <div className="font-medium leading-tight">{item.selected.title}</div>
+                    <div className="font-medium leading-tight">
+                      {item.selected.title}
+                    </div>
                     <div className="text-xs opacity-80">
                       {(item.selected.authors || []).join(", ")}
                     </div>
@@ -111,42 +123,38 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                           onChange={(d) =>
                             setResults((prev) =>
                               prev.map((r, i) =>
-                                i === idx ? { ...r, completedDate: d } : r,
-                              ),
+                                i === idx ? { ...r, completedDate: d } : r
+                              )
                             )
                           }
                         />
 
-
-
-<Button
-                        size="sm"
-                        className="h-6 px-2"
-                        disabled={!item.completedDate}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          if (item.completedDate) {
-                            addBook(item.selected, item.completedDate);
-                          }
-                        }}
-                      >
-                        Add
-                      </Button>
+                        <Button
+                          size="sm"
+                          className="h-6 px-2"
+                          disabled={!item.completedDate}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (item.completedDate) {
+                              addBook(item.selected, item.completedDate);
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
                       </div>
                       <VersionSelect
-                          versions={item.versions}
-                          selected={item.selected}
-                          onChange={(book) =>
-                            setResults((prev) =>
-                              prev.map((r, i) =>
-                                i === idx ? { ...r, selected: book } : r,
-                              ),
+                        versions={item.versions}
+                        selected={item.selected}
+                        onChange={(book) =>
+                          setResults((prev) =>
+                            prev.map((r, i) =>
+                              i === idx ? { ...r, selected: book } : r
                             )
-                          }
-                        />
-                      
-                      
+                          )
+                        }
+                      />
                     </div>
                   </div>
                 </div>

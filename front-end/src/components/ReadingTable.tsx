@@ -13,6 +13,7 @@ import {
 type ReadingTableProps = {
   books: Book[];
   caption?: string;
+  year?: number;
 };
 
 function toRow(b: Book) {
@@ -24,14 +25,13 @@ function toRow(b: Book) {
   return { title, pages, author, points, genre };
 }
 
-const CURRENT_YEAR = new Date().getFullYear();
-
-export default function ReadingTable({ books }: ReadingTableProps) {
+export default function ReadingTable({ books, year }: ReadingTableProps) {
+    const selectedYear = year ?? new Date().getFullYear();
   const rows = books
     .filter(
       (b) =>
         b.completedDate &&
-        new Date(b.completedDate).getFullYear() === CURRENT_YEAR
+        new Date(b.completedDate).getFullYear() === selectedYear
     )
     .sort((a, b) => {
       const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;

@@ -18,7 +18,10 @@
   --chart-3: #FF7A05;
   --chart-4: #FF4D50;
   --chart-5: #7A83FF;
-  --chart-active-dot: #000;
+  --chart-active-dot: #000; 
+  --grid-size: 60px;                 
+  --grid-line-width: 1px;            
+  --grid-line: oklch(0% 0 0 / 0.07); 
 }
 
 .dark {
@@ -36,6 +39,7 @@
   --chart-4: #FF6669;
   --chart-5: #7A83FF;
   --chart-active-dot: #fff;
+  --grid-line: oklch(100% 0 0 / 0.10); 
 }
 
 @theme inline {
@@ -66,6 +70,18 @@
 @layer base {
   body {
     @apply text-foreground font-base bg-background;
+    background-image:
+      repeating-linear-gradient(0deg,
+        var(--grid-line) 0 var(--grid-line-width),
+        transparent var(--grid-line-width) var(--grid-size)
+      ),
+      repeating-linear-gradient(90deg,
+        var(--grid-line) 0 var(--grid-line-width),
+        transparent var(--grid-line-width) var(--grid-size)
+      );
+    background-attachment: fixed; 
+    background-position: 0 0, 0 0;
+    background-size: var(--grid-size) var(--grid-size);
   }
 
   h1, h2, h3, h4, h5, h6{

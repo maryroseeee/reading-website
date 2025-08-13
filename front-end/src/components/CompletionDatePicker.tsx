@@ -4,6 +4,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
 
 interface CompletionDatePickerProps {
   date?: Date;
@@ -21,6 +22,16 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
+        <div className="p-3 pb-0">
+          <Input
+            type="date"
+            value={date ? format(date, "yyyy-MM-dd") : ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              onChange(value ? new Date(value) : undefined);
+            }}
+          />
+        </div>
         <Calendar
           mode="single"
           selected={date}

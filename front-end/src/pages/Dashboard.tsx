@@ -122,8 +122,8 @@ export default function Dashboard() {
             onBookAdded={(b) => setBooks((prev) => [...prev, b])} />
         </div>
 
-        <ReadingTable 
-        books={books}/>
+        
+        <ReadingTable books={books} year={chartYear} />
         <div>
           <div className="flex justify-end">
             <YearSelect years={years} selected={chartYear} onChange={setChartYear} />
