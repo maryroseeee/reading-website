@@ -7,7 +7,8 @@ import ReadingTable from "@/components/ReadingTable";
 import {Button} from "@/components/ui/button"
 import AddBookCombobox from "@/components/AddBookCombobox";
 import YearSelect from "@/components/YearSelect";
-import FriendsCard from "@/components/FriendsCard";
+import FriendsCard, { type Friend } from "@/components/FriendsCard";
+import FriendRequestsCombobox from "@/components/FriendRequestsCombobox";
 import {
   Dialog,
   DialogContent,
@@ -29,8 +30,20 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [requests, setRequests] = useState<Friend[]>([]);
 
   useEffect(() => {
+    axios
+    .get("http://localhost:4000/api/friends", { withCredentials: true })
+    .then((res) => setFriends(res.data))
+    .catch(() => {});
+  axios
+    .get("http://localhost:4000/api/friends/requests", {
+      withCredentials: true,
+    })
+    .then((res) => setRequests(res.data))
+    .catch(() => {});
     axios
       .get("http://localhost:4000/api/auth/me", { withCredentials: true })
       .then((res) => setUser(res.data))
@@ -116,7 +129,17 @@ export default function Dashboard() {
           </Button>
         </div>
         </div>
-        <FriendsCard />
+        <FriendsCard friends={friends} />
+        <FriendRequestsCombobox
+          requests={requests}
+          onAccept={(f) => {
+            setFriends((prev) => [...prev, f]);
+            setRequests((prev) => prev.filter((r) => r._id !== f._id));
+          }}
+          onReject={(username) =>
+            setRequests((prev) => prev.filter((r) => r.username !== username))
+          }
+        />
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">

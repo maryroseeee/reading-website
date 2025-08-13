@@ -15,13 +15,15 @@ function auth(req, res, next) {
   }
 }
 
+
+
+router.use(auth);
+
 router.get('/requests', async (req, res) => {
     const current = await User.findOne({ googleId: req.user.uid })
       .populate('friendRequests', 'name username profilePicture');
     res.json(current?.friendRequests || []);
   });
-
-router.use(auth);
 
 router.get('/', async (req, res) => {
   const current = await User.findOne({ googleId: req.user.uid })
@@ -88,6 +90,23 @@ router.post('/accept', async (req, res) => {
     profilePicture: friend.profilePicture,
   });
 });
+
+router.post('/reject', async (req, res) => {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ error: 'Username required' });
+    const [current, friend] = await Promise.all([
+      User.findOne({ googleId: req.user.uid }),
+      User.findOne({ username }),
+    ]);
+    if (!current || !friend) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    await User.updateOne(
+      { _id: current._id },
+      { $pull: { friendRequests: friend._id } }
+    );
+    res.json({ success: true });
+  });
 
 router.delete('/:username', async (req, res) => {
   const { username } = req.params;
