@@ -15,12 +15,15 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import VersionSelect from "@/components/VersionSelect";
+import CompletionDatePicker from "@/components/CompletionDatePicker";
 import type { Book } from "@/components/ShelfCard";
 
 interface GroupedResult {
   versions: Book[];
   selected: Book;
+  completedDate?: Date;
 }
+
 
 interface AddBookComboboxProps {
   onBookAdded: (book: Book) => void;
@@ -50,14 +53,15 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
           acc[key].push(book);
           return acc;
         }, {} as Record<string, Book[]>)
-      ).map((versions) => ({ versions, selected: versions[0] }));
+        ).map((versions) => ({ versions, selected: versions[0], completedDate: undefined }));
       setResults(grouped);
     }, 300);
     return () => clearTimeout(handler);
   }, [query]);
 
-  const addBook = async (item: Book) => {
-    const res = await axios.post<Book>("http://localhost:4000/api/books", item, {
+  const addBook = async (item: Book, completedDate?: Date) => {
+    const payload = { ...item, completedDate: completedDate?.toISOString() };
+    const res = await axios.post<Book>("http://localhost:4000/api/books", payload, {
       withCredentials: true,
     });
     onBookAdded(res.data);
@@ -101,13 +105,28 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                       {(item.selected.authors || []).join(", ")}
                     </div>
                     <div className="flex gap-2 mt-1 items-center">
+
+                    <CompletionDatePicker
+                        date={item.completedDate}
+                        onChange={(d) =>
+                          setResults((prev) =>
+                            prev.map((r, i) =>
+                              i === idx ? { ...r, completedDate: d } : r,
+                            ),
+                          )
+                        }
+                      />
+
                       <Button
                         size="sm"
                         className="h-6 px-2"
+                        disabled={!item.completedDate}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          addBook(item.selected);
+                          if (item.completedDate) {
+                            addBook(item.selected, item.completedDate);
+                          }
                         }}
                       >
                         Add

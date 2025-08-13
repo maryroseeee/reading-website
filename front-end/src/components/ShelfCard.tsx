@@ -73,8 +73,7 @@ export default function ShelfCard({
             </CarouselItem>
           ))}
         </CarouselContent>
-
-        {/* arrows in gutter */}
+        
         <CarouselPrevious className={showPrev ? "left-3" : "hidden"} />
         <CarouselNext className={nextOffsetClassName + " !right-3"} />
       </Carousel>

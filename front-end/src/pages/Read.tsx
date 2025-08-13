@@ -13,6 +13,7 @@ import type { Book } from "@/components/ShelfCard";
 import { useNavigate } from "react-router-dom";
 import DeleteButton from "@/components/DeleteButton";
 import VersionSelect from "@/components/VersionSelect";
+import CompletionDatePicker from "@/components/CompletionDatePicker";
 
 const PAGE_SIZE = 20;
 
@@ -77,6 +78,16 @@ export default function Read() {
     setBooks((prev) => prev.map((b) => (b._id === id ? res.data : b)));
   };
 
+  const changeDate = async (id: string, date?: Date) => {
+    const target = books.find((b) => b._id === id);
+    if (!target) return;
+    const res = await axios.put<Book>(`http://localhost:4000/api/books/${id}`,
+      { ...target, completedDate: date ? date.toISOString() : undefined },
+      { withCredentials: true }
+    );
+    setBooks((prev) => prev.map((b) => (b._id === id ? res.data : b)));
+  };
+
 
   return (
     <div className="p-4 space-y-4">
@@ -90,6 +101,10 @@ export default function Read() {
           book={book}
           action={
             <div className="flex gap-2">
+                <CompletionDatePicker
+                date={book.completedDate ? new Date(book.completedDate) : undefined}
+                onChange={(d) => changeDate(book._id!, d)}
+              />
               <VersionSelect
                 versions={versions[book._id!] || [book]}
                 selected={book}

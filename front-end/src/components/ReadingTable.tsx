@@ -15,7 +15,6 @@ type ReadingTableProps = {
   caption?: string;
 };
 
-// helper: safely pull fields from your Book API
 function toRow(b: Book) {
   const title = b.title ?? "";
   const pages = Number(b.pageCount ?? 0);

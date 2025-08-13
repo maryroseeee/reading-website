@@ -10,6 +10,7 @@ const bookSchema = new mongoose.Schema({
   categories: [String],
   thumbnail: String,
   points: Number,
+  completedDate: Date,
 });
 
 bookSchema.index({ userId: 1, googleId: 1 }, { unique: true });
