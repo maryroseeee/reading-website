@@ -26,7 +26,19 @@ export default function Read() {
   useEffect(() => {
     axios
       .get<Book[]>("http://localhost:4000/api/books", { withCredentials: true })
-      .then((res) => setBooks(res.data));
+      .then((res) =>
+        setBooks(
+          res.data.sort((a, b) => {
+            const dateA = a.completedDate
+              ? new Date(a.completedDate).getTime()
+              : 0;
+            const dateB = b.completedDate
+              ? new Date(b.completedDate).getTime()
+              : 0;
+            return dateB - dateA;
+          })
+        )
+      );
   }, []);
   useEffect(() => {
     books.forEach((b) => {

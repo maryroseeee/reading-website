@@ -32,6 +32,19 @@ export default function ShelfCard({
   showPrev = true,
   nextOffsetClassName = "right-3",
 }: ShelfCardProps) {
+    const sortedBooks = React.useMemo(
+        () =>
+          [...books].sort((a, b) => {
+            const dateA = a.completedDate
+              ? new Date(a.completedDate).getTime()
+              : 0;
+            const dateB = b.completedDate
+              ? new Date(b.completedDate).getTime()
+              : 0;
+            return dateB - dateA;
+          }),
+        [books]
+      );
   return (
     <div
       className={
@@ -39,10 +52,10 @@ export default function ShelfCard({
         className
       }
     >
-      {/* gutter so arrows don't overlap covers */}
+
       <Carousel opts={{ align: "start" }} className="w-full px-10">
         <CarouselContent className="-ml-2">
-          {books.map((b) => (
+          {sortedBooks.map((b) => (
             <CarouselItem key={b._id ?? b.title} className="pl-2 basis-[150px]">
               {/* FIXED HEIGHT CARD so all are equal */}
               <div className="rounded-base border-2 border-border bg-background shadow-shadow p-2 h-[240px] overflow-hidden flex flex-col">
@@ -60,7 +73,6 @@ export default function ShelfCard({
                   )}
                 </div>
 
-                {/* Title & author only, clamp to 2 lines each with ellipsis */}
                 <div className="mt-2 min-h-0">
                   <div className="text-[13px] font-medium leading-tight line-clamp-2" title={b.title}>
                     {b.title}
@@ -73,7 +85,7 @@ export default function ShelfCard({
             </CarouselItem>
           ))}
         </CarouselContent>
-        
+
         <CarouselPrevious className={showPrev ? "left-3" : "hidden"} />
         <CarouselNext className={nextOffsetClassName + " !right-3"} />
       </Carousel>
