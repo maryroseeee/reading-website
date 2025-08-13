@@ -6,6 +6,7 @@ import ShelfCard, { type Book } from "@/components/ShelfCard";
 import ReadingTable from "@/components/ReadingTable";
 import {Button} from "@/components/ui/button"
 import AddBookCombobox from "@/components/AddBookCombobox";
+import YearSelect from "@/components/YearSelect";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ export default function Dashboard() {
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [chartYear, setChartYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     axios
@@ -41,6 +43,18 @@ export default function Dashboard() {
     await axios.post("http://localhost:4000/api/auth/logout", {}, { withCredentials: true });
     navigate("/");
   };
+
+  const years = Array.from(
+    new Set(
+      books
+        .filter((b) => b.completedDate)
+        .map((b) => new Date(b.completedDate!).getFullYear())
+    )
+  ).sort((a, b) => b - a);
+  if (!years.includes(chartYear)) {
+    years.push(chartYear);
+    years.sort((a, b) => b - a);
+  }
 
   return (
     <div
@@ -110,6 +124,11 @@ export default function Dashboard() {
 
         <ReadingTable 
         books={books}/>
+        <div>
+          <div className="flex justify-end">
+            <YearSelect years={years} selected={chartYear} onChange={setChartYear} />
+          </div>
+        </div>
         <ShelfCard
           books={books}
           className="min-w-0"
@@ -125,7 +144,7 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        <div className="rounded-base border-2 border-border bg-main shadow-shadow h-48" />
+        
       </div>
     </div>
   );
