@@ -88,6 +88,7 @@ export default function FriendRequestsCombobox({
                   <p className="text-xs break-all">{r.name || r.username}</p>
                 </div>
                 <Button
+                 onMouseDown={(e) => e.preventDefault()}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -98,6 +99,7 @@ export default function FriendRequestsCombobox({
                   Accept
                 </Button>
                 <Button
+                 onMouseDown={(e) => e.preventDefault()}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
