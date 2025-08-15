@@ -1,9 +1,12 @@
-import { useState } from "react";
-import axios from "axios";
+import AddFriendCombobox from "@/components/AddFriendCombobox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export type Friend = {
   _id: string;
@@ -13,30 +16,14 @@ export type Friend = {
 };
 
 interface FriendsCardProps {
-    friends: Friend[];
-  }
-  export default function FriendsCard({ friends }: FriendsCardProps) {
-    const [username, setUsername] = useState("");
-  
+  friends: Friend[];
+}
 
-  const addFriend = async () => {
-    if (!username.trim()) return;
-    try {
-        await axios.post(
-        "http://localhost:4000/api/friends",
-        { username },
-        { withCredentials: true }
-      );
-      setUsername("");
-    } catch {
-    }
-  };
-  
-
+export default function FriendsCard({ friends }: FriendsCardProps) {
   return (
     <div className="rounded-base border-2 border-border bg-main p-6 shadow-shadow text-main-foreground">
       <h3 className="text-center mb-4">Friends</h3>
-      
+
       {friends.length === 0 ? (
         <p className="text-sm text-center opacity-90">No friends yet</p>
       ) : (
@@ -70,19 +57,9 @@ interface FriendsCardProps {
           <CarouselNext className="right-0" />
         </Carousel>
       )}
-      <div className="mt-4 flex gap-2">
-        <Input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Add friend by username"
-          className="h-8 text-xs"
-        />
-        <Button
-          onClick={addFriend}
-          className="rounded-base border-2 border-border bg-background shadow-shadow px-3 py-1 text-xs"
-        >
-          Add
-        </Button>
+
+      <div className="mt-4">
+        <AddFriendCombobox />
       </div>
     </div>
   );

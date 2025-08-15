@@ -1,57 +1,77 @@
-import { Router } from 'express';
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import { Router } from "express";
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 const router = Router();
 
 function auth(req, res, next) {
   const { rc_token } = req.cookies;
-  if (!rc_token) return res.status(401).json({ error: 'Unauthorized' });
+  if (!rc_token) return res.status(401).json({ error: "Unauthorized" });
   try {
     req.user = jwt.verify(rc_token, process.env.JWT_SECRET);
     next();
   } catch {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: "Unauthorized" });
   }
 }
 
-
-
 router.use(auth);
 
-router.get('/requests', async (req, res) => {
-    const current = await User.findOne({ googleId: req.user.uid })
-      .populate('friendRequests', 'name username profilePicture');
-    res.json(current?.friendRequests || []);
-  });
+router.get("/requests", async (req, res) => {
+  const current = await User.findOne({ googleId: req.user.uid }).populate(
+    "friendRequests",
+    "name username profilePicture"
+  );
+  res.json(current?.friendRequests || []);
+});
 
-router.get('/', async (req, res) => {
-  const current = await User.findOne({ googleId: req.user.uid })
-    .populate('friends', 'name username profilePicture');
+router.get("/search", async (req, res) => {
+  const { q } = req.query;
+  if (!q) {
+    return res.json([]);
+  }
+  const current = await User.findOne({ googleId: req.user.uid });
+  const regex = new RegExp(q, "i");
+  const users = await User.find({
+    _id: { $ne: current._id },
+    $or: [{ username: regex }, { name: regex }],
+    friends: { $ne: current._id },
+    friendRequests: { $ne: current._id },
+  })
+    .select("name username profilePicture")
+    .limit(5);
+  res.json(users);
+});
+
+router.get("/", async (req, res) => {
+  const current = await User.findOne({ googleId: req.user.uid }).populate(
+    "friends",
+    "name username profilePicture"
+  );
   res.json(current?.friends || []);
 });
 
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const { username } = req.body;
-  if (!username) return res.status(400).json({ error: 'Username required' });
+  if (!username) return res.status(400).json({ error: "Username required" });
   const [current, friend] = await Promise.all([
     User.findOne({ googleId: req.user.uid }),
     User.findOne({ username }),
   ]);
   if (!current || !friend) {
-    return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: "User not found" });
   }
   if (current._id.equals(friend._id)) {
-    return res.status(400).json({ error: 'Cannot add yourself' });
+    return res.status(400).json({ error: "Cannot add yourself" });
   }
   if (current.friends.some((id) => id.equals(friend._id))) {
-    return res.status(400).json({ error: 'Already friends' });
+    return res.status(400).json({ error: "Already friends" });
   }
   if (friend.friendRequests.some((id) => id.equals(current._id))) {
-    return res.status(400).json({ error: 'Request already sent' });
+    return res.status(400).json({ error: "Request already sent" });
   }
   if (current.friendRequests.some((id) => id.equals(friend._id))) {
-    return res.status(400).json({ error: 'User has already requested you' });
+    return res.status(400).json({ error: "User has already requested you" });
   }
   await User.updateOne(
     { _id: friend._id },
@@ -60,30 +80,33 @@ router.post('/', async (req, res) => {
   res.json({ success: true });
 });
 
-router.post('/accept', async (req, res) => {
+router.post("/accept", async (req, res) => {
   const { username, id } = req.body;
   if (!username && !id) {
-    return res.status(400).json({ error: 'User identifier required' });
+    return res.status(400).json({ error: "User identifier required" });
   }
   const [current, friend] = await Promise.all([
     User.findOne({ googleId: req.user.uid }),
     username ? User.findOne({ username }) : User.findById(id),
   ]);
   if (!current || !friend) {
-    return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: "User not found" });
   }
   if (!current.friendRequests.some((id) => id.equals(friend._id))) {
-    return res.status(400).json({ error: 'No friend request from this user' });
+    return res.status(400).json({ error: "No friend request from this user" });
   }
-  await Promise.all([ 
+  await Promise.all([
     User.updateOne(
-    { _id: current._id },
-    { $pull: { friendRequests: friend._id }, $addToSet: { friends: friend._id } }
-  ),
-  User.updateOne(
-    { _id: friend._id },
-    { $addToSet: { friends: current._id } }
-  ),
+      { _id: current._id },
+      {
+        $pull: { friendRequests: friend._id },
+        $addToSet: { friends: friend._id },
+      }
+    ),
+    User.updateOne(
+      { _id: friend._id },
+      { $addToSet: { friends: current._id } }
+    ),
   ]);
   res.json({
     _id: friend._id,
@@ -93,17 +116,17 @@ router.post('/accept', async (req, res) => {
   });
 });
 
-router.post('/reject', async (req, res) => {
+router.post("/reject", async (req, res) => {
   const { username, id } = req.body;
   if (!username && !id) {
-    return res.status(400).json({ error: 'User identifier required' });
+    return res.status(400).json({ error: "User identifier required" });
   }
   const [current, friend] = await Promise.all([
     User.findOne({ googleId: req.user.uid }),
     username ? User.findOne({ username }) : User.findById(id),
   ]);
   if (!current || !friend) {
-    return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: "User not found" });
   }
   await User.updateOne(
     { _id: current._id },
@@ -112,14 +135,14 @@ router.post('/reject', async (req, res) => {
   res.json({ success: true });
 });
 
-router.delete('/:username', async (req, res) => {
+router.delete("/:username", async (req, res) => {
   const { username } = req.params;
   const [current, friend] = await Promise.all([
     User.findOne({ googleId: req.user.uid }),
     User.findOne({ username }),
   ]);
   if (!current || !friend) {
-    return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: "User not found" });
   }
   await Promise.all([
     User.updateOne({ _id: current._id }, { $pull: { friends: friend._id } }),
