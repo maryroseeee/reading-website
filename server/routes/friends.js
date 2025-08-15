@@ -30,17 +30,36 @@ router.get("/search", async (req, res) => {
   if (!q) {
     return res.json([]);
   }
-  const current = await User.findOne({ googleId: req.user.uid });
+  const current = await User.findOne({
+    googleId: req.user.uid,
+  }).select("friendRequests");
   const regex = new RegExp(q, "i");
   const users = await User.find({
     _id: { $ne: current._id },
     $or: [{ username: regex }, { name: regex }],
     friends: { $ne: current._id },
-    friendRequests: { $ne: current._id },
   })
-    .select("name username profilePicture")
-    .limit(5);
-  res.json(users);
+    .select("name username profilePicture friendRequests")
+    .limit(5)
+    .lean();
+
+  const results = users.map((u) => {
+    let status = "none";
+    if (u.friendRequests.some((id) => id.equals(current._id))) {
+      status = "sent";
+    } else if (current.friendRequests.some((id) => id.equals(u._id))) {
+      status = "incoming";
+    }
+    return {
+      _id: u._id,
+      name: u.name,
+      username: u.username,
+      profilePicture: u.profilePicture,
+      status,
+    };
+  });
+
+  res.json(results);
 });
 
 router.get("/", async (req, res) => {
