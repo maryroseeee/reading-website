@@ -136,8 +136,8 @@ export default function Dashboard() {
             setFriends((prev) => [...prev, f]);
             setRequests((prev) => prev.filter((r) => r._id !== f._id));
           }}
-          onReject={(username) =>
-            setRequests((prev) => prev.filter((r) => r.username !== username))
+          onReject={(id) =>
+            setRequests((prev) => prev.filter((r) => r._id !== id))
           }
         />
       </div>

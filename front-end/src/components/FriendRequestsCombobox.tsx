@@ -19,7 +19,7 @@ import type { Friend } from "@/components/FriendsCard";
 interface FriendRequestsComboboxProps {
   requests: Friend[];
   onAccept: (friend: Friend) => void;
-  onReject: (username: string) => void;
+  onReject: (id: string) => void;
 }
 
 export default function FriendRequestsCombobox({
@@ -30,29 +30,27 @@ export default function FriendRequestsCombobox({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
-  const accept = async (username: string) => {
+  const accept = async (id: string) => {
     try {
       const res = await axios.post<Friend>(
         "http://localhost:4000/api/friends/accept",
-        { username },
+        { id },
         { withCredentials: true }
       );
       onAccept(res.data);
     } catch {
-      // ignore errors
     }
   };
 
-  const reject = async (username: string) => {
+  const reject = async (id: string) => {
     try {
       await axios.post(
         "http://localhost:4000/api/friends/reject",
-        { username },
+        { id },
         { withCredentials: true }
       );
-      onReject(username);
+      onReject(id);
     } catch {
-      // ignore errors
     }
   };
 
@@ -93,7 +91,7 @@ export default function FriendRequestsCombobox({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    accept(r.username!);
+                    accept(r._id!);
                   }}
                   className="rounded-base border-2 border-border bg-background shadow-shadow px-2 py-1 text-xs"
                 >
@@ -103,7 +101,7 @@ export default function FriendRequestsCombobox({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    reject(r.username!);
+                    reject(r._id!);
                   }}
                   className="rounded-base border-2 border-border bg-background shadow-shadow px-2 py-1 text-xs ml-2"
                 >

@@ -61,11 +61,13 @@ router.post('/', async (req, res) => {
 });
 
 router.post('/accept', async (req, res) => {
-  const { username } = req.body;
-  if (!username) return res.status(400).json({ error: 'Username required' });
+  const { username, id } = req.body;
+  if (!username && !id) {
+    return res.status(400).json({ error: 'User identifier required' });
+  }
   const [current, friend] = await Promise.all([
     User.findOne({ googleId: req.user.uid }),
-    User.findOne({ username }),
+    username ? User.findOne({ username }) : User.findById(id),
   ]);
   if (!current || !friend) {
     return res.status(404).json({ error: 'User not found' });
@@ -92,21 +94,23 @@ router.post('/accept', async (req, res) => {
 });
 
 router.post('/reject', async (req, res) => {
-    const { username } = req.body;
-    if (!username) return res.status(400).json({ error: 'Username required' });
-    const [current, friend] = await Promise.all([
-      User.findOne({ googleId: req.user.uid }),
-      User.findOne({ username }),
-    ]);
-    if (!current || !friend) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    await User.updateOne(
-      { _id: current._id },
-      { $pull: { friendRequests: friend._id } }
-    );
-    res.json({ success: true });
-  });
+  const { username, id } = req.body;
+  if (!username && !id) {
+    return res.status(400).json({ error: 'User identifier required' });
+  }
+  const [current, friend] = await Promise.all([
+    User.findOne({ googleId: req.user.uid }),
+    username ? User.findOne({ username }) : User.findById(id),
+  ]);
+  if (!current || !friend) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  await User.updateOne(
+    { _id: current._id },
+    { $pull: { friendRequests: friend._id } }
+  );
+  res.json({ success: true });
+});
 
 router.delete('/:username', async (req, res) => {
   const { username } = req.params;
