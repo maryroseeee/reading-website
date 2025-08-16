@@ -7,6 +7,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export type Friend = {
   _id: string;
@@ -20,6 +22,7 @@ interface FriendsCardProps {
 }
 
 export default function FriendsCard({ friends }: FriendsCardProps) {
+  const navigate = useNavigate();
   return (
     <div className="rounded-base border-2 border-border bg-main p-6 shadow-shadow text-main-foreground">
       <h3 className="text-center mb-4">Friends</h3>
@@ -58,8 +61,14 @@ export default function FriendsCard({ friends }: FriendsCardProps) {
         </Carousel>
       )}
 
-      <div className="mt-4">
+<div className="mt-4 flex flex-col gap-2">
         <AddFriendCombobox />
+        <Button
+          className="w-full bg-background"
+          onClick={() => navigate("/friends")}
+        >
+          View Friends
+        </Button>
       </div>
     </div>
   );

@@ -122,7 +122,9 @@ export default function AddFriendCombobox() {
                     <div className="flex gap-1">
                       <Button
                         size="sm"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           acceptFriend(u.username!);
                         }}
@@ -132,7 +134,9 @@ export default function AddFriendCombobox() {
                       <Button
                         size="sm"
                         variant="neutral"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           rejectFriend(u.username!);
                         }}
@@ -147,7 +151,9 @@ export default function AddFriendCombobox() {
                   ) : (
                     <Button
                       size="sm"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         addFriend(u.username!);
                       }}

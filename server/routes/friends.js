@@ -1,5 +1,6 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
+import Book from "../models/Book.js";
 import User from "../models/User.js";
 
 const router = Router();
@@ -65,9 +66,45 @@ router.get("/search", async (req, res) => {
 router.get("/", async (req, res) => {
   const current = await User.findOne({ googleId: req.user.uid }).populate(
     "friends",
-    "name username profilePicture"
-  );
-  res.json(current?.friends || []);
+    "name username profilePicture googleId"
+    );
+    if (!current?.friends) return res.json([]);
+  
+    const start2025 = new Date("2025-01-01");
+    const start2026 = new Date("2026-01-01");
+    const currentYear = new Date().getFullYear();
+    const startCurrentYear = new Date(`${currentYear}-01-01`);
+    const startNextYear = new Date(`${currentYear + 1}-01-01`);
+  
+    const friends = await Promise.all(
+      current.friends.map(async (f) => {
+        const [points2025Agg, booksThisYear] = await Promise.all([
+          Book.aggregate([
+            {
+              $match: {
+                userId: f.googleId,
+                completedDate: { $gte: start2025, $lt: start2026 },
+              },
+            },
+            { $group: { _id: null, total: { $sum: "$points" } } },
+          ]),
+          Book.countDocuments({
+            userId: f.googleId,
+            completedDate: { $gte: startCurrentYear, $lt: startNextYear },
+          }),
+        ]);
+  
+        return {
+          _id: f._id,
+          name: f.name,
+          username: f.username,
+          profilePicture: f.profilePicture,
+          points2025: points2025Agg[0]?.total || 0,
+          booksThisYear,
+        };
+      })
+  ); 
+  res.json(friends);
 });
 
 router.post("/", async (req, res) => {
