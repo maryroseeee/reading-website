@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard from "@/features/books/components/shelf-card";
-import ReadingTable from "@/features/books/components/reading-table";
 import {Button} from "@/components/ui/button"
 import AddBookCombobox from "@/features/books/components/add-book-combobox";
-import YearSelect from "@/features/books/components/year-select";
+import ScoreChart from "@/features/books/components/score-chart";
 import FriendsCard from "@/features/friends/components/friends-card";
 import FriendRequestsCombobox from "@/features/friends/components/friend-requests-combobox";
 import {
@@ -143,12 +142,12 @@ export default function Dashboard() {
         </div>
 
         
-        <ReadingTable books={books} year={chartYear} />
-        <div>
-          <div className="flex justify-end">
-            <YearSelect years={years} selected={chartYear} onChange={setChartYear} />
-          </div>
-        </div>
+        <ScoreChart
+          books={books}
+          year={chartYear}
+          years={years}
+          onYearChange={setChartYear}
+        />
         <ShelfCard
           books={books}
           className="min-w-0"

@@ -5,8 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getCurrentUser } from "@/features/auth/api/auth-api";
 import type { UserProfile } from "@/features/auth/types/user";
 import { getBooks } from "@/features/books/api/books-api";
-import ReadingTable from "@/features/books/components/reading-table";
-import YearSelect from "@/features/books/components/year-select";
+import ScoreChart from "@/features/books/components/score-chart";
 import type { Book } from "@/features/books/types/book";
 import { getFriendBooks } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
@@ -68,7 +67,6 @@ export default function Compare() {
         <button onClick={() => navigate("/dashboard")} className="text-xl">
           ←
         </button>
-        <YearSelect years={years} selected={year} onChange={setYear} />
       </div>
 
       {error && <p className="text-sm opacity-80">{error}</p>}
@@ -83,7 +81,7 @@ export default function Compare() {
           </Avatar>
           <h1 className="text-left text-xl">Your Score Chart</h1>
         </div>
-        <ReadingTable books={myBooks} year={year} />
+        <ScoreChart books={myBooks} year={year} years={years} onYearChange={setYear} />
       </section>
 
       <section className="space-y-2">
@@ -98,7 +96,12 @@ export default function Compare() {
             {friend?.name || friend?.username || "Friend"}'s Score Chart
           </h2>
         </div>
-        <ReadingTable books={friendBooks} year={year} />
+        <ScoreChart
+          books={friendBooks}
+          year={year}
+          years={years}
+          onYearChange={setYear}
+        />
       </section>
     </div>
   );

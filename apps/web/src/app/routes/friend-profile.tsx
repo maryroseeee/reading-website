@@ -9,9 +9,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import ReadingTable from "@/features/books/components/reading-table";
+import ScoreChart from "@/features/books/components/score-chart";
 import ShelfCard from "@/features/books/components/shelf-card";
-import YearSelect from "@/features/books/components/year-select";
 import type { Book } from "@/features/books/types/book";
 import {
   getFriendBooks,
@@ -138,10 +137,12 @@ export default function FriendProfile() {
 
       <div className="min-w-0 flex flex-col gap-4">
         {error && <p className="text-sm opacity-80">{error}</p>}
-        <ReadingTable books={books} year={chartYear} />
-        <div className="flex justify-end">
-          <YearSelect years={years} selected={chartYear} onChange={setChartYear} />
-        </div>
+        <ScoreChart
+          books={books}
+          year={chartYear}
+          years={years}
+          onYearChange={setChartYear}
+        />
         <ShelfCard
           books={books}
           className="min-w-0"

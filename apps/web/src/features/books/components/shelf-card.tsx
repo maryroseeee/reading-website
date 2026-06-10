@@ -12,6 +12,7 @@ import type { Book } from "../types/book";
 interface ShelfCardProps {
   books: Book[];
   className?: string;
+  title?: string;
   showPrev?: boolean;
   nextOffsetClassName?: string;
 }
@@ -19,6 +20,7 @@ interface ShelfCardProps {
 export default function ShelfCard({
   books,
   className = "",
+  title = "All Read Books",
   showPrev = true,
   nextOffsetClassName = "right-3",
 }: ShelfCardProps) {
@@ -36,23 +38,23 @@ export default function ShelfCard({
         [books]
       );
   return (
-    <div
-      className={
-        "rounded-base border-2 border-border bg-main shadow-shadow text-main-foreground p-2 relative " +
-        className
-      }
-    >
+    <div className={className}>
+      <h2 className="mb-2 text-left text-xl">{title}</h2>
+      <div className="rounded-base border-2 border-border bg-main shadow-shadow text-main-foreground p-2 relative">
 
       <Carousel opts={{ align: "start" }} className="w-full px-10">
         <CarouselContent className="-ml-2">
           {sortedBooks.map((b) => (
-            <CarouselItem key={b._id ?? b.title} className="pl-2 basis-[150px]">
+            <CarouselItem
+              key={b._id ?? b.title}
+              className="pl-2 basis-1/2 md:basis-1/3 xl:basis-1/4"
+            >
               {/* FIXED HEIGHT CARD so all are equal */}
-              <div className="rounded-base border-2 border-border bg-background shadow-shadow p-2 h-[240px] overflow-hidden flex flex-col">
+              <div className="rounded-base border-2 border-border bg-background shadow-shadow p-2 h-[280px] overflow-hidden flex flex-col">
                 {/* Cover: uniform 2:3, capped so text fits */}
                 <div
                   className="w-full border-2 border-border rounded-sm overflow-hidden bg-background flex-none"
-                  style={{ aspectRatio: "2 / 3", maxHeight: 160 }}
+                  style={{ aspectRatio: "2 / 3", maxHeight: 196 }}
                 >
                   {b.thumbnail && (
                     <img
@@ -79,6 +81,7 @@ export default function ShelfCard({
         <CarouselPrevious className={showPrev ? "left-3" : "hidden"} />
         <CarouselNext className={nextOffsetClassName + " !right-3"} />
       </Carousel>
+      </div>
     </div>
   );
 }
