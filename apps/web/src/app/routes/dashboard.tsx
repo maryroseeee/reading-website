@@ -120,7 +120,12 @@ export default function Dashboard() {
           </Button>
         </div>
         </div>
-        <FriendsCard friends={friends} />
+        <FriendsCard
+          friends={friends}
+          onFriendRemoved={(username) =>
+            setFriends((prev) => prev.filter((f) => f.username !== username))
+          }
+        />
         <FriendRequestsCombobox
           requests={requests}
           onAccept={(f) => {

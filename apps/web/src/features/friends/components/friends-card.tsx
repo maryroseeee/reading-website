@@ -17,12 +17,15 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { Friend } from "../types/friend";
+import { removeFriend } from "../api/friends-api";
+import RemoveFriendButton from "./remove-friend-button";
 
 interface FriendsCardProps {
   friends: Friend[];
+  onFriendRemoved?: (username: string) => void;
 }
 
-export default function FriendsCard({ friends }: FriendsCardProps) {
+export default function FriendsCard({ friends, onFriendRemoved }: FriendsCardProps) {
   const navigate = useNavigate();
   const [openFriendId, setOpenFriendId] = useState<string>();
   const closeTimer = useRef<number | undefined>(undefined);
@@ -34,6 +37,12 @@ export default function FriendsCard({ friends }: FriendsCardProps) {
 
   const closeMenu = () => {
     closeTimer.current = window.setTimeout(() => setOpenFriendId(undefined), 100);
+  };
+
+  const handleRemoveFriend = async (username: string) => {
+    await removeFriend(username);
+    onFriendRemoved?.(username);
+    setOpenFriendId(undefined);
   };
 
   return (
@@ -101,6 +110,12 @@ export default function FriendsCard({ friends }: FriendsCardProps) {
                       >
                         Check profile
                       </button>
+                      <RemoveFriendButton
+                        compact
+                        friendName={f.name || f.username}
+                        triggerClassName="block w-full rounded-sm px-2 py-1 text-left text-xs hover:bg-main hover:text-main-foreground"
+                        onConfirm={() => handleRemoveFriend(f.username!)}
+                      />
                     </PopoverContent>
                   )}
                 </Popover>

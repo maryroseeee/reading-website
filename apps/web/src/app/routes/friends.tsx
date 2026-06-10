@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getFriends, removeFriend } from "@/features/friends/api/friends-api";
+import RemoveFriendButton from "@/features/friends/components/remove-friend-button";
 import type { FriendWithStats } from "@/features/friends/types/friend";
 
 export default function Friends() {
@@ -76,12 +77,11 @@ export default function Friends() {
                   >
                     Profile
                   </Button>
-                  <Button
-                    onClick={() => handleRemoveFriend(f.username!)}
+                  <RemoveFriendButton
+                    friendName={f.name || f.username}
+                    onConfirm={() => handleRemoveFriend(f.username!)}
                     className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
-                  >
-                    Remove
-                  </Button>
+                  />
                 </div>
               )}
             </li>
