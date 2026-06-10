@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getFriends, removeFriend } from "@/features/friends/api/friends-api";
@@ -6,6 +7,7 @@ import type { FriendWithStats } from "@/features/friends/types/friend";
 
 export default function Friends() {
   const [friends, setFriends] = useState<FriendWithStats[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getFriends()
@@ -24,6 +26,9 @@ export default function Friends() {
 
   return (
     <div className="p-4">
+      <button onClick={() => navigate('/dashboard')} className="text-xl">
+        ←
+      </button>
       <h1 className="text-xl mb-4 text-center">Friends</h1>
       {friends.length === 0 ? (
         <p className="text-sm text-center opacity-90">No friends yet</p>
