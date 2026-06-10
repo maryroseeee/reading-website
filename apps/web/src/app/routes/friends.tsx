@@ -63,12 +63,26 @@ export default function Friends() {
                 </div>
               </div>
               {f.username && (
-                <Button
-                  onClick={() => handleRemoveFriend(f.username!)}
-                  className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
-                >
-                  Remove
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => navigate(`/compare/${encodeURIComponent(f.username!)}`)}
+                    className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+                  >
+                    Compare
+                  </Button>
+                  <Button
+                    onClick={() => navigate(`/friends/${encodeURIComponent(f.username!)}`)}
+                    className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+                  >
+                    Profile
+                  </Button>
+                  <Button
+                    onClick={() => handleRemoveFriend(f.username!)}
+                    className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+                  >
+                    Remove
+                  </Button>
+                </div>
               )}
             </li>
           ))}

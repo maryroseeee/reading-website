@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import type { Book } from "@/features/books/types/book";
 
 import type { Friend, FriendWithStats, SearchUser } from "../types/friend";
 
@@ -34,4 +35,18 @@ export async function rejectFriendRequest(input: { username?: string; id?: strin
 
 export async function removeFriend(username: string) {
   await apiClient.delete(`/friends/${username}`);
+}
+
+export async function getFriendBooks(username: string) {
+  const res = await apiClient.get<{ friend: Friend; books: Book[] }>(
+    `/friends/${encodeURIComponent(username)}/books`,
+  );
+  return res.data;
+}
+
+export async function getFriendFriends(username: string) {
+  const res = await apiClient.get<Friend[]>(
+    `/friends/${encodeURIComponent(username)}/friends`,
+  );
+  return res.data;
 }

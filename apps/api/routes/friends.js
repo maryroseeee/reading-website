@@ -95,6 +95,58 @@ router.get("/", async (req, res) => {
   res.json(friends);
 });
 
+router.get("/:username/books", async (req, res) => {
+  const { username } = req.params;
+  const current = await User.findOne({ googleId: req.user.uid });
+  const friendQuery = username.match(/^[a-f\d]{24}$/i)
+    ? { $or: [{ username }, { _id: username }] }
+    : { username };
+  const friend = await User.findOne(friendQuery).select(
+    "name username profilePicture googleId",
+  );
+
+  if (!current || !friend) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  if (!current.friends?.some((id) => id.equals(friend._id))) {
+    return res.status(403).json({ error: "You can only compare with friends" });
+  }
+
+  const books = await Book.find({ userId: friend.googleId });
+  res.json({
+    friend: {
+      _id: friend._id,
+      name: friend.name,
+      username: friend.username,
+      profilePicture: friend.profilePicture,
+    },
+    books,
+  });
+});
+
+router.get("/:username/friends", async (req, res) => {
+  const { username } = req.params;
+  const current = await User.findOne({ googleId: req.user.uid });
+  const friendQuery = username.match(/^[a-f\d]{24}$/i)
+    ? { $or: [{ username }, { _id: username }] }
+    : { username };
+  const friend = await User.findOne(friendQuery).populate(
+    "friends",
+    "name username profilePicture",
+  );
+
+  if (!current || !friend) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  if (!current.friends?.some((id) => id.equals(friend._id))) {
+    return res.status(403).json({ error: "You can only view friends of friends" });
+  }
+
+  res.json(friend.friends || []);
+});
+
 router.post("/", async (req, res) => {
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: "Username required" });

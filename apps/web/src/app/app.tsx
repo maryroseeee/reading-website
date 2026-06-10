@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './routes/dashboard';
+import Compare from './routes/compare';
+import FriendProfile from './routes/friend-profile';
 import Friends from './routes/friends';
 import Login from './routes/login';
 import Profile from './routes/profile';
@@ -17,6 +19,8 @@ export default function App() {
         <Route path="/read" element={<Read />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/friends" element={<Friends />} />
+        <Route path="/friends/:username" element={<FriendProfile />} />
+        <Route path="/compare/:username" element={<Compare />} />
       </Routes>
     </BrowserRouter>
   );
