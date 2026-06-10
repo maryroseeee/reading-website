@@ -7,20 +7,25 @@ import Login from './routes/login';
 import Profile from './routes/profile';
 import Read from './routes/read';
 import Search from './routes/search';
+import ProtectedRoute from '@/features/auth/components/protected-route';
 import '../App.css';
+
+function protectedPage(page: React.ReactNode) {
+  return <ProtectedRoute>{page}</ProtectedRoute>;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/read" element={<Read />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/friends" element={<Friends />} />
-        <Route path="/friends/:username" element={<FriendProfile />} />
-        <Route path="/compare/:username" element={<Compare />} />
+        <Route path="/dashboard" element={protectedPage(<Dashboard />)} />
+        <Route path="/search" element={protectedPage(<Search />)} />
+        <Route path="/read" element={protectedPage(<Read />)} />
+        <Route path="/profile" element={protectedPage(<Profile />)} />
+        <Route path="/friends" element={protectedPage(<Friends />)} />
+        <Route path="/friends/:username" element={protectedPage(<FriendProfile />)} />
+        <Route path="/compare/:username" element={protectedPage(<Compare />)} />
       </Routes>
     </BrowserRouter>
   );
