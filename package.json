@@ -1,22 +1,21 @@
 {
   "name": "reading-website",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"npm:start --prefix server\" \"npm:start --prefix client\"",
-    "build": "npm run build --prefix client",
-    "start": "npm run start --prefix server"
+    "dev": "concurrently -n api,web -c green,blue \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:web": "npm run dev --prefix apps/web",
+    "dev:api": "npm run dev --prefix apps/api",
+    "build": "npm run build --prefix apps/web",
+    "lint": "npm run lint --prefix apps/web",
+    "start": "npm run start --prefix apps/api",
+    "check": "npm run lint && npm run build && node --check apps/api/index.js && node --check apps/api/routes/auth.js && node --check apps/api/routes/books.js && node --check apps/api/routes/friends.js && node --check apps/api/middleware/auth.js && node --check apps/api/config/env.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Full-stack social reading tracker with Google OAuth, Google Books search, reading analytics, and friends.",
   "devDependencies": {
     "concurrently": "^9.2.0"
-  },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.1.11",
-    "tailwindcss": "^4.1.11"
   }
 }
