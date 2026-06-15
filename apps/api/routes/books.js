@@ -113,9 +113,17 @@ router.post('/', async (req, res) => {
   const data = { ...req.body, userId: req.user.uid };
   const pageCount = req.body.pageCount;
   data.points = pageCount ? pageCount / 100 : 0;
+  data.currentlyReading = Boolean(req.body.currentlyReading);
+  data.currentPage = Math.max(0, Number(req.body.currentPage || 0));
+  if (data.currentlyReading || !req.body.completedDate) {
+    delete data.completedDate;
+  }
+  const unset = data.completedDate ? {} : { completedDate: "" };
   const book = await Book.findOneAndUpdate(
     { userId: req.user.uid, googleId: req.body.googleId },
-    data,
+    Object.keys(unset).length
+      ? { $set: data, $unset: unset }
+      : { $set: data },
     { upsert: true, new: true }
   );
   res.json(book);
@@ -125,9 +133,17 @@ router.put('/:id', async (req, res) => {
   const data = { ...req.body, userId: req.user.uid };
   const pageCount = req.body.pageCount;
   data.points = pageCount ? pageCount / 100 : 0;
+  data.currentlyReading = Boolean(req.body.currentlyReading);
+  data.currentPage = Math.max(0, Number(req.body.currentPage || 0));
+  if (data.currentlyReading || !req.body.completedDate) {
+    delete data.completedDate;
+  }
+  const unset = data.completedDate ? {} : { completedDate: "" };
   const book = await Book.findOneAndUpdate(
     { _id: req.params.id, userId: req.user.uid },
-    data,
+    Object.keys(unset).length
+      ? { $set: data, $unset: unset }
+      : { $set: data },
     { new: true }
   );
   res.json(book);

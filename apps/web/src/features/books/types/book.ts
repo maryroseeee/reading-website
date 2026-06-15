@@ -8,4 +8,6 @@ export type Book = {
   thumbnail?: string;
   points?: number;
   completedDate?: string;
+  currentlyReading?: boolean;
+  currentPage?: number;
 };

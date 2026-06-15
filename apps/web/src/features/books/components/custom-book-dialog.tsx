@@ -17,7 +17,10 @@ type CustomBookDialogProps = {
   open: boolean;
   initialTitle: string;
   onOpenChange: (open: boolean) => void;
-  onSave: (book: Book, completedDate?: Date) => void;
+  onSave: (
+    book: Book,
+    options?: { completedDate?: Date; currentlyReading?: boolean },
+  ) => void;
 };
 
 export default function CustomBookDialog({
@@ -31,10 +34,13 @@ export default function CustomBookDialog({
   const [pageCount, setPageCount] = useState("");
   const [cover, setCover] = useState<string>();
   const [completedDate, setCompletedDate] = useState<Date>();
+  const [currentlyReading, setCurrentlyReading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setTitle(initialTitle);
+    setCompletedDate(undefined);
+    setCurrentlyReading(false);
   }, [initialTitle, open]);
 
   const handleCoverChange = (file?: File) => {
@@ -83,7 +89,10 @@ export default function CustomBookDialog({
         pageCount: pageCount ? Number(pageCount) : undefined,
         thumbnail: cover,
       },
-      completedDate,
+      {
+        completedDate: currentlyReading ? undefined : completedDate,
+        currentlyReading,
+      },
     );
     onOpenChange(false);
   };
@@ -112,7 +121,26 @@ export default function CustomBookDialog({
             onChange={(e) => setPageCount(e.target.value)}
             placeholder="Page count"
           />
-          <CompletionDatePicker date={completedDate} onChange={setCompletedDate} />
+          <CompletionDatePicker
+            date={completedDate}
+            onChange={(date) => {
+              setCompletedDate(date);
+              setCurrentlyReading(false);
+            }}
+          />
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={currentlyReading}
+              onChange={(e) => {
+                setCurrentlyReading(e.target.checked);
+                if (e.target.checked) {
+                  setCompletedDate(undefined);
+                }
+              }}
+            />
+            Currently reading
+          </label>
           <Input
             type="file"
             accept="image/*"
@@ -126,7 +154,10 @@ export default function CustomBookDialog({
           <Button variant="neutral" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!title.trim()}>
+          <Button
+            onClick={handleSave}
+            disabled={!title.trim() || (!completedDate && !currentlyReading)}
+          >
             Add
           </Button>
         </DialogFooter>

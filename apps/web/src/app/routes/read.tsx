@@ -95,6 +95,7 @@ export default function Read() {
     const updated = await updateBook(id, {
       ...target,
       completedDate: date ? date.toISOString() : undefined,
+      currentlyReading: false,
     });
     setBooks((prev) => prev.map((b) => (b._id === id ? updated : b)));
   };

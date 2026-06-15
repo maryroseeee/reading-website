@@ -34,7 +34,7 @@ export default function ShelfCard({
               ? new Date(b.completedDate).getTime()
               : 0;
             return dateB - dateA;
-          }),
+          }).filter((book) => !book.currentlyReading),
         [books]
       );
   return (

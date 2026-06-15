@@ -14,6 +14,7 @@ type SearchResult = {
   versions: Book[];
   selected: Book;
   completedDate?: Date;
+  currentlyReading?: boolean;
 };
 
 export default function Search() {
@@ -39,6 +40,7 @@ export default function Search() {
         groupBookVersions(data).map((group) => ({
           ...group,
           completedDate: undefined,
+          currentlyReading: false,
         })),
       );
     } catch {
@@ -47,12 +49,18 @@ export default function Search() {
     }
   };
 
-  const handleAddBook = async (item: Book, completedDate?: Date) => {
+  const handleAddBook = async (
+    item: Book,
+    options: { completedDate?: Date; currentlyReading?: boolean } = {},
+  ) => {
     try {
       setError('');
       const book = await addBook({
         ...item,
-        completedDate: completedDate?.toISOString() ?? item.completedDate,
+        completedDate: options.currentlyReading
+          ? undefined
+          : options.completedDate?.toISOString() ?? item.completedDate,
+        currentlyReading: Boolean(options.currentlyReading),
       });
       setBooks((prev) => [
         ...prev.filter((existing) => existing.googleId !== book.googleId),
@@ -120,18 +128,45 @@ export default function Search() {
                         setResults((prev) =>
                           prev.map((result, resultIndex) =>
                             resultIndex === idx
-                              ? { ...result, completedDate: date }
+                              ? {
+                                  ...result,
+                                  completedDate: date,
+                                  currentlyReading: false,
+                                }
                               : result,
                           ),
                         )
                       }
                     />
+                    <label className="flex items-center gap-2 text-xs">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(item.currentlyReading)}
+                        onChange={(e) =>
+                          setResults((prev) =>
+                            prev.map((result, resultIndex) =>
+                              resultIndex === idx
+                                ? {
+                                    ...result,
+                                    completedDate: undefined,
+                                    currentlyReading: e.target.checked,
+                                  }
+                                : result,
+                            ),
+                          )
+                        }
+                      />
+                      Currently reading
+                    </label>
                     <Button
                       type="button"
-                      disabled={!item.completedDate}
+                      disabled={!item.completedDate && !item.currentlyReading}
                       onClick={() => {
-                        if (item.completedDate) {
-                          handleAddBook(item.selected, item.completedDate);
+                        if (item.completedDate || item.currentlyReading) {
+                          handleAddBook(item.selected, {
+                            completedDate: item.completedDate,
+                            currentlyReading: item.currentlyReading,
+                          });
                         }
                       }}
                       className="bg-main"

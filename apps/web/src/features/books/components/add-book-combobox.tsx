@@ -24,6 +24,7 @@ interface GroupedResult {
   versions: Book[];
   selected: Book;
   completedDate?: Date;
+  currentlyReading?: boolean;
 }
 
 interface AddBookComboboxProps {
@@ -54,6 +55,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
           groupBookVersions(books).map((group) => ({
             ...group,
             completedDate: undefined,
+            currentlyReading: false,
           })),
         );
       } catch {
@@ -66,8 +68,17 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
     return () => clearTimeout(handler);
   }, [query]);
 
-  const addBook = async (item: Book, completedDate?: Date) => {
-    const payload = { ...item, completedDate: completedDate?.toISOString() };
+  const addBook = async (
+    item: Book,
+    options: { completedDate?: Date; currentlyReading?: boolean } = {},
+  ) => {
+    const payload = {
+      ...item,
+      completedDate: options.currentlyReading
+        ? undefined
+        : options.completedDate?.toISOString(),
+      currentlyReading: Boolean(options.currentlyReading),
+    };
     const book = await createBook(payload);
     onBookAdded(book);
     setOpen(false);
@@ -122,21 +133,51 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                           onChange={(d) =>
                             setResults((prev) =>
                               prev.map((r, i) =>
-                                i === idx ? { ...r, completedDate: d } : r
+                                i === idx
+                                  ? {
+                                      ...r,
+                                      completedDate: d,
+                                      currentlyReading: false,
+                                    }
+                                  : r
                               )
                             )
                           }
                         />
+                        <label className="flex items-center gap-2 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(item.currentlyReading)}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              setResults((prev) =>
+                                prev.map((r, i) =>
+                                  i === idx
+                                    ? {
+                                        ...r,
+                                        completedDate: undefined,
+                                        currentlyReading: e.target.checked,
+                                      }
+                                    : r
+                                )
+                              )
+                            }
+                          />
+                          Currently reading
+                        </label>
 
                         <Button
                           size="sm"
                           className="h-6 px-2"
-                          disabled={!item.completedDate}
+                          disabled={!item.completedDate && !item.currentlyReading}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (item.completedDate) {
-                              addBook(item.selected, item.completedDate);
+                            if (item.completedDate || item.currentlyReading) {
+                              addBook(item.selected, {
+                                completedDate: item.completedDate,
+                                currentlyReading: item.currentlyReading,
+                              });
                             }
                           }}
                         >

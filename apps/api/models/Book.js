@@ -11,6 +11,8 @@ const bookSchema = new mongoose.Schema({
   thumbnail: String,
   points: Number,
   completedDate: Date,
+  currentlyReading: { type: Boolean, default: false },
+  currentPage: { type: Number, default: 0 },
 });
 
 bookSchema.index({ userId: 1, googleId: 1 }, { unique: true });

@@ -10,6 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard from "@/features/books/components/shelf-card";
 import {Button} from "@/components/ui/button"
 import AddBookCombobox from "@/features/books/components/add-book-combobox";
+import CurrentlyReadingCard from "@/features/books/components/currently-reading-card";
 import ScoreChart from "@/features/books/components/score-chart";
 import FriendsCard from "@/features/friends/components/friends-card";
 import FriendRequestsCombobox from "@/features/friends/components/friend-requests-combobox";
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { getCurrentUser, logout } from "@/features/auth/api/auth-api";
 import EditProfileForm from "@/features/auth/components/edit-profile-form";
-import { getBooks } from "@/features/books/api/books-api";
+import { getBooks, updateBook } from "@/features/books/api/books-api";
 import type { Book } from "@/features/books/types/book";
 import { getFriendRequests, getFriends } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
@@ -55,6 +56,17 @@ export default function Dashboard() {
     navigate("/");
   };
 
+  const handleCurrentPageChange = async (book: Book, currentPage: number) => {
+    if (!book._id) return;
+    const updated = await updateBook(book._id, {
+      ...book,
+      currentPage,
+      currentlyReading: true,
+      completedDate: undefined,
+    });
+    setBooks((prev) => prev.map((b) => (b._id === updated._id ? updated : b)));
+  };
+
   const years = Array.from(
     new Set(
       books
@@ -67,13 +79,18 @@ export default function Dashboard() {
     years.sort((a, b) => b - a);
   }
 
+  const currentlyReadingBooks = books.filter((book) => book.currentlyReading);
 
   return (
     <div
-      style={{ height: "100vh", display: "grid", gridTemplateColumns: "1fr 2fr" }}
+      style={{
+        height: "100vh",
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)",
+      }}
       className="gap-8 p-6 items-start"
     >
-     <div className="flex flex-col gap-4">
+     <div className="min-w-0 flex flex-col gap-4">
         <div className="rounded-base border-2 border-border bg-main p-6 shadow-shadow text-main-foreground">
         <div className="mb-4 rounded-base border-2 border-border bg-background shadow-shadow p-3">
           <div className="rounded-base border-2 border-border bg-background flex items-center justify-center h-52">
@@ -126,6 +143,10 @@ export default function Dashboard() {
           </Button>
         </div>
         </div>
+        <CurrentlyReadingCard
+          books={currentlyReadingBooks}
+          onPageChange={handleCurrentPageChange}
+        />
         <FriendsCard
           friends={friends}
           currentUsername={user.username}
@@ -162,7 +183,12 @@ export default function Dashboard() {
           
         <AddBookCombobox
             books={books}
-            onBookAdded={(b) => setBooks((prev) => [...prev, b])} />
+            onBookAdded={(b) =>
+              setBooks((prev) => [
+                ...prev.filter((book) => book.googleId !== b.googleId),
+                b,
+              ])
+            } />
         </div>
 
         
