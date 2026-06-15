@@ -22,7 +22,13 @@ import {
 } from "../api/friends-api";
 import type { SearchUser } from "../types/friend";
 
-export default function AddFriendCombobox() {
+type AddFriendComboboxProps = {
+  canSendFriendRequests?: boolean;
+};
+
+export default function AddFriendCombobox({
+  canSendFriendRequests = true,
+}: AddFriendComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchUser[]>([]);
@@ -44,6 +50,8 @@ export default function AddFriendCombobox() {
   }, [query]);
 
   const addFriend = async (username: string) => {
+    if (!canSendFriendRequests) return;
+
     try {
       await sendFriendRequest(username);
       setResults((r) =>
@@ -77,9 +85,29 @@ export default function AddFriendCombobox() {
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={canSendFriendRequests ? open : false}
+      onOpenChange={(nextOpen) => {
+        if (!canSendFriendRequests) return;
+        setOpen(nextOpen);
+      }}
+    >
       <PopoverTrigger asChild>
-        <Button className="w-full bg-background">Add Friend</Button>
+        <span
+          className="block w-full"
+          title={
+            canSendFriendRequests
+              ? undefined
+              : "Set your username to send friend requests"
+          }
+        >
+          <Button
+            className="w-full bg-background"
+            disabled={!canSendFriendRequests}
+          >
+            Add Friend
+          </Button>
+        </span>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-64">
         <Command>
@@ -144,6 +172,12 @@ export default function AddFriendCombobox() {
                   ) : (
                     <Button
                       size="sm"
+                      disabled={!canSendFriendRequests}
+                      title={
+                        canSendFriendRequests
+                          ? undefined
+                          : "Set your username to send friend requests"
+                      }
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={(e) => {
                         e.preventDefault();

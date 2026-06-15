@@ -157,6 +157,9 @@ router.post("/", async (req, res) => {
   if (!current || !friend) {
     return res.status(404).json({ error: "User not found" });
   }
+  if (!current.username) {
+    return res.status(400).json({ error: "Set your username before sending friend requests" });
+  }
   if (current._id.equals(friend._id)) {
     return res.status(400).json({ error: "Cannot add yourself" });
   }

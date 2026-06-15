@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertCircleIcon } from "lucide-react";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard from "@/features/books/components/shelf-card";
 import {Button} from "@/components/ui/button"
@@ -122,6 +128,7 @@ export default function Dashboard() {
         </div>
         <FriendsCard
           friends={friends}
+          currentUsername={user.username}
           onFriendRemoved={(username) =>
             setFriends((prev) => prev.filter((f) => f.username !== username))
           }
@@ -139,6 +146,16 @@ export default function Dashboard() {
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">
+        {user.email && !user.username && (
+          <Alert className="bg-main text-main-foreground">
+            <AlertCircleIcon />
+            <AlertTitle>Set your username</AlertTitle>
+            <AlertDescription>
+              You will not be able to make friends until you add a username.
+              Click Edit Profile to add one.
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="flex justify-end">
           
         <AddBookCombobox
