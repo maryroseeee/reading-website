@@ -84,12 +84,12 @@ export default function ReadingTable({ books, year }: ReadingTableProps) {
 
         <TableFooter>
           <TableRow>
-            <TableCell className="font-medium">Total: {count}</TableCell>
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-lg font-heading">Total: {count}</TableCell>
+            <TableCell className="text-right text-lg font-heading tabular-nums">
               {pagesTotal}
             </TableCell>
             <TableCell />
-            <TableCell className="text-right tabular-nums">
+            <TableCell className="text-right text-2xl font-heading tabular-nums">
               {pointsSum.toFixed(2)}
             </TableCell>
             <TableCell />

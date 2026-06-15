@@ -8,7 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 
@@ -19,12 +19,14 @@ import RemoveFriendButton from "./remove-friend-button";
 interface FriendsCardProps {
   friends: Friend[];
   currentUsername?: string;
+  friendRequestsControl?: ReactNode;
   onFriendRemoved?: (username: string) => void;
 }
 
 export default function FriendsCard({
   friends,
   currentUsername,
+  friendRequestsControl,
   onFriendRemoved,
 }: FriendsCardProps) {
   const navigate = useNavigate();
@@ -109,6 +111,7 @@ export default function FriendsCard({
         >
           View Friends
         </Button>
+        {friendRequestsControl}
       </div>
       {activeFriend?.username &&
         createPortal(

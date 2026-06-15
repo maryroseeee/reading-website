@@ -52,7 +52,7 @@ export default function FriendRequestsCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button className="w-full">Friend Requests</Button>
+        <Button className="w-full bg-background">Friend Requests</Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-64">
         <Command>

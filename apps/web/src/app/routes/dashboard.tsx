@@ -132,15 +132,17 @@ export default function Dashboard() {
           onFriendRemoved={(username) =>
             setFriends((prev) => prev.filter((f) => f.username !== username))
           }
-        />
-        <FriendRequestsCombobox
-          requests={requests}
-          onAccept={(f) => {
-            setFriends((prev) => [...prev, f]);
-            setRequests((prev) => prev.filter((r) => r._id !== f._id));
-          }}
-          onReject={(id) =>
-            setRequests((prev) => prev.filter((r) => r._id !== id))
+          friendRequestsControl={
+            <FriendRequestsCombobox
+              requests={requests}
+              onAccept={(f) => {
+                setFriends((prev) => [...prev, f]);
+                setRequests((prev) => prev.filter((r) => r._id !== f._id));
+              }}
+              onReject={(id) =>
+                setRequests((prev) => prev.filter((r) => r._id !== id))
+              }
+            />
           }
         />
       </div>
