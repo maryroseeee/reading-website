@@ -9,5 +9,6 @@ export type Book = {
   points?: number;
   completedDate?: string;
   currentlyReading?: boolean;
+  wantToRead?: boolean;
   currentPage?: number;
 };

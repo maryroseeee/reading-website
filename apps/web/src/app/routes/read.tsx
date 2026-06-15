@@ -26,9 +26,9 @@ export default function Read() {
 
   useEffect(() => {
     getBooks()
-      .then((data) =>
-        setBooks(
-          data.sort((a, b) => {
+	      .then((data) =>
+	        setBooks(
+	          data.filter((book) => book.completedDate && !book.wantToRead).sort((a, b) => {
             const dateA = a.completedDate
               ? new Date(a.completedDate).getTime()
               : 0;
@@ -96,6 +96,7 @@ export default function Read() {
       ...target,
       completedDate: date ? date.toISOString() : undefined,
       currentlyReading: false,
+      wantToRead: false,
     });
     setBooks((prev) => prev.map((b) => (b._id === id ? updated : b)));
   };

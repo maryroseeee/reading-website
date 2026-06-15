@@ -15,6 +15,7 @@ interface ShelfCardProps {
   title?: string;
   showPrev?: boolean;
   nextOffsetClassName?: string;
+  includeUndated?: boolean;
 }
 
 export default function ShelfCard({
@@ -23,31 +24,50 @@ export default function ShelfCard({
   title = "All Read Books",
   showPrev = true,
   nextOffsetClassName = "right-3",
+  includeUndated = false,
 }: ShelfCardProps) {
-    const sortedBooks = React.useMemo(
+	    const sortedBooks = React.useMemo(
         () =>
-          [...books].sort((a, b) => {
-            const dateA = a.completedDate
-              ? new Date(a.completedDate).getTime()
-              : 0;
-            const dateB = b.completedDate
-              ? new Date(b.completedDate).getTime()
-              : 0;
-            return dateB - dateA;
-          }).filter((book) => !book.currentlyReading),
-        [books]
-      );
+          [...books]
+            .filter((book) =>
+              includeUndated
+                ? true
+                : Boolean(book.completedDate) &&
+                  !book.currentlyReading &&
+                  !book.wantToRead
+            )
+            .sort((a, b) => {
+              const dateA = a.completedDate
+                ? new Date(a.completedDate).getTime()
+                : 0;
+              const dateB = b.completedDate
+                ? new Date(b.completedDate).getTime()
+                : 0;
+              return dateB - dateA;
+            }),
+	        [books, includeUndated]
+	      );
+  const emptyMessage =
+    title === "Want To Read" ? "Add books you want to read" : "Add books";
+
   return (
     <div className={className}>
       <h2 className="mb-2 text-left text-xl">{title}</h2>
       <div className="rounded-base border-2 border-border bg-main shadow-shadow text-main-foreground p-2 relative">
 
-      <Carousel opts={{ align: "start" }} className="w-full px-10">
-        <CarouselContent className="-ml-2">
-          {sortedBooks.map((b) => (
-            <CarouselItem
-              key={b._id ?? b.title}
-              className="pl-2 basis-1/2 md:basis-1/3 xl:basis-1/4"
+	      <Carousel opts={{ align: "start" }} className="w-full px-10">
+	        <CarouselContent className="-ml-2">
+	          {sortedBooks.length === 0 ? (
+	            <CarouselItem className="pl-2 basis-full">
+	              <div className="flex h-[280px] items-center justify-center p-4 text-center">
+	                <p className="text-sm font-heading opacity-80">{emptyMessage}</p>
+	              </div>
+	            </CarouselItem>
+	          ) : (
+	            sortedBooks.map((b) => (
+	            <CarouselItem
+	              key={b._id ?? b.title}
+	              className="pl-2 basis-1/2 md:basis-1/3 xl:basis-1/4"
             >
               {/* FIXED HEIGHT CARD so all are equal */}
               <div className="rounded-base border-2 border-border bg-background shadow-shadow p-2 h-[280px] overflow-hidden flex flex-col">
@@ -73,10 +93,11 @@ export default function ShelfCard({
                     by {(b.authors || [])[0] || "Unknown"}
                   </div>
                 </div>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
+	              </div>
+	            </CarouselItem>
+	            ))
+	          )}
+	        </CarouselContent>
 
         <CarouselPrevious className={showPrev ? "left-3" : "hidden"} />
         <CarouselNext className={nextOffsetClassName + " !right-3"} />

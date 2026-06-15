@@ -114,9 +114,17 @@ router.post('/', async (req, res) => {
   const pageCount = req.body.pageCount;
   data.points = pageCount ? pageCount / 100 : 0;
   data.currentlyReading = Boolean(req.body.currentlyReading);
+  data.wantToRead = Boolean(req.body.wantToRead);
   data.currentPage = Math.max(0, Number(req.body.currentPage || 0));
-  if (data.currentlyReading || !req.body.completedDate) {
+  if (data.currentlyReading || data.wantToRead || !req.body.completedDate) {
     delete data.completedDate;
+  }
+  if (data.completedDate) {
+    data.currentlyReading = false;
+    data.wantToRead = false;
+  }
+  if (data.currentlyReading) {
+    data.wantToRead = false;
   }
   const unset = data.completedDate ? {} : { completedDate: "" };
   const book = await Book.findOneAndUpdate(
@@ -134,9 +142,17 @@ router.put('/:id', async (req, res) => {
   const pageCount = req.body.pageCount;
   data.points = pageCount ? pageCount / 100 : 0;
   data.currentlyReading = Boolean(req.body.currentlyReading);
+  data.wantToRead = Boolean(req.body.wantToRead);
   data.currentPage = Math.max(0, Number(req.body.currentPage || 0));
-  if (data.currentlyReading || !req.body.completedDate) {
+  if (data.currentlyReading || data.wantToRead || !req.body.completedDate) {
     delete data.completedDate;
+  }
+  if (data.completedDate) {
+    data.currentlyReading = false;
+    data.wantToRead = false;
+  }
+  if (data.currentlyReading) {
+    data.wantToRead = false;
   }
   const unset = data.completedDate ? {} : { completedDate: "" };
   const book = await Book.findOneAndUpdate(

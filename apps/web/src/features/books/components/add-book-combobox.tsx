@@ -25,6 +25,7 @@ interface GroupedResult {
   selected: Book;
   completedDate?: Date;
   currentlyReading?: boolean;
+  wantToRead?: boolean;
 }
 
 interface AddBookComboboxProps {
@@ -56,6 +57,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
             ...group,
             completedDate: undefined,
             currentlyReading: false,
+            wantToRead: false,
           })),
         );
       } catch {
@@ -70,14 +72,19 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
 
   const addBook = async (
     item: Book,
-    options: { completedDate?: Date; currentlyReading?: boolean } = {},
+    options: {
+      completedDate?: Date;
+      currentlyReading?: boolean;
+      wantToRead?: boolean;
+    } = {},
   ) => {
     const payload = {
       ...item,
-      completedDate: options.currentlyReading
+      completedDate: options.currentlyReading || options.wantToRead
         ? undefined
         : options.completedDate?.toISOString(),
       currentlyReading: Boolean(options.currentlyReading),
+      wantToRead: Boolean(options.wantToRead),
     };
     const book = await createBook(payload);
     onBookAdded(book);
@@ -138,6 +145,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                                       ...r,
                                       completedDate: d,
                                       currentlyReading: false,
+                                      wantToRead: false,
                                     }
                                   : r
                               )
@@ -157,6 +165,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                                         ...r,
                                         completedDate: undefined,
                                         currentlyReading: e.target.checked,
+                                        wantToRead: false,
                                       }
                                     : r
                                 )
@@ -165,18 +174,49 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                           />
                           Currently reading
                         </label>
+                        <label className="flex items-center gap-2 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(item.wantToRead)}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) =>
+                              setResults((prev) =>
+                                prev.map((r, i) =>
+                                  i === idx
+                                    ? {
+                                        ...r,
+                                        completedDate: undefined,
+                                        currentlyReading: false,
+                                        wantToRead: e.target.checked,
+                                      }
+                                    : r
+                                )
+                              )
+                            }
+                          />
+                          Want to read
+                        </label>
 
                         <Button
                           size="sm"
                           className="h-6 px-2"
-                          disabled={!item.completedDate && !item.currentlyReading}
+                          disabled={
+                            !item.completedDate &&
+                            !item.currentlyReading &&
+                            !item.wantToRead
+                          }
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (item.completedDate || item.currentlyReading) {
+                            if (
+                              item.completedDate ||
+                              item.currentlyReading ||
+                              item.wantToRead
+                            ) {
                               addBook(item.selected, {
                                 completedDate: item.completedDate,
                                 currentlyReading: item.currentlyReading,
+                                wantToRead: item.wantToRead,
                               });
                             }
                           }}

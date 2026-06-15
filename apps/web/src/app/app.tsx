@@ -7,6 +7,7 @@ import Login from './routes/login';
 import Profile from './routes/profile';
 import Read from './routes/read';
 import Search from './routes/search';
+import WantToRead from './routes/want-to-read';
 import ProtectedRoute from '@/features/auth/components/protected-route';
 import '../App.css';
 
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/dashboard" element={protectedPage(<Dashboard />)} />
         <Route path="/search" element={protectedPage(<Search />)} />
         <Route path="/read" element={protectedPage(<Read />)} />
+        <Route path="/want-to-read" element={protectedPage(<WantToRead />)} />
         <Route path="/profile" element={protectedPage(<Profile />)} />
         <Route path="/friends" element={protectedPage(<Friends />)} />
         <Route path="/friends/:username" element={protectedPage(<FriendProfile />)} />

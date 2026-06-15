@@ -19,7 +19,11 @@ type CustomBookDialogProps = {
   onOpenChange: (open: boolean) => void;
   onSave: (
     book: Book,
-    options?: { completedDate?: Date; currentlyReading?: boolean },
+    options?: {
+      completedDate?: Date;
+      currentlyReading?: boolean;
+      wantToRead?: boolean;
+    },
   ) => void;
 };
 
@@ -35,12 +39,14 @@ export default function CustomBookDialog({
   const [cover, setCover] = useState<string>();
   const [completedDate, setCompletedDate] = useState<Date>();
   const [currentlyReading, setCurrentlyReading] = useState(false);
+  const [wantToRead, setWantToRead] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setTitle(initialTitle);
     setCompletedDate(undefined);
     setCurrentlyReading(false);
+    setWantToRead(false);
   }, [initialTitle, open]);
 
   const handleCoverChange = (file?: File) => {
@@ -90,8 +96,9 @@ export default function CustomBookDialog({
         thumbnail: cover,
       },
       {
-        completedDate: currentlyReading ? undefined : completedDate,
+        completedDate: currentlyReading || wantToRead ? undefined : completedDate,
         currentlyReading,
+        wantToRead,
       },
     );
     onOpenChange(false);
@@ -126,6 +133,7 @@ export default function CustomBookDialog({
             onChange={(date) => {
               setCompletedDate(date);
               setCurrentlyReading(false);
+              setWantToRead(false);
             }}
           />
           <label className="flex items-center gap-2 text-sm">
@@ -136,10 +144,25 @@ export default function CustomBookDialog({
                 setCurrentlyReading(e.target.checked);
                 if (e.target.checked) {
                   setCompletedDate(undefined);
+                  setWantToRead(false);
                 }
               }}
             />
             Currently reading
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={wantToRead}
+              onChange={(e) => {
+                setWantToRead(e.target.checked);
+                if (e.target.checked) {
+                  setCompletedDate(undefined);
+                  setCurrentlyReading(false);
+                }
+              }}
+            />
+            Want to read
           </label>
           <Input
             type="file"
@@ -156,7 +179,10 @@ export default function CustomBookDialog({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!title.trim() || (!completedDate && !currentlyReading)}
+            disabled={
+              !title.trim() ||
+              (!completedDate && !currentlyReading && !wantToRead)
+            }
           >
             Add
           </Button>

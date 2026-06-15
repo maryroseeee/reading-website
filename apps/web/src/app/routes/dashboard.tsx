@@ -80,6 +80,7 @@ export default function Dashboard() {
   }
 
   const currentlyReadingBooks = books.filter((book) => book.currentlyReading);
+  const wantToReadBooks = books.filter((book) => book.wantToRead);
 
   return (
     <div
@@ -203,13 +204,27 @@ export default function Dashboard() {
           className="min-w-0"
           nextOffsetClassName="right-3"
         />
-
         <div className="flex justify-end -mt-1">
           <Button
             onClick={() => navigate("/read")}
             className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
           >
             Go to read books
+          </Button>
+        </div>
+        <ShelfCard
+          books={wantToReadBooks}
+          className="min-w-0"
+          title="Want To Read"
+          includeUndated
+          nextOffsetClassName="right-3"
+        />
+        <div className="flex justify-end -mt-1">
+          <Button
+            onClick={() => navigate("/want-to-read")}
+            className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
+          >
+            Go to want to read
           </Button>
         </div>
 

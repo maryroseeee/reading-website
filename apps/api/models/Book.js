@@ -12,6 +12,7 @@ const bookSchema = new mongoose.Schema({
   points: Number,
   completedDate: Date,
   currentlyReading: { type: Boolean, default: false },
+  wantToRead: { type: Boolean, default: false },
   currentPage: { type: Number, default: 0 },
 });
 

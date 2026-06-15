@@ -15,6 +15,7 @@ type SearchResult = {
   selected: Book;
   completedDate?: Date;
   currentlyReading?: boolean;
+  wantToRead?: boolean;
 };
 
 export default function Search() {
@@ -41,6 +42,7 @@ export default function Search() {
           ...group,
           completedDate: undefined,
           currentlyReading: false,
+          wantToRead: false,
         })),
       );
     } catch {
@@ -51,16 +53,21 @@ export default function Search() {
 
   const handleAddBook = async (
     item: Book,
-    options: { completedDate?: Date; currentlyReading?: boolean } = {},
+    options: {
+      completedDate?: Date;
+      currentlyReading?: boolean;
+      wantToRead?: boolean;
+    } = {},
   ) => {
     try {
       setError('');
       const book = await addBook({
         ...item,
-        completedDate: options.currentlyReading
+        completedDate: options.currentlyReading || options.wantToRead
           ? undefined
           : options.completedDate?.toISOString() ?? item.completedDate,
         currentlyReading: Boolean(options.currentlyReading),
+        wantToRead: Boolean(options.wantToRead),
       });
       setBooks((prev) => [
         ...prev.filter((existing) => existing.googleId !== book.googleId),
@@ -132,6 +139,7 @@ export default function Search() {
                                   ...result,
                                   completedDate: date,
                                   currentlyReading: false,
+                                  wantToRead: false,
                                 }
                               : result,
                           ),
@@ -150,6 +158,7 @@ export default function Search() {
                                     ...result,
                                     completedDate: undefined,
                                     currentlyReading: e.target.checked,
+                                    wantToRead: false,
                                   }
                                 : result,
                             ),
@@ -158,14 +167,44 @@ export default function Search() {
                       />
                       Currently reading
                     </label>
+                    <label className="flex items-center gap-2 text-xs">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(item.wantToRead)}
+                        onChange={(e) =>
+                          setResults((prev) =>
+                            prev.map((result, resultIndex) =>
+                              resultIndex === idx
+                                ? {
+                                    ...result,
+                                    completedDate: undefined,
+                                    currentlyReading: false,
+                                    wantToRead: e.target.checked,
+                                  }
+                                : result,
+                            ),
+                          )
+                        }
+                      />
+                      Want to read
+                    </label>
                     <Button
                       type="button"
-                      disabled={!item.completedDate && !item.currentlyReading}
+                      disabled={
+                        !item.completedDate &&
+                        !item.currentlyReading &&
+                        !item.wantToRead
+                      }
                       onClick={() => {
-                        if (item.completedDate || item.currentlyReading) {
+                        if (
+                          item.completedDate ||
+                          item.currentlyReading ||
+                          item.wantToRead
+                        ) {
                           handleAddBook(item.selected, {
                             completedDate: item.completedDate,
                             currentlyReading: item.currentlyReading,
+                            wantToRead: item.wantToRead,
                           });
                         }
                       }}
