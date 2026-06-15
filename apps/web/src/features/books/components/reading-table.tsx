@@ -52,30 +52,30 @@ export default function ReadingTable({ books, year }: ReadingTableProps) {
 
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[40%]">BOOKS READ</TableHead>
-            <TableHead className="w-[10%] text-right">Pages</TableHead>
-            <TableHead className="w-[30%]">Author</TableHead>
-            <TableHead className="w-[10%] text-right">Points</TableHead>
-            <TableHead className="w-[10%]">genre</TableHead>
+            <TableHead className="w-[40%] text-center">Books Read</TableHead>
+            <TableHead className="w-[10%] text-center">Pages</TableHead>
+            <TableHead className="w-[30%] text-center">Author</TableHead>
+            <TableHead className="w-[10%] text-center">Points</TableHead>
+            <TableHead className="w-[10%] text-center">Genre</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
           {rows.map((r, idx) => (
             <TableRow key={`${r.title}-${idx}`}>
-              <TableCell className="font-base truncate" title={r.title}>
+              <TableCell className="truncate text-center font-base" title={r.title}>
                 {r.title}
               </TableCell>
-              <TableCell className="text-right tabular-nums">
+              <TableCell className="text-center tabular-nums">
                 {r.pages}
               </TableCell>
-              <TableCell className="truncate" title={r.author}>
+              <TableCell className="truncate text-center" title={r.author}>
                 {r.author}
               </TableCell>
-              <TableCell className="text-right tabular-nums">
+              <TableCell className="text-center tabular-nums">
                 {r.points.toFixed(2)}
               </TableCell>
-              <TableCell className="truncate" title={r.genre}>
+              <TableCell className="truncate text-center" title={r.genre}>
                 {r.genre}
               </TableCell>
             </TableRow>
@@ -84,12 +84,12 @@ export default function ReadingTable({ books, year }: ReadingTableProps) {
 
         <TableFooter>
           <TableRow>
-            <TableCell className="text-lg font-heading">Total: {count}</TableCell>
-            <TableCell className="text-right text-lg font-heading tabular-nums">
+            <TableCell className="text-center text-lg font-heading">Total: {count}</TableCell>
+            <TableCell className="text-center text-lg font-heading tabular-nums">
               {pagesTotal}
             </TableCell>
             <TableCell />
-            <TableCell className="text-right text-2xl font-heading tabular-nums">
+            <TableCell className="text-center text-2xl font-heading tabular-nums">
               {pointsSum.toFixed(2)}
             </TableCell>
             <TableCell />
