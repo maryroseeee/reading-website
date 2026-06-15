@@ -38,10 +38,10 @@ export default function Friends() {
           {friends.map((f) => (
             <li
               key={f._id}
-              className="rounded-base border-2 border-border bg-main p-4 shadow-shadow flex items-center justify-between"
+              className="flex items-center justify-between gap-4 rounded-base border-2 border-border bg-main p-4 shadow-shadow"
             >
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
+              <div className="min-w-0 flex flex-1 items-center gap-4">
+                <Avatar className="h-16 w-16 flex-none">
                   <AvatarImage
                     src={f.profilePicture || "/default-avatar.png"}
                     alt={f.name || f.username || "Friend"}
@@ -50,10 +50,10 @@ export default function Friends() {
                     {(f.name || f.username || "?").slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <p className="font-medium break-all">{f.name || f.username}</p>
+                <div className="min-w-0 text-left">
+                  <p className="break-all font-medium">{f.name || f.username}</p>
                   {f.username && (
-                    <p className="text-sm opacity-80 break-all">@{f.username}</p>
+                    <p className="break-all text-sm opacity-80">@{f.username}</p>
                   )}
                   <p className="text-sm opacity-80">
                     Points in 2025: {f.points2025.toFixed(2)}
@@ -64,7 +64,7 @@ export default function Friends() {
                 </div>
               </div>
               {f.username && (
-                <div className="flex gap-2">
+                <div className="flex flex-none gap-2">
                   <Button
                     onClick={() => navigate(`/compare/${encodeURIComponent(f.username!)}`)}
                     className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
