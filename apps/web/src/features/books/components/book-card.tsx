@@ -5,15 +5,16 @@ import type { Book } from "../types/book";
 interface BookCardProps {
   book: Book;
   action?: ReactNode;
+  hoverAction?: ReactNode;
 }
 
-export default function BookCard({ book, action }: BookCardProps) {
+export default function BookCard({ book, action, hoverAction }: BookCardProps) {
   const pageCount = book.pageCount ?? 0;
   const before = 1+(pageCount / 100);
   const points = before.toFixed(2);
   return (
     <div>
-    <div className="overflow-hidden rounded-base border-2 border-border bg-main shadow-shadow text-center">
+    <div className="group relative overflow-hidden rounded-base border-2 border-border bg-main shadow-shadow text-center">
         {book.thumbnail && (
           <img
             src={book.thumbnail}
@@ -35,6 +36,7 @@ export default function BookCard({ book, action }: BookCardProps) {
         <div className="text-[10px] opacity-80">
           {points} pts
         </div>
+        {hoverAction}
     </div>
 
     {action && <div className="mt-2">{action}</div>}

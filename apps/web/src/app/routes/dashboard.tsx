@@ -12,6 +12,7 @@ import ShelfCard from "@/features/books/components/shelf-card";
 import {Button} from "@/components/ui/button"
 import AddBookCombobox from "@/features/books/components/add-book-combobox";
 import CurrentlyReadingCard from "@/features/books/components/currently-reading-card";
+import FriendBookAddActions from "@/features/books/components/friend-book-add-actions";
 import ScoreChart from "@/features/books/components/score-chart";
 import FriendsCard from "@/features/friends/components/friends-card";
 import FriendRequestsCombobox from "@/features/friends/components/friend-requests-combobox";
@@ -96,6 +97,19 @@ export default function Dashboard() {
     });
     setBooks((prev) => prev.map((b) => (b._id === updated._id ? updated : b)));
   };
+
+  const handleBookMoved = (book: Book) => {
+    setBooks((prev) => prev.map((b) => (b._id === book._id ? book : b)));
+  };
+
+  const renderBookMoveActions = (book: Book, variant?: "compact") => (
+    <FriendBookAddActions
+      book={book}
+      mode="update"
+      onBookAdded={handleBookMoved}
+      compact={variant === "compact"}
+    />
+  );
 
   const years = Array.from(
     new Set(
@@ -182,6 +196,7 @@ export default function Dashboard() {
           books={currentlyReadingBooks}
           onPageChange={handleCurrentPageChange}
           onRemove={handleRemoveCurrentlyReading}
+          renderBookOverlay={renderBookMoveActions}
         />
         <FriendsCard
           friends={friends}
@@ -238,6 +253,7 @@ export default function Dashboard() {
           books={books}
           className="min-w-0"
           nextOffsetClassName="right-3"
+          renderBookOverlay={renderBookMoveActions}
         />
         <div className="flex justify-end -mt-1">
           <Button
@@ -253,6 +269,7 @@ export default function Dashboard() {
           title="Want To Read"
           includeUndated
           nextOffsetClassName="right-3"
+          renderBookOverlay={renderBookMoveActions}
         />
         <div className="flex justify-end -mt-1">
           <Button

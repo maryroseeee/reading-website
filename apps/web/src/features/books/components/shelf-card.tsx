@@ -17,6 +17,7 @@ interface ShelfCardProps {
   nextOffsetClassName?: string;
   includeUndated?: boolean;
   emptyMessage?: string;
+  renderBookOverlay?: (book: Book) => React.ReactNode;
 }
 
 export default function ShelfCard({
@@ -27,6 +28,7 @@ export default function ShelfCard({
   nextOffsetClassName = "right-3",
   includeUndated = false,
   emptyMessage,
+  renderBookOverlay,
 }: ShelfCardProps) {
 	    const sortedBooks = React.useMemo(
         () =>
@@ -73,7 +75,7 @@ export default function ShelfCard({
 	              className="pl-2 basis-1/2 md:basis-1/3 xl:basis-1/4"
             >
               {/* FIXED HEIGHT CARD so all are equal */}
-              <div className="flex h-[280px] flex-col overflow-hidden rounded-base border-2 border-border bg-background p-2 text-foreground shadow-shadow">
+              <div className="group relative flex h-[280px] flex-col overflow-hidden rounded-base border-2 border-border bg-background p-2 text-foreground shadow-shadow">
                 {/* Cover: uniform 2:3, capped so text fits */}
                 <div
                   className="w-full border-2 border-border rounded-sm overflow-hidden bg-background flex-none"
@@ -96,8 +98,9 @@ export default function ShelfCard({
                     by {(b.authors || [])[0] || "Unknown"}
                   </div>
                 </div>
-	              </div>
-	            </CarouselItem>
+                {renderBookOverlay?.(b)}
+		              </div>
+		            </CarouselItem>
 	            ))
 	          )}
 	        </CarouselContent>

@@ -17,12 +17,14 @@ type CurrentlyReadingCardProps = {
   books: Book[];
   onPageChange?: (book: Book, currentPage: number) => void;
   onRemove?: (book: Book) => void;
+  renderBookOverlay?: (book: Book, variant?: "compact") => React.ReactNode;
 };
 
 export default function CurrentlyReadingCard({
   books,
   onPageChange,
   onRemove,
+  renderBookOverlay,
 }: CurrentlyReadingCardProps) {
   const [pageInputs, setPageInputs] = useState<Record<string, string>>({});
 
@@ -60,7 +62,7 @@ export default function CurrentlyReadingCard({
               return (
                 <CarouselItem key={key} className="min-w-0 basis-full">
                   <div className="min-w-0 rounded-base border-2 border-border bg-background p-3 text-foreground shadow-shadow">
-                    <div className="flex gap-3">
+                    <div className="group relative flex gap-3 overflow-hidden rounded-base">
                       <div className="h-32 w-20 flex-none overflow-hidden rounded-sm border-2 border-border bg-secondary-background">
                         {book.thumbnail && (
                           <img
@@ -83,6 +85,7 @@ export default function CurrentlyReadingCard({
                           </p>
                         )}
                       </div>
+                      {renderBookOverlay?.(book, "compact")}
                     </div>
                     <div className="mt-3 space-y-2">
                       {(onPageChange || onRemove) && (

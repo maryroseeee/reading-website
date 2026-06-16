@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './routes/dashboard';
 import Compare from './routes/compare';
+import FriendBooks from './routes/friend-books';
 import FriendProfile from './routes/friend-profile';
 import Friends from './routes/friends';
 import Login from './routes/login';
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/profile" element={protectedPage(<Profile />)} />
         <Route path="/friends" element={protectedPage(<Friends />)} />
         <Route path="/friends/:username" element={protectedPage(<FriendProfile />)} />
+        <Route path="/friends/:username/books/:shelf" element={protectedPage(<FriendBooks />)} />
         <Route path="/compare/:username" element={protectedPage(<Compare />)} />
       </Routes>
     </BrowserRouter>

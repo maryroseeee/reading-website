@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -10,27 +11,17 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import CurrentlyReadingCard from "@/features/books/components/currently-reading-card";
+import FriendBookAddActions from "@/features/books/components/friend-book-add-actions";
 import ScoreChart from "@/features/books/components/score-chart";
 import ShelfCard from "@/features/books/components/shelf-card";
+import { getBooks } from "@/features/books/api/books-api";
 import type { Book } from "@/features/books/types/book";
 import {
   getFriendBooks,
   getFriendFriends,
 } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
-import { applyThemeColor } from "@/lib/theme-colors";
-
-const THEME_VARIABLES = [
-  "--background",
-  "--foreground",
-  "--main",
-  "--main-foreground",
-  "--chart-1",
-  "--chart-2",
-  "--chart-3",
-  "--chart-4",
-  "--chart-5",
-];
+import { useTemporaryThemeColor } from "@/lib/use-temporary-theme-color";
 
 function getYears(books: Book[], selectedYear: number) {
   const years = Array.from(
@@ -55,9 +46,9 @@ export default function FriendProfile() {
   const [friend, setFriend] = useState<Friend>();
   const [friendFriends, setFriendFriends] = useState<Friend[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
+  const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
-  const previousThemeVariables = useRef<Record<string, string> | null>(null);
 
   useEffect(() => {
     if (!username) return;
@@ -74,34 +65,13 @@ export default function FriendProfile() {
     getFriendFriends(username)
       .then((data) => setFriendFriends(data))
       .catch(() => undefined);
+
+    getBooks()
+      .then((data) => setMyBooks(data))
+      .catch(() => undefined);
   }, [username]);
 
-  useEffect(() => {
-    if (!friend?.themeColor || typeof document === "undefined") return;
-
-    if (!previousThemeVariables.current) {
-      const rootStyle = document.documentElement.style;
-      previousThemeVariables.current = Object.fromEntries(
-        THEME_VARIABLES.map((name) => [name, rootStyle.getPropertyValue(name)]),
-      );
-    }
-
-    applyThemeColor(friend.themeColor, false);
-
-    return () => {
-      const previous = previousThemeVariables.current;
-      if (!previous) return;
-
-      Object.entries(previous).forEach(([name, value]) => {
-        if (value) {
-          document.documentElement.style.setProperty(name, value);
-        } else {
-          document.documentElement.style.removeProperty(name);
-        }
-      });
-      previousThemeVariables.current = null;
-    };
-  }, [friend?.themeColor]);
+  useTemporaryThemeColor(friend?.themeColor);
 
   const years = useMemo(
     () => getYears(books, chartYear),
@@ -114,6 +84,31 @@ export default function FriendProfile() {
   const wantToReadBooks = useMemo(
     () => books.filter((book) => book.wantToRead),
     [books],
+  );
+  const friendProfileKey = friend?.username ?? username;
+  const getFriendShelfPath = (shelf: string) =>
+    friendProfileKey
+      ? `/friends/${encodeURIComponent(friendProfileKey)}/books/${shelf}`
+      : "";
+  const handleMyBookAdded = (book: Book) => {
+    setMyBooks((current) => {
+      if (!book.googleId) {
+        return [...current.filter((existing) => existing._id !== book._id), book];
+      }
+
+      return [
+        ...current.filter((existing) => existing.googleId !== book.googleId),
+        book,
+      ];
+    });
+  };
+  const renderFriendBookActions = (book: Book, variant?: "compact") => (
+    <FriendBookAddActions
+      book={book}
+      existingBooks={myBooks}
+      onBookAdded={handleMyBookAdded}
+      compact={variant === "compact"}
+    />
   );
 
   return (
@@ -149,7 +144,10 @@ export default function FriendProfile() {
             </p>
           )}
         </div>
-        <CurrentlyReadingCard books={currentlyReadingBooks} />
+        <CurrentlyReadingCard
+          books={currentlyReadingBooks}
+          renderBookOverlay={renderFriendBookActions}
+        />
 
         <div className="rounded-base border-2 border-border bg-main p-4 shadow-shadow text-main-foreground">
           <h2 className="mb-3 text-center text-lg">Friends</h2>
@@ -203,7 +201,17 @@ export default function FriendProfile() {
           className="min-w-0"
           nextOffsetClassName="right-3"
           emptyMessage="No read books"
+          renderBookOverlay={renderFriendBookActions}
         />
+        <div className="flex justify-end -mt-1">
+          <Button
+            onClick={() => navigate(getFriendShelfPath("read"))}
+            disabled={!friendProfileKey}
+            className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
+          >
+            View all read books
+          </Button>
+        </div>
         <ShelfCard
           books={wantToReadBooks}
           className="min-w-0"
@@ -211,7 +219,17 @@ export default function FriendProfile() {
           includeUndated
           nextOffsetClassName="right-3"
           emptyMessage="No want-to-read books"
+          renderBookOverlay={renderFriendBookActions}
         />
+        <div className="flex justify-end -mt-1">
+          <Button
+            onClick={() => navigate(getFriendShelfPath("want-to-read"))}
+            disabled={!friendProfileKey}
+            className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
+          >
+            View all want to read
+          </Button>
+        </div>
       </div>
     </div>
   );
