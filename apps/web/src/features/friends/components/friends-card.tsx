@@ -106,7 +106,7 @@ export default function FriendsCard({
 <div className="mt-4 flex flex-col gap-2">
         <AddFriendCombobox canSendFriendRequests={Boolean(currentUsername)} />
         <Button
-          className="w-full bg-background"
+          className="w-full bg-background text-foreground"
           onClick={() => navigate("/friends")}
         >
           View Friends

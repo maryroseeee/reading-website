@@ -4,6 +4,7 @@ export type UserProfile = {
   username?: string;
   bio?: string;
   profilePicture?: string;
+  themeColor?: string;
 };
 
 export type ProfileFormData = {

@@ -3,6 +3,9 @@ import './index.css'
 import App from './app/app'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { env } from './config/env'
+import { applySavedThemeColor } from './lib/theme-colors'
+
+applySavedThemeColor()
 
 createRoot(document.getElementById('root')!).render(
   <GoogleOAuthProvider clientId={env.googleClientId}>

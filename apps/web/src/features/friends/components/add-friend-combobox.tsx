@@ -102,7 +102,7 @@ export default function AddFriendCombobox({
           }
         >
           <Button
-            className="w-full bg-background"
+            className="w-full bg-background text-foreground"
             disabled={!canSendFriendRequests}
           >
             Add Friend

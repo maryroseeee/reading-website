@@ -52,7 +52,7 @@ export default function FriendRequestsCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button className="w-full bg-background">Friend Requests</Button>
+        <Button className="w-full bg-background text-foreground">Friend Requests</Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-64">
         <Command>
@@ -89,7 +89,7 @@ export default function FriendRequestsCombobox({
                     e.stopPropagation();
                     accept(r._id!);
                   }}
-                  className="rounded-base border-2 border-border bg-background shadow-shadow px-2 py-1 text-xs"
+                  className="rounded-base border-2 border-border bg-background px-2 py-1 text-xs text-foreground shadow-shadow"
                 >
                   Accept
                 </Button>
@@ -100,7 +100,7 @@ export default function FriendRequestsCombobox({
                     e.stopPropagation();
                     reject(r._id!);
                   }}
-                  className="rounded-base border-2 border-border bg-background shadow-shadow px-2 py-1 text-xs ml-2"
+                  className="ml-2 rounded-base border-2 border-border bg-background px-2 py-1 text-xs text-foreground shadow-shadow"
                 >
                   Reject
                 </Button>

@@ -1,10 +1,16 @@
 import { GoogleLogin } from '@react-oauth/google';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { loginWithGoogle } from '@/features/auth/api/auth-api';
+import { applyThemeColor } from '@/lib/theme-colors';
 
 export default function Login() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    applyThemeColor('orange', false);
+  }, []);
 
   return (
     <div className="flex h-screen items-center justify-center">

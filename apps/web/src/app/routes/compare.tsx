@@ -9,6 +9,7 @@ import ScoreChart from "@/features/books/components/score-chart";
 import type { Book } from "@/features/books/types/book";
 import { getFriendBooks } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
+import { getThemeColorCssVars } from "@/lib/theme-colors";
 
 function getYears(...bookLists: Book[][]) {
   return Array.from(
@@ -81,7 +82,9 @@ export default function Compare() {
           </Avatar>
           <h1 className="text-left text-xl">Your Score Chart</h1>
         </div>
-        <ScoreChart books={myBooks} year={year} years={years} onYearChange={setYear} />
+        <div style={getThemeColorCssVars(user?.themeColor)}>
+          <ScoreChart books={myBooks} year={year} years={years} onYearChange={setYear} />
+        </div>
       </section>
 
       <section className="space-y-2">
@@ -96,12 +99,14 @@ export default function Compare() {
             {friend?.name || friend?.username || "Friend"}'s Score Chart
           </h2>
         </div>
-        <ScoreChart
-          books={friendBooks}
-          year={year}
-          years={years}
-          onYearChange={setYear}
-        />
+        <div style={getThemeColorCssVars(friend?.themeColor)}>
+          <ScoreChart
+            books={friendBooks}
+            year={year}
+            years={years}
+            onYearChange={setYear}
+          />
+        </div>
       </section>
     </div>
   );

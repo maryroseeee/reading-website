@@ -6,6 +6,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
+import ThemeColorSelect from "@/components/theme-color-select";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ShelfCard from "@/features/books/components/shelf-card";
 import {Button} from "@/components/ui/button"
@@ -21,13 +22,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getCurrentUser, logout } from "@/features/auth/api/auth-api";
+import {
+  getCurrentUser,
+  logout,
+  updateThemeColor,
+} from "@/features/auth/api/auth-api";
 import EditProfileForm from "@/features/auth/components/edit-profile-form";
 import { getBooks, updateBook } from "@/features/books/api/books-api";
 import type { Book } from "@/features/books/types/book";
 import { getFriendRequests, getFriends } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
 import type { UserProfile } from "@/features/auth/types/user";
+import { applyThemeColor } from "@/lib/theme-colors";
 
 export default function Dashboard() {
   const [user, setUser] = useState<UserProfile>({ email: "" });
@@ -46,7 +52,10 @@ export default function Dashboard() {
       .then((data) => setRequests(data))
       .catch(() => undefined);
     getCurrentUser()
-      .then((data) => setUser(data))
+      .then((data) => {
+        setUser(data);
+        applyThemeColor(data.themeColor ?? "pink", false);
+      })
       .catch(() => undefined);
     getBooks().then((data) => setBooks(data));
   }, []);
@@ -54,6 +63,16 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  const handleThemeColorChange = async (themeColor: string) => {
+    setUser((current) => ({ ...current, themeColor }));
+    try {
+      const updated = await updateThemeColor(themeColor);
+      setUser((current) => ({ ...current, themeColor: updated.themeColor }));
+    } catch {
+      // Keep the immediate visual selection; a later refresh will use the saved profile value.
+    }
   };
 
   const handleCurrentPageChange = async (book: Book, currentPage: number) => {
@@ -119,7 +138,7 @@ export default function Dashboard() {
         
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm">
+              <Button className="rounded-base border-2 border-border bg-background px-4 py-2 text-sm text-foreground shadow-shadow">
                 Edit Profile
               </Button>
             </DialogTrigger>
@@ -138,11 +157,15 @@ export default function Dashboard() {
 
            <Button
             onClick={handleLogout}
-            className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+            className="rounded-base border-2 border-border bg-background px-4 py-2 text-sm text-foreground shadow-shadow"
           >
             Logout
           </Button>
         </div>
+        <ThemeColorSelect
+          value={user.themeColor}
+          onChange={handleThemeColorChange}
+        />
         </div>
         <CurrentlyReadingCard
           books={currentlyReadingBooks}

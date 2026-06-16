@@ -3,6 +3,7 @@ export type Friend = {
   name?: string;
   username?: string;
   profilePicture?: string;
+  themeColor?: string;
 };
 
 export type FriendWithStats = Friend & {

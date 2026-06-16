@@ -12,7 +12,14 @@ export async function getCurrentUser() {
 }
 
 export async function updateCurrentUser(profile: ProfileFormData) {
-  const res = await apiClient.put<ProfileFormData>("/auth/me", profile);
+  const res = await apiClient.put<UserProfile>("/auth/me", profile);
+  return res.data;
+}
+
+export async function updateThemeColor(themeColor: string) {
+  const res = await apiClient.put<UserProfile>("/auth/me/theme-color", {
+    themeColor,
+  });
   return res.data;
 }
 

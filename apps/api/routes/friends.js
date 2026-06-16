@@ -102,7 +102,7 @@ router.get("/:username/books", async (req, res) => {
     ? { $or: [{ username }, { _id: username }] }
     : { username };
   const friend = await User.findOne(friendQuery).select(
-    "name username profilePicture googleId",
+    "name username profilePicture googleId themeColor",
   );
 
   if (!current || !friend) {
@@ -120,6 +120,7 @@ router.get("/:username/books", async (req, res) => {
       name: friend.name,
       username: friend.username,
       profilePicture: friend.profilePicture,
+      themeColor: friend.themeColor,
     },
     books,
   });

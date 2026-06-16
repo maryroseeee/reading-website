@@ -50,7 +50,7 @@ router.get('/me', async (req, res) => {
   try {
     const data = jwt.verify(rc_token, env.jwtSecret);
     const user = await User.findOne({ googleId: data.uid }).select(
-      'email name username bio profilePicture'
+      'email name username bio profilePicture themeColor'
     );
     res.json(user);
   } catch {
@@ -68,13 +68,30 @@ router.put('/me', async (req, res) => {
       { googleId: data.uid },
       { name, username, bio, profilePicture },
       { new: true, runValidators: true }
-    ).select('email name username bio profilePicture');
+    ).select('email name username bio profilePicture themeColor');
     res.json(updated);
   } catch (e) {
     if (e.code === 11000 && e.keyPattern?.username) {
       return res.status(400).json({ error: 'Username already exists' });
     }
     res.status(400).json({ error: 'Unable to update profile' });
+  }
+});
+
+router.put('/me/theme-color', async (req, res) => {
+  const { rc_token } = req.cookies;
+  if (!rc_token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const data = jwt.verify(rc_token, env.jwtSecret);
+    const { themeColor } = req.body;
+    const updated = await User.findOneAndUpdate(
+      { googleId: data.uid },
+      { themeColor },
+      { new: true, runValidators: true }
+    ).select('email name username bio profilePicture themeColor');
+    res.json(updated);
+  } catch {
+    res.status(400).json({ error: 'Unable to update theme color' });
   }
 });
 

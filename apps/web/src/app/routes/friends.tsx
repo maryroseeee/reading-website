@@ -67,20 +67,20 @@ export default function Friends() {
                 <div className="flex flex-none gap-2">
                   <Button
                     onClick={() => navigate(`/compare/${encodeURIComponent(f.username!)}`)}
-                    className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+                    className="rounded-base border-2 border-border bg-background px-4 py-2 text-sm text-foreground shadow-shadow"
                   >
                     Compare
                   </Button>
                   <Button
                     onClick={() => navigate(`/friends/${encodeURIComponent(f.username!)}`)}
-                    className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+                    className="rounded-base border-2 border-border bg-background px-4 py-2 text-sm text-foreground shadow-shadow"
                   >
                     Profile
                   </Button>
                   <RemoveFriendButton
                     friendName={f.name || f.username}
                     onConfirm={() => handleRemoveFriend(f.username!)}
-                    className="rounded-base border-2 border-border bg-background shadow-shadow px-4 py-2 text-sm"
+                    className="rounded-base border-2 border-border bg-background px-4 py-2 text-sm text-foreground shadow-shadow"
                   />
                 </div>
               )}

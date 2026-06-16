@@ -1,5 +1,27 @@
 import mongoose from 'mongoose';
 
+const themeColorNames = [
+  'red',
+  'orange',
+  'amber',
+  'yellow',
+  'lime',
+  'green',
+  'emerald',
+  'teal',
+  'cyan',
+  'sky',
+  'blue',
+  'indigo',
+  'violet',
+  'purple',
+  'fuchsia',
+  'pink',
+  'rose',
+  'navy',
+  'black',
+];
+
 const userSchema = new mongoose.Schema({
   googleId: { type: String, required: true, unique: true },
   email: String,
@@ -7,6 +29,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, sparse: true },
   bio: String,
   profilePicture: String,
+  themeColor: { type: String, enum: themeColorNames, default: 'pink' },
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });

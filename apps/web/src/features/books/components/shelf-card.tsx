@@ -70,7 +70,7 @@ export default function ShelfCard({
 	              className="pl-2 basis-1/2 md:basis-1/3 xl:basis-1/4"
             >
               {/* FIXED HEIGHT CARD so all are equal */}
-              <div className="rounded-base border-2 border-border bg-background shadow-shadow p-2 h-[280px] overflow-hidden flex flex-col">
+              <div className="flex h-[280px] flex-col overflow-hidden rounded-base border-2 border-border bg-background p-2 text-foreground shadow-shadow">
                 {/* Cover: uniform 2:3, capped so text fits */}
                 <div
                   className="w-full border-2 border-border rounded-sm overflow-hidden bg-background flex-none"
