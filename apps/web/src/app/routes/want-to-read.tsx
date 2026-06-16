@@ -10,6 +10,7 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import BookCard from "@/features/books/components/book-card";
+import BookShelfChangeButton from "@/features/books/components/book-shelf-change-button";
 import DeleteButton from "@/features/books/components/delete-button";
 import { deleteBook, getBooks } from "@/features/books/api/books-api";
 import type { Book } from "@/features/books/types/book";
@@ -35,6 +36,14 @@ export default function WantToRead() {
     setBooks((prev) => prev.filter((b) => b._id !== id));
   };
 
+  const handleBookShelfChanged = (updated: Book) => {
+    setBooks((prev) =>
+      updated.wantToRead
+        ? prev.map((b) => (b._id === updated._id ? updated : b))
+        : prev.filter((b) => b._id !== updated._id),
+    );
+  };
+
   return (
     <div className="space-y-4 p-4">
       <button onClick={() => navigate("/dashboard")} className="text-xl">
@@ -51,7 +60,13 @@ export default function WantToRead() {
               book={book}
               action={
                 book._id && (
-                  <DeleteButton onConfirm={() => handleDeleteBook(book._id!)} />
+                  <div className="flex flex-col gap-2">
+                    <BookShelfChangeButton
+                      book={book}
+                      onBookUpdated={handleBookShelfChanged}
+                    />
+                    <DeleteButton onConfirm={() => handleDeleteBook(book._id!)} />
+                  </div>
                 )
               }
             />

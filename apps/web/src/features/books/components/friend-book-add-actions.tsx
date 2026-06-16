@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { addBook, updateBook } from "../api/books-api";
+import BookEditionEditButton from "./book-edition-edit-button";
 import CompletionDatePicker from "./completion-date-picker";
 import type { Book } from "../types/book";
 
@@ -16,6 +17,7 @@ type FriendBookAddActionsProps = {
   mode?: "copy" | "update";
   compact?: boolean;
   className?: string;
+  showEditionEdit?: boolean;
 };
 
 function getCopyGoogleId(book: Book) {
@@ -73,6 +75,7 @@ export default function FriendBookAddActions({
   mode = "copy",
   compact = false,
   className,
+  showEditionEdit = false,
 }: FriendBookAddActionsProps) {
   const [addingTarget, setAddingTarget] = useState<FriendBookTarget>();
   const [message, setMessage] = useState("");
@@ -130,6 +133,16 @@ export default function FriendBookAddActions({
       )}
       onClick={(event) => event.stopPropagation()}
     >
+      {showEditionEdit && mode === "update" && (
+        <BookEditionEditButton
+          book={existingBook ?? book}
+          onBookUpdated={(updatedBook) => {
+            setLocalBook(updatedBook);
+            onBookAdded?.(updatedBook);
+          }}
+          compact={compact}
+        />
+      )}
       <Button
         type="button"
         size="sm"

@@ -209,7 +209,7 @@ export default function FriendProfile() {
             disabled={!friendProfileKey}
             className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
           >
-            View all read books
+            Go to "read books"
           </Button>
         </div>
         <ShelfCard
@@ -227,7 +227,7 @@ export default function FriendProfile() {
             disabled={!friendProfileKey}
             className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
           >
-            View all want to read
+            Go to "want to read"
           </Button>
         </div>
       </div>

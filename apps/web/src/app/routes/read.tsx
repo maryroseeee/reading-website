@@ -10,6 +10,7 @@ import {
 import BookCard from "@/features/books/components/book-card";
 import type { Book } from "@/features/books/types/book";
 import { useNavigate } from "react-router-dom";
+import BookShelfChangeButton from "@/features/books/components/book-shelf-change-button";
 import DeleteButton from "@/features/books/components/delete-button";
 import VersionSelect from "@/features/books/components/version-select";
 import CompletionDatePicker from "@/features/books/components/completion-date-picker";
@@ -101,6 +102,14 @@ export default function Read() {
     setBooks((prev) => prev.map((b) => (b._id === id ? updated : b)));
   };
 
+  const handleBookShelfChanged = (updated: Book) => {
+    setBooks((prev) =>
+      updated.completedDate && !updated.currentlyReading && !updated.wantToRead
+        ? prev.map((b) => (b._id === updated._id ? updated : b))
+        : prev.filter((b) => b._id !== updated._id),
+    );
+  };
+
 
   return (
     <div className="p-4 space-y-4">
@@ -119,6 +128,10 @@ export default function Read() {
                 <CompletionDatePicker
                 date={book.completedDate ? new Date(book.completedDate) : undefined}
                 onChange={(d) => changeDate(book._id!, d)}
+              />
+              <BookShelfChangeButton
+                book={book}
+                onBookUpdated={handleBookShelfChanged}
               />
               <VersionSelect
                 versions={versions[book._id!] || [book]}

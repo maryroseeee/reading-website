@@ -108,6 +108,7 @@ export default function Dashboard() {
       mode="update"
       onBookAdded={handleBookMoved}
       compact={variant === "compact"}
+      showEditionEdit
     />
   );
 
@@ -129,11 +130,11 @@ export default function Dashboard() {
   return (
     <div
       style={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "grid",
         gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)",
       }}
-      className="gap-8 p-6 items-start"
+      className="gap-8 px-6 pt-6 pb-24 items-start"
     >
      <div className="min-w-0 flex flex-col gap-4">
         <div className="rounded-base border-2 border-border bg-main p-6 shadow-shadow text-main-foreground">
@@ -260,7 +261,7 @@ export default function Dashboard() {
             onClick={() => navigate("/read")}
             className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
           >
-            Go to read books
+            Go to "read books"
           </Button>
         </div>
         <ShelfCard
@@ -276,7 +277,7 @@ export default function Dashboard() {
             onClick={() => navigate("/want-to-read")}
             className="rounded-base border-2 border-border bg-main shadow-shadow px-4 py-2 text-sm"
           >
-            Go to want to read
+            Go to "want to read"
           </Button>
         </div>
 
