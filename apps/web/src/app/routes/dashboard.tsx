@@ -86,6 +86,17 @@ export default function Dashboard() {
     setBooks((prev) => prev.map((b) => (b._id === updated._id ? updated : b)));
   };
 
+  const handleRemoveCurrentlyReading = async (book: Book) => {
+    if (!book._id) return;
+    const updated = await updateBook(book._id, {
+      ...book,
+      currentlyReading: false,
+      currentPage: 0,
+      completedDate: undefined,
+    });
+    setBooks((prev) => prev.map((b) => (b._id === updated._id ? updated : b)));
+  };
+
   const years = Array.from(
     new Set(
       books
@@ -170,6 +181,7 @@ export default function Dashboard() {
         <CurrentlyReadingCard
           books={currentlyReadingBooks}
           onPageChange={handleCurrentPageChange}
+          onRemove={handleRemoveCurrentlyReading}
         />
         <FriendsCard
           friends={friends}

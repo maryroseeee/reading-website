@@ -137,8 +137,15 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
     }
   }
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      setIsEditing(null);
+    }
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button className="h-6 px-2 text-xs justify-start">
           <CalendarIcon className="mr-1 h-4 w-4" />
@@ -157,12 +164,15 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
               value={mm}
               onFocus={(e) => { setIsEditing("m"); e.currentTarget.select(); }}
               onChange={(e) => handleMonthChange(e.currentTarget.value)}
-              onBlur={(e) => { finalizeMonthFromValue(e.currentTarget.value); setIsEditing(null); }}
+              onBlur={(e) => finalizeMonthFromValue(e.currentTarget.value)}
               onKeyDown={(e) => {
                 if (e.key === "ArrowUp") incDec("m", 1, e);
                 else if (e.key === "ArrowDown") incDec("m", -1, e);
                 else if (e.key === "Backspace" && !mm) mRef.current?.select();
-                else if (e.key === "/" || e.key === "ArrowRight") dRef.current?.focus();
+                else if (e.key === "/" || e.key === "ArrowRight") {
+                  e.preventDefault();
+                  dRef.current?.focus();
+                }
               }}
             />
             <span className="text-xs opacity-70">/</span>
@@ -175,13 +185,19 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
               value={dd}
               onFocus={(e) => { setIsEditing("d"); e.currentTarget.select(); }}
               onChange={(e) => handleDayChange(e.currentTarget.value)}
-              onBlur={(e) => { finalizeDayFromValue(e.currentTarget.value); setIsEditing(null); }}
+              onBlur={(e) => finalizeDayFromValue(e.currentTarget.value)}
               onKeyDown={(e) => {
                 if (e.key === "ArrowUp") incDec("d", 1, e);
                 else if (e.key === "ArrowDown") incDec("d", -1, e);
                 else if (e.key === "Backspace" && !dd) mRef.current?.focus();
-                else if (e.key === "/" || e.key === "ArrowRight") yRef.current?.focus();
-                else if (e.key === "ArrowLeft") mRef.current?.focus();
+                else if (e.key === "/" || e.key === "ArrowRight") {
+                  e.preventDefault();
+                  yRef.current?.focus();
+                }
+                else if (e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  mRef.current?.focus();
+                }
               }}
             />
             <span className="text-xs opacity-70">/</span>
@@ -194,12 +210,15 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
               value={yyyy}
               onFocus={(e) => { setIsEditing("y"); e.currentTarget.select(); }}
               onChange={(e) => handleYearChange(e.currentTarget.value)}
-              onBlur={() => { commitIfComplete(yyyy, mm, dd); setIsEditing(null); }}
+              onBlur={() => commitIfComplete(yyyy, mm, dd)}
               onKeyDown={(e) => {
                 if (e.key === "ArrowUp") incDec("y", 1, e);
                 else if (e.key === "ArrowDown") incDec("y", -1, e);
                 else if (e.key === "Backspace" && !yyyy) dRef.current?.focus();
-                else if (e.key === "ArrowLeft") dRef.current?.focus();
+                else if (e.key === "ArrowLeft") {
+                  e.preventDefault();
+                  dRef.current?.focus();
+                }
               }}
             />
           </div>

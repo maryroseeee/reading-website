@@ -3,9 +3,9 @@ import axios from 'axios';
 import { Button } from "@/components/ui/button";
 
 import { getCurrentUser, updateCurrentUser } from "../api/auth-api";
-import type { ProfileFormData } from "../types/user";
+import type { ProfileFormData, UserProfile } from "../types/user";
 
-export default function EditProfileForm({ onSuccess }: { onSuccess: (data: ProfileFormData) => void }) {
+export default function EditProfileForm({ onSuccess }: { onSuccess: (data: UserProfile) => void }) {
   const [form, setForm] = useState<ProfileFormData>({
     name: '',
     username: '',
@@ -71,9 +71,9 @@ export default function EditProfileForm({ onSuccess }: { onSuccess: (data: Profi
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await updateCurrentUser(form);
+      const updated = await updateCurrentUser(form);
       setMessage('Profile updated');
-      onSuccess(form);
+      onSuccess(updated);
     
     } catch (error) {
         const errMessage =
@@ -90,7 +90,7 @@ export default function EditProfileForm({ onSuccess }: { onSuccess: (data: Profi
         name="name"
         value={form.name}
         onChange={onChange}
-        placeholder="Name"
+        placeholder="Display name"
         className="border p-2"
       />
       <input

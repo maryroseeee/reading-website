@@ -54,7 +54,7 @@ router.get("/search", async (req, res) => {
 router.get("/", async (req, res) => {
   const current = await User.findOne({ googleId: req.user.uid }).populate(
     "friends",
-    "name username profilePicture googleId"
+    "name username profilePicture googleId themeColor"
     );
     if (!current?.friends) return res.json([]);
   
@@ -87,6 +87,7 @@ router.get("/", async (req, res) => {
           name: f.name,
           username: f.username,
           profilePicture: f.profilePicture,
+          themeColor: f.themeColor,
           points2025: points2025Agg[0]?.total || 0,
           booksThisYear,
         };

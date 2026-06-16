@@ -22,9 +22,11 @@ router.post('/google', async (req, res) => {
       {
         $set: {
           email: payload.email,
-          name: payload.name,
         },
-        $setOnInsert: { profilePicture: payload.picture },
+        $setOnInsert: {
+          name: payload.name,
+          profilePicture: payload.picture,
+        },
       },
       { upsert: true }
     ); 

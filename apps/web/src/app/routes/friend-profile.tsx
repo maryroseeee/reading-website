@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,6 +9,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import CurrentlyReadingCard from "@/features/books/components/currently-reading-card";
 import ScoreChart from "@/features/books/components/score-chart";
 import ShelfCard from "@/features/books/components/shelf-card";
 import type { Book } from "@/features/books/types/book";
@@ -17,6 +18,19 @@ import {
   getFriendFriends,
 } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
+import { applyThemeColor } from "@/lib/theme-colors";
+
+const THEME_VARIABLES = [
+  "--background",
+  "--foreground",
+  "--main",
+  "--main-foreground",
+  "--chart-1",
+  "--chart-2",
+  "--chart-3",
+  "--chart-4",
+  "--chart-5",
+];
 
 function getYears(books: Book[], selectedYear: number) {
   const years = Array.from(
@@ -43,6 +57,7 @@ export default function FriendProfile() {
   const [books, setBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
+  const previousThemeVariables = useRef<Record<string, string> | null>(null);
 
   useEffect(() => {
     if (!username) return;
@@ -61,17 +76,56 @@ export default function FriendProfile() {
       .catch(() => undefined);
   }, [username]);
 
+  useEffect(() => {
+    if (!friend?.themeColor || typeof document === "undefined") return;
+
+    if (!previousThemeVariables.current) {
+      const rootStyle = document.documentElement.style;
+      previousThemeVariables.current = Object.fromEntries(
+        THEME_VARIABLES.map((name) => [name, rootStyle.getPropertyValue(name)]),
+      );
+    }
+
+    applyThemeColor(friend.themeColor, false);
+
+    return () => {
+      const previous = previousThemeVariables.current;
+      if (!previous) return;
+
+      Object.entries(previous).forEach(([name, value]) => {
+        if (value) {
+          document.documentElement.style.setProperty(name, value);
+        } else {
+          document.documentElement.style.removeProperty(name);
+        }
+      });
+      previousThemeVariables.current = null;
+    };
+  }, [friend?.themeColor]);
+
   const years = useMemo(
     () => getYears(books, chartYear),
     [books, chartYear],
   );
+  const currentlyReadingBooks = useMemo(
+    () => books.filter((book) => book.currentlyReading),
+    [books],
+  );
+  const wantToReadBooks = useMemo(
+    () => books.filter((book) => book.wantToRead),
+    [books],
+  );
 
   return (
     <div
-      style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1fr 2fr" }}
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)",
+      }}
       className="gap-8 p-6 items-start"
     >
-      <div className="flex flex-col gap-4">
+      <div className="min-w-0 flex flex-col gap-4">
         <button onClick={() => navigate("/friends")} className="self-start text-xl">
           ←
         </button>
@@ -95,6 +149,7 @@ export default function FriendProfile() {
             </p>
           )}
         </div>
+        <CurrentlyReadingCard books={currentlyReadingBooks} />
 
         <div className="rounded-base border-2 border-border bg-main p-4 shadow-shadow text-main-foreground">
           <h2 className="mb-3 text-center text-lg">Friends</h2>
@@ -147,6 +202,15 @@ export default function FriendProfile() {
           books={books}
           className="min-w-0"
           nextOffsetClassName="right-3"
+          emptyMessage="No read books"
+        />
+        <ShelfCard
+          books={wantToReadBooks}
+          className="min-w-0"
+          title="Want To Read"
+          includeUndated
+          nextOffsetClassName="right-3"
+          emptyMessage="No want-to-read books"
         />
       </div>
     </div>

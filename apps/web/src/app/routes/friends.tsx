@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { getFriends, removeFriend } from "@/features/friends/api/friends-api";
 import RemoveFriendButton from "@/features/friends/components/remove-friend-button";
 import type { FriendWithStats } from "@/features/friends/types/friend";
+import { getThemeColorCssVars } from "@/lib/theme-colors";
 
 export default function Friends() {
   const [friends, setFriends] = useState<FriendWithStats[]>([]);
@@ -38,7 +39,8 @@ export default function Friends() {
           {friends.map((f) => (
             <li
               key={f._id}
-              className="flex items-center justify-between gap-4 rounded-base border-2 border-border bg-main p-4 shadow-shadow"
+              style={getThemeColorCssVars(f.themeColor)}
+              className="flex items-center justify-between gap-4 rounded-base border-2 border-border bg-main p-4 text-main-foreground shadow-shadow"
             >
               <div className="min-w-0 flex flex-1 items-center gap-4">
                 <Avatar className="h-16 w-16 flex-none">

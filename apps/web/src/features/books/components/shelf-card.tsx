@@ -16,6 +16,7 @@ interface ShelfCardProps {
   showPrev?: boolean;
   nextOffsetClassName?: string;
   includeUndated?: boolean;
+  emptyMessage?: string;
 }
 
 export default function ShelfCard({
@@ -25,6 +26,7 @@ export default function ShelfCard({
   showPrev = true,
   nextOffsetClassName = "right-3",
   includeUndated = false,
+  emptyMessage,
 }: ShelfCardProps) {
 	    const sortedBooks = React.useMemo(
         () =>
@@ -47,8 +49,9 @@ export default function ShelfCard({
             }),
 	        [books, includeUndated]
 	      );
-  const emptyMessage =
+  const defaultEmptyMessage =
     title === "Want To Read" ? "Add books you want to read" : "Add books";
+  const shelfEmptyMessage = emptyMessage ?? defaultEmptyMessage;
 
   return (
     <div className={className}>
@@ -60,7 +63,7 @@ export default function ShelfCard({
 	          {sortedBooks.length === 0 ? (
 	            <CarouselItem className="pl-2 basis-full">
 	              <div className="flex h-[280px] items-center justify-center p-4 text-center">
-	                <p className="text-sm font-heading opacity-80">{emptyMessage}</p>
+	                <p className="text-sm font-heading opacity-80">{shelfEmptyMessage}</p>
 	              </div>
 	            </CarouselItem>
 	          ) : (
