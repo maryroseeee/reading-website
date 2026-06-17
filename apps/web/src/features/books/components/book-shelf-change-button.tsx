@@ -11,43 +11,19 @@ import {
 
 import { updateBook } from "../api/books-api";
 import type { Book } from "../types/book";
+import {
+  getShelfPayload,
+  getShelfTarget,
+  SHELF_BUTTON_LABELS,
+  SHELF_RESULT_LABELS,
+  type ShelfTarget,
+} from "../utils/shelf-actions";
 import CompletionDatePicker from "./completion-date-picker";
-
-type ShelfTarget = "wantToRead" | "currentlyReading" | "read";
 
 type BookShelfChangeButtonProps = {
   book: Book;
   onBookUpdated?: (book: Book) => void;
 };
-
-const TARGET_LABELS: Record<ShelfTarget, string> = {
-  wantToRead: "want to read",
-  currentlyReading: "currently reading",
-  read: "read books",
-};
-
-const ALREADY_LABELS: Record<ShelfTarget, string> = {
-  wantToRead: "Already want to read",
-  currentlyReading: "Already current",
-  read: "Already read",
-};
-
-function getShelfTarget(book: Book): ShelfTarget | undefined {
-  if (book.wantToRead) return "wantToRead";
-  if (book.currentlyReading) return "currentlyReading";
-  if (book.completedDate) return "read";
-  return undefined;
-}
-
-function getShelfPayload(book: Book, target: ShelfTarget, completedDate?: Date): Book {
-  return {
-    ...book,
-    completedDate: target === "read" ? completedDate?.toISOString() : undefined,
-    currentlyReading: target === "currentlyReading",
-    wantToRead: target === "wantToRead",
-    currentPage: target === "currentlyReading" ? book.currentPage ?? 0 : 0,
-  };
-}
 
 export default function BookShelfChangeButton({
   book,
@@ -76,11 +52,14 @@ export default function BookShelfChangeButton({
     try {
       const updated = await updateBook(
         book._id,
-        getShelfPayload(currentBook, target, completedDate),
+        getShelfPayload(currentBook, target, completedDate, {
+          includeExistingFields: true,
+          preserveCurrentPage: true,
+        }),
       );
       setCurrentBook(updated);
       onBookUpdated?.(updated);
-      setMessage(`Moved to ${TARGET_LABELS[target]}`);
+      setMessage(`Moved to ${SHELF_RESULT_LABELS[target]}`);
     } catch {
       setMessage("Could not move book");
     } finally {
@@ -116,11 +95,9 @@ export default function BookShelfChangeButton({
               disabled={Boolean(updatingTarget) || currentTarget === "wantToRead"}
               onClick={() => void handleChangeShelf("wantToRead")}
             >
-              {currentTarget === "wantToRead"
-                ? ALREADY_LABELS.wantToRead
-                : updatingTarget === "wantToRead"
+              {updatingTarget === "wantToRead"
                   ? "Moving..."
-                  : "Want to read"}
+                  : SHELF_BUTTON_LABELS.wantToRead}
             </Button>
             <Button
               type="button"
@@ -131,11 +108,9 @@ export default function BookShelfChangeButton({
               }
               onClick={() => void handleChangeShelf("currentlyReading")}
             >
-              {currentTarget === "currentlyReading"
-                ? ALREADY_LABELS.currentlyReading
-                : updatingTarget === "currentlyReading"
+              {updatingTarget === "currentlyReading"
                   ? "Moving..."
-                  : "Currently reading"}
+                  : SHELF_BUTTON_LABELS.currentlyReading}
             </Button>
             <CompletionDatePicker date={completedDate} onChange={setCompletedDate} />
             <Button
@@ -147,11 +122,9 @@ export default function BookShelfChangeButton({
               }
               onClick={() => void handleChangeShelf("read")}
             >
-              {currentTarget === "read"
-                ? ALREADY_LABELS.read
-                : updatingTarget === "read"
+              {updatingTarget === "read"
                   ? "Moving..."
-                  : "Read"}
+                  : SHELF_BUTTON_LABELS.read}
             </Button>
           </div>
           {message && <p className="text-sm font-heading">{message}</p>}

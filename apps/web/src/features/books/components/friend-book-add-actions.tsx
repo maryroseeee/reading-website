@@ -7,8 +7,13 @@ import { addBook, updateBook } from "../api/books-api";
 import BookEditionEditButton from "./book-edition-edit-button";
 import CompletionDatePicker from "./completion-date-picker";
 import type { Book } from "../types/book";
-
-type FriendBookTarget = "wantToRead" | "currentlyReading" | "read";
+import {
+  getShelfPayload,
+  getShelfTarget,
+  SHELF_BUTTON_LABELS,
+  SHELF_RESULT_LABELS,
+  type ShelfTarget,
+} from "../utils/shelf-actions";
 
 type FriendBookAddActionsProps = {
   book: Book;
@@ -27,47 +32,6 @@ function getCopyGoogleId(book: Book) {
   );
 }
 
-const TARGET_LABELS: Record<FriendBookTarget, string> = {
-  wantToRead: "want to read",
-  currentlyReading: "currently reading",
-  read: "read books",
-};
-
-const ALREADY_LABELS: Record<FriendBookTarget, string> = {
-  wantToRead: "Want to read",
-  currentlyReading: "Currently reading",
-  read: "Read",
-};
-
-function getShelfTarget(book?: Book): FriendBookTarget | undefined {
-  if (!book) return undefined;
-  if (book.wantToRead) return "wantToRead";
-  if (book.currentlyReading) return "currentlyReading";
-  if (book.completedDate) return "read";
-  return undefined;
-}
-
-function getBookPayload(
-  book: Book,
-  target: FriendBookTarget,
-  completedDate?: Date,
-  googleId = getCopyGoogleId(book),
-): Book {
-  return {
-    googleId,
-    title: book.title,
-    authors: book.authors,
-    pageCount: book.pageCount,
-    categories: book.categories,
-    thumbnail: book.thumbnail,
-    points: book.points,
-    completedDate: target === "read" ? completedDate?.toISOString() : undefined,
-    currentlyReading: target === "currentlyReading",
-    wantToRead: target === "wantToRead",
-    currentPage: 0,
-  };
-}
-
 export default function FriendBookAddActions({
   book,
   existingBooks = [],
@@ -77,7 +41,7 @@ export default function FriendBookAddActions({
   className,
   showEditionEdit = false,
 }: FriendBookAddActionsProps) {
-  const [addingTarget, setAddingTarget] = useState<FriendBookTarget>();
+  const [addingTarget, setAddingTarget] = useState<ShelfTarget>();
   const [message, setMessage] = useState("");
   const [completedDate, setCompletedDate] = useState<Date>();
   const [localBook, setLocalBook] = useState<Book>();
@@ -92,7 +56,7 @@ export default function FriendBookAddActions({
     ? "h-6 w-full px-1 text-[10px]"
     : "h-7 w-full px-2 text-[11px]";
 
-  const handleAdd = async (target: FriendBookTarget) => {
+  const handleAdd = async (target: ShelfTarget) => {
     if (currentTarget === target) return;
 
     if (target === "read" && !completedDate) {
@@ -104,11 +68,11 @@ export default function FriendBookAddActions({
     setMessage("");
 
     try {
-      const payload = getBookPayload(
+      const payload = getShelfPayload(
         book,
         target,
         completedDate,
-        mode === "update" ? book.googleId : copyGoogleId,
+        { googleId: mode === "update" ? book.googleId : copyGoogleId },
       );
       const addedBook =
         mode === "update" && book._id
@@ -116,7 +80,7 @@ export default function FriendBookAddActions({
           : await addBook(payload);
       setLocalBook(addedBook);
       onBookAdded?.(addedBook);
-      setMessage(`Added to ${TARGET_LABELS[target]}`);
+      setMessage(`Added to ${SHELF_RESULT_LABELS[target]}`);
     } catch {
       setMessage("Could not add");
     } finally {
@@ -150,11 +114,9 @@ export default function FriendBookAddActions({
         disabled={Boolean(addingTarget) || currentTarget === "wantToRead"}
         onClick={() => void handleAdd("wantToRead")}
       >
-        {currentTarget === "wantToRead"
-          ? ALREADY_LABELS.wantToRead
-          : addingTarget === "wantToRead"
+        {addingTarget === "wantToRead"
             ? "Adding..."
-            : "Want to read"}
+            : SHELF_BUTTON_LABELS.wantToRead}
       </Button>
       <Button
         type="button"
@@ -163,11 +125,9 @@ export default function FriendBookAddActions({
         disabled={Boolean(addingTarget) || currentTarget === "currentlyReading"}
         onClick={() => void handleAdd("currentlyReading")}
       >
-        {currentTarget === "currentlyReading"
-          ? ALREADY_LABELS.currentlyReading
-          : addingTarget === "currentlyReading"
+        {addingTarget === "currentlyReading"
             ? "Adding..."
-            : "Currently reading"}
+            : SHELF_BUTTON_LABELS.currentlyReading}
       </Button>
       <div className="flex w-full flex-col gap-1">
         <CompletionDatePicker
@@ -182,11 +142,9 @@ export default function FriendBookAddActions({
         disabled={Boolean(addingTarget) || currentTarget === "read" || !completedDate}
         onClick={() => void handleAdd("read")}
       >
-        {currentTarget === "read"
-          ? ALREADY_LABELS.read
-          : addingTarget === "read"
+        {addingTarget === "read"
             ? "Adding..."
-            : "Read"}
+            : SHELF_BUTTON_LABELS.read}
       </Button>
       {message && <p className="text-center text-[11px] font-heading">{message}</p>}
     </div>
