@@ -34,9 +34,9 @@ const TARGET_LABELS: Record<FriendBookTarget, string> = {
 };
 
 const ALREADY_LABELS: Record<FriendBookTarget, string> = {
-  wantToRead: "Already want to read",
-  currentlyReading: "Already current",
-  read: "Already read",
+  wantToRead: "Want to read",
+  currentlyReading: "Currently reading",
+  read: "Read",
 };
 
 function getShelfTarget(book?: Book): FriendBookTarget | undefined {

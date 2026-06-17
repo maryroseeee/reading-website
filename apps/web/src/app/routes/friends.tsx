@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { getFriends, removeFriend } from "@/features/friends/api/friends-api";
 import RemoveFriendButton from "@/features/friends/components/remove-friend-button";
 import type { FriendWithStats } from "@/features/friends/types/friend";
+import { filterFriendsBySearch } from "@/features/friends/utils/search-friends";
 import { getThemeColorCssVars } from "@/lib/theme-colors";
 
 export default function Friends() {
   const [friends, setFriends] = useState<FriendWithStats[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,17 +29,29 @@ export default function Friends() {
     }
   };
 
+  const filteredFriends = filterFriendsBySearch(friends, searchQuery);
+
   return (
     <div className="p-4">
       <button onClick={() => navigate('/dashboard')} className="text-xl">
         ←
       </button>
       <h1 className="text-xl mb-4 text-center">Friends</h1>
-      {friends.length === 0 ? (
-        <p className="text-sm text-center opacity-90">No friends yet</p>
+      <div className="mx-auto mb-4 max-w-md">
+        <Input
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="Search friends"
+          className="bg-background"
+        />
+      </div>
+      {filteredFriends.length === 0 ? (
+        <p className="text-sm text-center opacity-90">
+          {searchQuery ? "No friends match your search" : "No friends yet"}
+        </p>
       ) : (
         <ul className="space-y-4">
-          {friends.map((f) => (
+          {filteredFriends.map((f) => (
             <li
               key={f._id}
               style={getThemeColorCssVars(f.themeColor)}

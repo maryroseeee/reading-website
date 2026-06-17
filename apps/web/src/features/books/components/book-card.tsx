@@ -14,7 +14,7 @@ export default function BookCard({ book, action, hoverAction }: BookCardProps) {
   const points = before.toFixed(2);
   return (
     <div className="flex h-full flex-col">
-    <div className="group relative flex h-[390px] flex-col overflow-hidden rounded-base border-2 border-border bg-main shadow-shadow text-center">
+    <div className="group relative flex h-[390px] flex-col overflow-hidden rounded-base border-2 border-border bg-main text-white shadow-shadow text-center">
         <div className="min-h-[220px] w-full flex-1 overflow-hidden bg-secondary-background">
           {book.thumbnail && (
           <img

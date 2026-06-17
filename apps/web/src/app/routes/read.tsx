@@ -1,47 +1,45 @@
 import { useEffect, useState } from "react";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationPrevious,
-    PaginationNext,
-  } from "@/components/ui/pagination";
-import BookCard from "@/features/books/components/book-card";
-import type { Book } from "@/features/books/types/book";
 import { useNavigate } from "react-router-dom";
-import BookEditMenu from "@/features/books/components/book-edit-menu";
-import BookEditionEditButton from "@/features/books/components/book-edition-edit-button";
-import BookShelfChangeButton from "@/features/books/components/book-shelf-change-button";
-import DeleteButton from "@/features/books/components/delete-button";
-import CompletionDatePicker from "@/features/books/components/completion-date-picker";
-import { deleteBook, getBooks, updateBook } from "@/features/books/api/books-api";
 
-const PAGE_SIZE = 20;
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+} from "@/components/ui/pagination";
+import BookCard from "@/features/books/components/book-card";
+import BookListSearch from "@/features/books/components/book-list-search";
+import ShelfBookEditMenu from "@/features/books/components/shelf-book-edit-menu";
+import { deleteBook, getBooks, updateBook } from "@/features/books/api/books-api";
+import type { Book } from "@/features/books/types/book";
+import {
+  BOOKS_PAGE_SIZE,
+  filterBooksBySearch,
+  filterBooksForShelf,
+  paginateBooks,
+  shouldKeepBookOnShelf,
+} from "@/features/books/utils/shelf-books";
 
 export default function Read() {
   const [books, setBooks] = useState<Book[]>([]);
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     getBooks()
-	      .then((data) =>
-	        setBooks(
-	          data.filter((book) => book.completedDate && !book.wantToRead).sort((a, b) => {
-            const dateA = a.completedDate
-              ? new Date(a.completedDate).getTime()
-              : 0;
-            const dateB = b.completedDate
-              ? new Date(b.completedDate).getTime()
-              : 0;
-            return dateB - dateA;
-          })
-        )
-      );
+      .then((data) => setBooks(filterBooksForShelf(data, "read")))
+      .catch(() => undefined);
   }, []);
-  const totalPages = Math.max(1, Math.ceil(books.length / PAGE_SIZE));
-  const currentBooks = books.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const filteredBooks = filterBooksBySearch(books, searchQuery);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredBooks.length / BOOKS_PAGE_SIZE),
+  );
+  const currentBooks = paginateBooks(filteredBooks, page);
 
   const handleDeleteBook = async (id: string) => {
     await deleteBook(id);
@@ -59,58 +57,50 @@ export default function Read() {
     setBooks((prev) => prev.map((b) => (b._id === id ? updated : b)));
   };
 
-  const handleBookShelfChanged = (updated: Book) => {
-    setBooks((prev) =>
-      updated.completedDate && !updated.currentlyReading && !updated.wantToRead
-        ? prev.map((b) => (b._id === updated._id ? updated : b))
-        : prev.filter((b) => b._id !== updated._id),
-    );
-  };
-
   const handleBookUpdated = (updated: Book) => {
     setBooks((prev) =>
-      updated.completedDate && !updated.currentlyReading && !updated.wantToRead
+      shouldKeepBookOnShelf(updated, "read")
         ? prev.map((b) => (b._id === updated._id ? updated : b))
         : prev.filter((b) => b._id !== updated._id),
     );
   };
-
 
   return (
     <div className="p-4 space-y-4">
       <button onClick={() => navigate("/dashboard")} className="text-xl">
         ←
       </button>
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        {currentBooks.map((book) => (
-          <BookCard
-          key={book._id}
-          book={book}
-          action={
-            book._id && (
-              <BookEditMenu>
-                <div className="space-y-1">
-                  <p className="text-xs font-heading">Read date</p>
-                <CompletionDatePicker
-                date={book.completedDate ? new Date(book.completedDate) : undefined}
-                onChange={(d) => changeDate(book._id!, d)}
-              />
-                </div>
-              <BookShelfChangeButton
-                book={book}
-                onBookUpdated={handleBookShelfChanged}
-              />
-              <BookEditionEditButton
-                book={book}
-                onBookUpdated={handleBookUpdated}
-              />
-              <DeleteButton onConfirm={() => handleDeleteBook(book._id!)} />
-              </BookEditMenu>
-            )
-          }
-        />
-        ))}
-      </div>
+      <BookListSearch
+        value={searchQuery}
+        onChange={(value) => {
+          setSearchQuery(value);
+          setPage(1);
+        }}
+        placeholder="Search read books"
+      />
+      {filteredBooks.length === 0 ? (
+        <p className="text-center text-sm opacity-90">
+          {searchQuery ? "No read books match your search" : "No read books yet"}
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          {currentBooks.map((book) => (
+            <BookCard
+              key={book._id}
+              book={book}
+              action={
+                <ShelfBookEditMenu
+                  book={book}
+                  shelf="read"
+                  onBookUpdated={handleBookUpdated}
+                  onDelete={handleDeleteBook}
+                  onReadDateChange={changeDate}
+                />
+              }
+            />
+          ))}
+        </div>
+      )}
       
       <Pagination>
         <PaginationContent>
