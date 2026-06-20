@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -38,23 +38,49 @@ export function useDashboardPage() {
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
   const [friends, setFriends] = useState<Friend[]>([]);
   const [requests, setRequests] = useState<Friend[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getFriends()
-      .then((data) => setFriends(data))
-      .catch(() => undefined);
-    getFriendRequests()
-      .then((data) => setRequests(data))
-      .catch(() => undefined);
-    getCurrentUser()
-      .then((data) => {
-        setUser(data);
-        applyThemeColor(data.themeColor ?? "pink", false);
-      })
-      .catch(() => undefined);
-    getBooks().then((data) => setBooks(data));
+  const loadDashboard = useCallback(async () => {
+    setIsLoading(true);
+    setError("");
+
+    const [friendsResult, requestsResult, userResult, booksResult] =
+      await Promise.allSettled([
+        getFriends(),
+        getFriendRequests(),
+        getCurrentUser(),
+        getBooks(),
+      ]);
+
+    if (friendsResult.status === "fulfilled") {
+      setFriends(friendsResult.value);
+    }
+
+    if (requestsResult.status === "fulfilled") {
+      setRequests(requestsResult.value);
+    }
+
+    if (userResult.status === "fulfilled") {
+      setUser(userResult.value);
+      applyThemeColor(userResult.value.themeColor ?? "pink", false);
+    }
+
+    if (booksResult.status === "fulfilled") {
+      setBooks(booksResult.value);
+    }
+
+    if (userResult.status === "rejected" || booksResult.status === "rejected") {
+      setError("Could not load your dashboard.");
+    }
+
+    setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
 
   const handleLogout = async () => {
     await logout();
@@ -155,9 +181,12 @@ export function useDashboardPage() {
     handleProfileUpdated,
     handleRemoveCurrentlyReading,
     handleThemeColorChange,
+    isLoading,
+    error,
     profileOpen,
     renderBookMoveActions,
     requests,
+    reload: loadDashboard,
     setChartYear,
     setProfileOpen,
     user,

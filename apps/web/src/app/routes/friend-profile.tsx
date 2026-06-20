@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { PageError } from "@/components/page-state";
+import { FriendProfilePageSkeleton } from "@/components/page-skeletons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,28 +50,47 @@ export default function FriendProfile() {
   const [books, setBooks] = useState<Book[]>([]);
   const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [chartYear, setChartYear] = useState(new Date().getFullYear());
 
-  useEffect(() => {
-    if (!username) return;
+  const loadFriendProfile = useCallback(async () => {
+    setIsLoading(true);
+    setError("");
 
-    getFriendBooks(username)
-      .then((data) => {
-        setFriend(data.friend);
-        setBooks(data.books);
-      })
-      .catch(() => {
-        setError("Could not load this friend's profile.");
-      });
+    if (!username) {
+      setError("Could not find this friend's profile.");
+      setIsLoading(false);
+      return;
+    }
 
-    getFriendFriends(username)
-      .then((data) => setFriendFriends(data))
-      .catch(() => undefined);
+    const [friendBooksResult, friendFriendsResult, myBooksResult] =
+      await Promise.allSettled([
+        getFriendBooks(username),
+        getFriendFriends(username),
+        getBooks(),
+      ]);
 
-    getBooks()
-      .then((data) => setMyBooks(data))
-      .catch(() => undefined);
+    if (friendBooksResult.status === "fulfilled") {
+      setFriend(friendBooksResult.value.friend);
+      setBooks(friendBooksResult.value.books);
+    } else {
+      setError("Could not load this friend's profile.");
+    }
+
+    if (friendFriendsResult.status === "fulfilled") {
+      setFriendFriends(friendFriendsResult.value);
+    }
+
+    if (myBooksResult.status === "fulfilled") {
+      setMyBooks(myBooksResult.value);
+    }
+
+    setIsLoading(false);
   }, [username]);
+
+  useEffect(() => {
+    void loadFriendProfile();
+  }, [loadFriendProfile]);
 
   useTemporaryThemeColor(friend?.themeColor);
 
@@ -110,6 +131,20 @@ export default function FriendProfile() {
       compact={variant === "compact"}
     />
   );
+
+  if (isLoading) {
+    return <FriendProfilePageSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <PageError
+        title="Could not load friend profile"
+        message={error}
+        onRetry={loadFriendProfile}
+      />
+    );
+  }
 
   return (
     <div
@@ -189,7 +224,6 @@ export default function FriendProfile() {
       </div>
 
       <div className="min-w-0 flex flex-col gap-4">
-        {error && <p className="text-sm opacity-80">{error}</p>}
         <ScoreChart
           books={books}
           year={chartYear}

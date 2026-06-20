@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { addBook, deleteBook, getBooks, searchBooks } from "../api/books-api";
 import type { Book } from "../types/book";
@@ -26,10 +26,27 @@ export function useBookSearchPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [customOpen, setCustomOpen] = useState(false);
   const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const loadBooks = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError("");
+
+    try {
+      const data = await getBooks();
+      setBooks(data);
+    } catch {
+      setLoadError("Could not load your saved books.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    getBooks().then((data) => setBooks(data));
-  }, []);
+    void loadBooks();
+  }, [loadBooks]);
 
   const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,6 +54,7 @@ export function useBookSearchPage() {
 
     try {
       setError("");
+      setIsSearching(true);
       const data = await searchBooks(normalizeText(query));
       setResults(
         groupBookVersions(data).map((group) => ({
@@ -49,6 +67,8 @@ export function useBookSearchPage() {
     } catch {
       setResults([]);
       setError("Google Books search is unavailable. You can add your version manually.");
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -102,7 +122,11 @@ export function useBookSearchPage() {
     handleAddBook,
     handleDeleteBook,
     handleSearch,
+    isLoading,
+    isSearching,
+    loadError,
     query,
+    reload: loadBooks,
     results,
     setCustomOpen,
     setQuery,

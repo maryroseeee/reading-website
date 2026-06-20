@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { PageError } from "@/components/page-state";
+import { FriendsPageSkeleton } from "@/components/page-skeletons";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,13 +14,27 @@ import { getThemeColorCssVars } from "@/lib/theme-colors";
 export default function Friends() {
   const [friends, setFriends] = useState<FriendWithStats[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getFriends()
-      .then((data) => setFriends(data))
-      .catch(() => undefined);
+  const loadFriends = useCallback(async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const data = await getFriends();
+      setFriends(data);
+    } catch {
+      setError("Could not load your friends.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadFriends();
+  }, [loadFriends]);
 
   const handleRemoveFriend = async (username: string) => {
     try {
@@ -30,6 +46,20 @@ export default function Friends() {
   };
 
   const filteredFriends = filterFriendsBySearch(friends, searchQuery);
+
+  if (isLoading) {
+    return <FriendsPageSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <PageError
+        title="Could not load friends"
+        message={error}
+        onRetry={loadFriends}
+      />
+    );
+  }
 
   return (
     <div className="p-4">

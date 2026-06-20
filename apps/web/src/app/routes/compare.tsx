@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { PageError } from "@/components/page-state";
+import { ComparePageSkeleton } from "@/components/page-skeletons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getCurrentUser } from "@/features/auth/api/auth-api";
 import type { UserProfile } from "@/features/auth/types/user";
@@ -30,29 +32,39 @@ export default function Compare() {
   const [friendBooks, setFriendBooks] = useState<Book[]>([]);
   const [friend, setFriend] = useState<Friend>();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());
 
-  useEffect(() => {
-    if (!username) return;
+  const loadCompare = useCallback(async () => {
+    setIsLoading(true);
+    setError("");
 
-    Promise.all([getBooks(), getCurrentUser()])
-      .then(([books, currentUser]) => {
-        setMyBooks(books);
-        setUser(currentUser);
-      })
-      .catch(() => {
-        setError("Could not load your chart.");
-      });
+    if (!username) {
+      setError("Could not find this friend.");
+      setIsLoading(false);
+      return;
+    }
 
-    getFriendBooks(username)
-      .then((friendData) => {
-        setFriend(friendData.friend);
-        setFriendBooks(friendData.books);
-      })
-      .catch(() => {
-        setError("Could not load your friend's chart.");
-      });
+    try {
+      const [books, currentUser, friendData] = await Promise.all([
+        getBooks(),
+        getCurrentUser(),
+        getFriendBooks(username),
+      ]);
+      setMyBooks(books);
+      setUser(currentUser);
+      setFriend(friendData.friend);
+      setFriendBooks(friendData.books);
+    } catch {
+      setError("Could not load the compare charts.");
+    } finally {
+      setIsLoading(false);
+    }
   }, [username]);
+
+  useEffect(() => {
+    void loadCompare();
+  }, [loadCompare]);
 
   const years = useMemo(() => {
     const availableYears = getYears(myBooks, friendBooks);
@@ -62,6 +74,20 @@ export default function Compare() {
     return availableYears;
   }, [friendBooks, myBooks, year]);
 
+  if (isLoading) {
+    return <ComparePageSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <PageError
+        title="Could not load compare"
+        message={error}
+        onRetry={loadCompare}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen space-y-6 p-4">
       <div className="flex items-center justify-between gap-4">
@@ -69,8 +95,6 @@ export default function Compare() {
           ←
         </button>
       </div>
-
-      {error && <p className="text-sm opacity-80">{error}</p>}
 
       <section className="space-y-2">
         <div className="flex items-center gap-3">

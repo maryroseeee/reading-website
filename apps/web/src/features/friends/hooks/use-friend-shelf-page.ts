@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getBooks } from "@/features/books/api/books-api";
 import type { Book } from "@/features/books/types/book";
@@ -24,6 +24,7 @@ export function useFriendShelfPage(username?: string, shelf?: string) {
   const [books, setBooks] = useState<Book[]>([]);
   const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [sort, setSort] = useState<ShelfSort>(() =>
@@ -32,22 +33,38 @@ export function useFriendShelfPage(username?: string, shelf?: string) {
   const shelfType = getFriendShelfType(shelf);
   const shelfCopy = FRIEND_SHELF_LABELS[shelfType];
 
-  useEffect(() => {
-    if (!username) return;
+  const loadShelf = useCallback(async () => {
+    if (!username) {
+      setError("Could not find this friend's shelf.");
+      setIsLoading(false);
+      return;
+    }
 
-    getFriendBooks(username)
-      .then((data) => {
-        setFriend(data.friend);
-        setBooks(data.books);
-      })
-      .catch(() => {
-        setError("Could not load this friend's books.");
-      });
+    setIsLoading(true);
+    setError("");
 
-    getBooks()
-      .then((data) => setMyBooks(data))
-      .catch(() => undefined);
+    const [friendBooksResult, myBooksResult] = await Promise.allSettled([
+      getFriendBooks(username),
+      getBooks(),
+    ]);
+
+    if (friendBooksResult.status === "fulfilled") {
+      setFriend(friendBooksResult.value.friend);
+      setBooks(friendBooksResult.value.books);
+    } else {
+      setError("Could not load this friend's books.");
+    }
+
+    if (myBooksResult.status === "fulfilled") {
+      setMyBooks(myBooksResult.value);
+    }
+
+    setIsLoading(false);
   }, [username]);
+
+  useEffect(() => {
+    void loadShelf();
+  }, [loadShelf]);
 
   useEffect(() => {
     setPage(1);
@@ -98,6 +115,7 @@ export function useFriendShelfPage(username?: string, shelf?: string) {
     friendName,
     friendProfilePath,
     handleMyBookAdded,
+    isLoading,
     myBooks,
     page,
     searchQuery,
@@ -109,5 +127,6 @@ export function useFriendShelfPage(username?: string, shelf?: string) {
     shelfType,
     sort,
     totalPages,
+    reload: loadShelf,
   };
 }

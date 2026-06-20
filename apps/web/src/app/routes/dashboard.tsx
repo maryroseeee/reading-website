@@ -6,6 +6,8 @@ import {
   AlertTitle,
 } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { PageError } from "@/components/page-state";
+import { DashboardPageSkeleton } from "@/components/page-skeletons";
 import AddBookCombobox from "@/features/books/components/add-book-combobox";
 import CurrentlyReadingCard from "@/features/books/components/currently-reading-card";
 import ScoreChart from "@/features/books/components/score-chart";
@@ -32,15 +34,32 @@ export default function Dashboard() {
     handleProfileUpdated,
     handleRemoveCurrentlyReading,
     handleThemeColorChange,
+    isLoading,
+    error,
     profileOpen,
     renderBookMoveActions,
     requests,
+    reload,
     setChartYear,
     setProfileOpen,
     user,
     wantToReadBooks,
     years,
   } = useDashboardPage();
+
+  if (isLoading) {
+    return <DashboardPageSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <PageError
+        title="Could not load dashboard"
+        message={error}
+        onRetry={reload}
+      />
+    );
+  }
 
   return (
     <div

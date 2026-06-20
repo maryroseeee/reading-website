@@ -8,6 +8,8 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination";
+import { PageError } from "@/components/page-state";
+import { FriendShelfPageSkeleton } from "@/components/page-skeletons";
 import FriendShelfBookGrid from "@/features/friends/components/friend-shelf-book-grid";
 import FriendShelfControls from "@/features/friends/components/friend-shelf-controls";
 import { useFriendShelfPage } from "@/features/friends/hooks/use-friend-shelf-page";
@@ -21,6 +23,7 @@ export default function FriendBooks() {
     friendName,
     friendProfilePath,
     handleMyBookAdded,
+    isLoading,
     myBooks,
     page,
     searchQuery,
@@ -32,7 +35,22 @@ export default function FriendBooks() {
     shelfType,
     sort,
     totalPages,
+    reload,
   } = useFriendShelfPage(username, shelf);
+
+  if (isLoading) {
+    return <FriendShelfPageSkeleton title={`${friendName}'s ${shelfCopy.title}`} />;
+  }
+
+  if (error) {
+    return (
+      <PageError
+        title="Could not load friend shelf"
+        message={error}
+        onRetry={reload}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 p-4">
@@ -56,7 +74,6 @@ export default function FriendBooks() {
           setPage(1);
         }}
       />
-      {error && <p className="text-center text-sm opacity-80">{error}</p>}
       {currentBooks.length === 0 ? (
         <p className="text-center text-sm opacity-90">
           {shelfBooks.length === 0

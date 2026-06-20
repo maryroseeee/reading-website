@@ -198,9 +198,3 @@ It runs the frontend lint/build pipeline, automated tests, and syntax-checks the
 - Creating a polished, iterative UI with reusable components and responsive layouts
 - Maintaining a monorepo with root-level scripts and a clear verification path
 - Adding automated frontend component tests and backend API route tests
-
-## Future Improvements
-
-- Add deployment documentation and production environment notes
-- Split the largest route pages into smaller feature-specific hooks and components
-- Add loading and error states consistently across every page

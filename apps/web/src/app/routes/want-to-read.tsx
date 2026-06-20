@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { PageError } from "@/components/page-state";
+import { ShelfPageSkeleton } from "@/components/page-skeletons";
 import {
   Pagination,
   PaginationContent,
@@ -33,13 +35,27 @@ export default function WantToRead() {
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [sort, setSort] = useState<ShelfSort>("titleAsc");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    getBooks()
-      .then((data) => setBooks(filterBooksForShelf(data, "wantToRead")))
-      .catch(() => undefined);
+  const loadBooks = useCallback(async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const data = await getBooks();
+      setBooks(filterBooksForShelf(data, "wantToRead"));
+    } catch {
+      setError("Could not load your want-to-read books.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadBooks();
+  }, [loadBooks]);
 
   const filteredBooks = sortShelfBooks(
     filterBooksBySearch(books, searchQuery),
@@ -67,6 +83,20 @@ export default function WantToRead() {
   const handleBookAdded = (book: Book) => {
     setBooks((prev) => reconcileBookForShelf(prev, book, "wantToRead"));
   };
+
+  if (isLoading) {
+    return <ShelfPageSkeleton title="Want To Read" />;
+  }
+
+  if (error) {
+    return (
+      <PageError
+        title="Could not load want-to-read books"
+        message={error}
+        onRetry={loadBooks}
+      />
+    );
+  }
 
   return (
     <div className="space-y-4 p-4">
