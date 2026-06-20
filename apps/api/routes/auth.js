@@ -7,6 +7,12 @@ import { env } from '../config/env.js';
 
 const router = Router();
 const client = new OAuth2Client(env.googleClientId);
+const isSecureClientOrigin = env.clientOrigin.startsWith('https://');
+const authCookieOptions = {
+  httpOnly: true,
+  sameSite: isSecureClientOrigin ? 'none' : 'lax',
+  secure: isSecureClientOrigin,
+};
 
 router.post('/google', async (req, res) => {
   const { id_token } = req.body;
@@ -37,7 +43,7 @@ router.post('/google', async (req, res) => {
       { expiresIn: '7d' }
     );
     res
-      .cookie('rc_token', token, { httpOnly: true, sameSite: 'lax' })
+      .cookie('rc_token', token, authCookieOptions)
       .json({ ok: true });
   } catch (e) {
     console.error(e);
@@ -98,7 +104,7 @@ router.put('/me/theme-color', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie('rc_token', { httpOnly: true, sameSite: 'lax' }).json({ ok: true });
+  res.clearCookie('rc_token', authCookieOptions).json({ ok: true });
 });
 
 export default router;
