@@ -19,6 +19,7 @@ import { addBook as createBook, searchBooks } from "../api/books-api";
 import type { Book } from "../types/book";
 import CustomBookDialog from "./custom-book-dialog";
 import { groupBookVersions } from "../utils/group-books";
+import type { ShelfTarget } from "../utils/shelf-actions";
 
 interface GroupedResult {
   versions: Book[];
@@ -31,9 +32,28 @@ interface GroupedResult {
 interface AddBookComboboxProps {
   onBookAdded: (book: Book) => void;
   books?: Book[];
+  defaultShelf?: ShelfTarget;
 }
 
-export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
+function getDefaultShelfOptions(defaultShelf?: ShelfTarget) {
+  return {
+    completedDate: defaultShelf === "read" ? new Date() : undefined,
+    currentlyReading: defaultShelf === "currentlyReading",
+    wantToRead: defaultShelf === "wantToRead",
+  };
+}
+
+function getAddButtonLabel(defaultShelf?: ShelfTarget) {
+  if (defaultShelf === "read") return "Add to read";
+  if (defaultShelf === "wantToRead") return "Add to want to read";
+  if (defaultShelf === "currentlyReading") return "Add to current reads";
+  return "Add";
+}
+
+export default function AddBookCombobox({
+  onBookAdded,
+  defaultShelf,
+}: AddBookComboboxProps) {
   const [open, setOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -41,6 +61,8 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
   const [error, setError] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
+  const addButtonLabel = getAddButtonLabel(defaultShelf);
+  const isReadShelfAdd = defaultShelf === "read";
 
   useEffect(() => {
     if (!query) {
@@ -55,9 +77,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
         setResults(
           groupBookVersions(books).map((group) => ({
             ...group,
-            completedDate: undefined,
-            currentlyReading: false,
-            wantToRead: false,
+            ...getDefaultShelfOptions(defaultShelf),
           })),
         );
       } catch {
@@ -68,7 +88,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
       }
     }, 300);
     return () => clearTimeout(handler);
-  }, [query]);
+  }, [defaultShelf, query]);
 
   const addBook = async (
     item: Book,
@@ -78,18 +98,23 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
       wantToRead?: boolean;
     } = {},
   ) => {
-    const payload = {
-      ...item,
-      completedDate: options.currentlyReading || options.wantToRead
-        ? undefined
-        : options.completedDate?.toISOString(),
-      currentlyReading: Boolean(options.currentlyReading),
-      wantToRead: Boolean(options.wantToRead),
-    };
-    const book = await createBook(payload);
-    onBookAdded(book);
-    setOpen(false);
-    setQuery("");
+    try {
+      setError("");
+      const payload = {
+        ...item,
+        completedDate: options.currentlyReading || options.wantToRead
+          ? undefined
+          : options.completedDate?.toISOString(),
+        currentlyReading: Boolean(options.currentlyReading),
+        wantToRead: Boolean(options.wantToRead),
+      };
+      const book = await createBook(payload);
+      onBookAdded(book);
+      setOpen(false);
+      setQuery("");
+    } catch {
+      setError("Could not add this book. Choose a read date and try again.");
+    }
   };
 
   return (
@@ -135,6 +160,9 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                     </div>
                     <div className="flex gap-2 mt-1 items-start">
                       <div className="flex flex-col gap-2">
+                        {isReadShelfAdd && (
+                          <p className="text-xs font-heading">Read date</p>
+                        )}
                         <CompletionDatePicker
                           date={item.completedDate}
                           onChange={(d) =>
@@ -152,50 +180,54 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                             )
                           }
                         />
-                        <label className="flex items-center gap-2 text-xs">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(item.currentlyReading)}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) =>
-                              setResults((prev) =>
-                                prev.map((r, i) =>
-                                  i === idx
-                                    ? {
-                                        ...r,
-                                        completedDate: undefined,
-                                        currentlyReading: e.target.checked,
-                                        wantToRead: false,
-                                      }
-                                    : r
-                                )
-                              )
-                            }
-                          />
-                          Currently reading
-                        </label>
-                        <label className="flex items-center gap-2 text-xs">
-                          <input
-                            type="checkbox"
-                            checked={Boolean(item.wantToRead)}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) =>
-                              setResults((prev) =>
-                                prev.map((r, i) =>
-                                  i === idx
-                                    ? {
-                                        ...r,
-                                        completedDate: undefined,
-                                        currentlyReading: false,
-                                        wantToRead: e.target.checked,
-                                      }
-                                    : r
-                                )
-                              )
-                            }
-                          />
-                          Want to read
-                        </label>
+                        {!isReadShelfAdd && (
+                          <>
+                            <label className="flex items-center gap-2 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(item.currentlyReading)}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) =>
+                                  setResults((prev) =>
+                                    prev.map((r, i) =>
+                                      i === idx
+                                        ? {
+                                            ...r,
+                                            completedDate: undefined,
+                                            currentlyReading: e.target.checked,
+                                            wantToRead: false,
+                                          }
+                                        : r
+                                    )
+                                  )
+                                }
+                              />
+                              Currently reading
+                            </label>
+                            <label className="flex items-center gap-2 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(item.wantToRead)}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={(e) =>
+                                  setResults((prev) =>
+                                    prev.map((r, i) =>
+                                      i === idx
+                                        ? {
+                                            ...r,
+                                            completedDate: undefined,
+                                            currentlyReading: false,
+                                            wantToRead: e.target.checked,
+                                          }
+                                        : r
+                                    )
+                                  )
+                                }
+                              />
+                              Want to read
+                            </label>
+                          </>
+                        )}
 
                         <Button
                           size="sm"
@@ -221,7 +253,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
                             }
                           }}
                         >
-                          Add
+                          {addButtonLabel}
                         </Button>
                       </div>
                       <VersionSelect
@@ -269,6 +301,7 @@ export default function AddBookCombobox({ onBookAdded }: AddBookComboboxProps) {
       <CustomBookDialog
         open={customOpen}
         initialTitle={query}
+        defaultShelf={defaultShelf}
         onOpenChange={setCustomOpen}
         onSave={addBook}
       />

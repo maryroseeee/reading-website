@@ -39,6 +39,79 @@ function matchesQuery(info, queryTerms) {
   );
 }
 
+function normalizeCoverUrl(url) {
+  if (!url) return undefined;
+
+  const httpsUrl = url.startsWith('http://') ? `https://${url.slice(7)}` : url;
+
+  try {
+    const parsed = new URL(httpsUrl);
+    if (parsed.hostname === 'books.google.com' && parsed.pathname === '/books/content') {
+      parsed.searchParams.delete('edge');
+      if (parsed.searchParams.has('zoom')) {
+        parsed.searchParams.set('zoom', '0');
+      }
+    }
+    return parsed.toString();
+  } catch {
+    return httpsUrl;
+  }
+}
+
+function getBestCoverUrl(imageLinks = {}) {
+  return normalizeCoverUrl(
+    imageLinks.extraLarge ||
+      imageLinks.large ||
+      imageLinks.medium ||
+      imageLinks.small ||
+      imageLinks.thumbnail ||
+      imageLinks.smallThumbnail,
+  );
+}
+
+function getShelf(book) {
+  if (!book) return undefined;
+  if (book.wantToRead) return 'wantToRead';
+  if (book.currentlyReading) return 'currentlyReading';
+  if (book.completedDate) return 'read';
+  return undefined;
+}
+
+function normalizeBookData(body, userId) {
+  const data = { ...body, userId };
+  const pageCount = body.pageCount;
+  data.points = pageCount ? pageCount / 100 : 0;
+  data.currentlyReading = Boolean(body.currentlyReading);
+  data.wantToRead = Boolean(body.wantToRead);
+  data.currentPage = Math.max(0, Number(body.currentPage || 0));
+  delete data.shelfAddedAt;
+  delete data.createdAt;
+  delete data.updatedAt;
+
+  if (data.currentlyReading || data.wantToRead || !body.completedDate) {
+    delete data.completedDate;
+  }
+  if (data.completedDate) {
+    data.currentlyReading = false;
+    data.wantToRead = false;
+  }
+  if (data.currentlyReading) {
+    data.wantToRead = false;
+  }
+
+  return data;
+}
+
+function applyShelfAddedAt(data, existingBook) {
+  const nextShelf = getShelf(data);
+  if (!nextShelf) return;
+
+  const currentShelf = getShelf(existingBook);
+  if (!existingBook || currentShelf !== nextShelf || !existingBook.shelfAddedAt) {
+    data.shelfAddedAt = new Date();
+  }
+}
+
 router.get('/search', async (req, res) => {
   const { q } = req.query;
   if (!q) return res.json([]);
@@ -52,7 +125,18 @@ router.get('/search', async (req, res) => {
   ];
 
   try {
-    const googleResults = await Promise.all(googleQueries.map(fetchGoogleBooks));
+    const googleResponses = await Promise.allSettled(
+      googleQueries.map(fetchGoogleBooks),
+    );
+    const googleResults = googleResponses
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => result.value);
+    if (googleResults.length === 0) {
+      const firstError = googleResponses.find(
+        (result) => result.status === 'rejected',
+      );
+      throw firstError?.reason || { status: 502, message: 'Unable to reach Google Books' };
+    }
     const uniqueItems = Array.from(
       new Map(googleResults.flat().map((item) => [item.id, item])).values(),
     );
@@ -84,7 +168,7 @@ router.get('/search', async (req, res) => {
       pageCount,
       publishedYear,
       categories: info.categories || [],
-      thumbnail: info.imageLinks?.thumbnail,
+      thumbnail: getBestCoverUrl(info.imageLinks),
       points: pageCount ? 1 + (pageCount / 100) : 0,
     };
   });
@@ -110,22 +194,12 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const data = { ...req.body, userId: req.user.uid };
-  const pageCount = req.body.pageCount;
-  data.points = pageCount ? pageCount / 100 : 0;
-  data.currentlyReading = Boolean(req.body.currentlyReading);
-  data.wantToRead = Boolean(req.body.wantToRead);
-  data.currentPage = Math.max(0, Number(req.body.currentPage || 0));
-  if (data.currentlyReading || data.wantToRead || !req.body.completedDate) {
-    delete data.completedDate;
-  }
-  if (data.completedDate) {
-    data.currentlyReading = false;
-    data.wantToRead = false;
-  }
-  if (data.currentlyReading) {
-    data.wantToRead = false;
-  }
+  const data = normalizeBookData(req.body, req.user.uid);
+  const existingBook = await Book.findOne({
+    userId: req.user.uid,
+    googleId: req.body.googleId,
+  });
+  applyShelfAddedAt(data, existingBook);
   const unset = data.completedDate ? {} : { completedDate: "" };
   const book = await Book.findOneAndUpdate(
     { userId: req.user.uid, googleId: req.body.googleId },
@@ -138,22 +212,9 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  const data = { ...req.body, userId: req.user.uid };
-  const pageCount = req.body.pageCount;
-  data.points = pageCount ? pageCount / 100 : 0;
-  data.currentlyReading = Boolean(req.body.currentlyReading);
-  data.wantToRead = Boolean(req.body.wantToRead);
-  data.currentPage = Math.max(0, Number(req.body.currentPage || 0));
-  if (data.currentlyReading || data.wantToRead || !req.body.completedDate) {
-    delete data.completedDate;
-  }
-  if (data.completedDate) {
-    data.currentlyReading = false;
-    data.wantToRead = false;
-  }
-  if (data.currentlyReading) {
-    data.wantToRead = false;
-  }
+  const data = normalizeBookData(req.body, req.user.uid);
+  const existingBook = await Book.findOne({ _id: req.params.id, userId: req.user.uid });
+  applyShelfAddedAt(data, existingBook);
   const unset = data.completedDate ? {} : { completedDate: "" };
   const book = await Book.findOneAndUpdate(
     { _id: req.params.id, userId: req.user.uid },

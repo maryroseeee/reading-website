@@ -9,9 +9,10 @@ import {
     DialogClose,
   } from "@/components/ui/dialog";
   import { Input } from "@/components/ui/input";
-  import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import type { Book } from "../types/book";
+import { createCoverDataUrl } from "../utils/cover-image";
 
 interface VersionSelectProps {
   versions: Book[];
@@ -42,6 +43,13 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
       });
       setOpen(false);
     };
+
+    const handleCoverChange = async (file?: File) => {
+      if (!file) return;
+      const coverDataUrl = await createCoverDataUrl(file);
+      setCover(coverDataUrl);
+    };
+
   return (
     <>
     <Select
@@ -93,49 +101,7 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
               type="file"
               accept="image/*"
               onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const aspect = 2 / 3;
-                            const imgW = img.width;
-                            const imgH = img.height;
-                            let cropW = imgW;
-                            let cropH = imgH;
-                            if (imgW / imgH > aspect) {
-                                cropW = imgH * aspect;
-                            } else {
-                                cropH = imgW / aspect;
-                            }
-                            const sx = (imgW - cropW) / 2;
-                            const sy = (imgH - cropH) / 2;
-                            const canvas = document.createElement('canvas');
-                            canvas.width = 200;
-                            canvas.height = 300;
-                            const ctx = canvas.getContext('2d');
-                            if (ctx) {
-                                ctx.drawImage(
-                                    img,
-                                    sx,
-                                    sy,
-                                    cropW,
-                                    cropH,
-                                    0,
-                                    0,
-                                    canvas.width,
-                                    canvas.height,
-                                );
-                                setCover(canvas.toDataURL('image/jpeg'));
-                            }
-                        };
-                        if (typeof reader.result === 'string') {
-                            img.src = reader.result;
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                }
+                void handleCoverChange(e.target.files?.[0]);
               }}
             />
             {cover && (

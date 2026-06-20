@@ -8,8 +8,9 @@
     "dev:api": "npm run dev --prefix apps/api",
     "build": "npm run build --prefix apps/web",
     "lint": "npm run lint --prefix apps/web",
+    "test": "npm run test --prefix apps/web && npm run test --prefix apps/api",
     "start": "npm run start --prefix apps/api",
-    "check": "npm run lint && npm run build && node --check apps/api/index.js && node --check apps/api/routes/auth.js && node --check apps/api/routes/books.js && node --check apps/api/routes/friends.js && node --check apps/api/middleware/auth.js && node --check apps/api/config/env.js"
+    "check": "npm run lint && npm run test && npm run build && node --check apps/api/app.js && node --check apps/api/index.js && node --check apps/api/routes/auth.js && node --check apps/api/routes/books.js && node --check apps/api/routes/friends.js && node --check apps/api/middleware/auth.js && node --check apps/api/config/env.js"
   },
   "keywords": [],
   "author": "",

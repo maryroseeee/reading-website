@@ -23,6 +23,8 @@ export default function ShelfBookEditMenu({
 }: ShelfBookEditMenuProps) {
   if (!book._id) return null;
 
+  const actionButtonClassName = "h-8 w-full px-2 text-xs";
+
   return (
     <BookEditMenu>
       {shelf === "read" && onReadDateChange && (
@@ -34,9 +36,20 @@ export default function ShelfBookEditMenu({
           />
         </div>
       )}
-      <BookShelfChangeButton book={book} onBookUpdated={onBookUpdated} />
-      <BookEditionEditButton book={book} onBookUpdated={onBookUpdated} />
-      <DeleteButton onConfirm={() => onDelete(book._id!)} />
+      <BookShelfChangeButton
+        book={book}
+        onBookUpdated={onBookUpdated}
+        className={actionButtonClassName}
+      />
+      <BookEditionEditButton
+        book={book}
+        onBookUpdated={onBookUpdated}
+        className={actionButtonClassName}
+      />
+      <DeleteButton
+        className={actionButtonClassName}
+        onConfirm={() => onDelete(book._id!)}
+      />
     </BookEditMenu>
   );
 }

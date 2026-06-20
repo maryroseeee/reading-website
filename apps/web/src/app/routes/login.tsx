@@ -1,7 +1,7 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, ChartNoAxesColumnIncreasing, UsersRound } from 'lucide-react';
+import { ChartNoAxesColumnIncreasing, UsersRound } from 'lucide-react';
 
 import { loginWithGoogle } from '@/features/auth/api/auth-api';
 import { applyThemeColor } from '@/lib/theme-colors';
@@ -26,11 +26,6 @@ export default function Login() {
     >
       <main className="mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 gap-10 px-5 py-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)] lg:items-center lg:gap-16 lg:px-8">
         <section className="min-w-0 space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-base border-2 border-border bg-main px-3 py-2 text-sm font-heading text-main-foreground shadow-shadow">
-            <BookOpen className="h-4 w-4" />
-            Reading Website
-          </div>
-
           <div className="space-y-3">
             <h1 className="max-w-3xl text-5xl leading-none md:text-7xl">
               Read more together.

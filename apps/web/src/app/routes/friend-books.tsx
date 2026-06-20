@@ -12,8 +12,17 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { getBooks } from "@/features/books/api/books-api";
 import BookCard from "@/features/books/components/book-card";
+import BookListSearch from "@/features/books/components/book-list-search";
 import FriendBookAddActions from "@/features/books/components/friend-book-add-actions";
+import ShelfSortSelect from "@/features/books/components/shelf-sort-select";
 import type { Book } from "@/features/books/types/book";
+import {
+  READ_SHELF_SORT_OPTIONS,
+  WANT_TO_READ_SORT_OPTIONS,
+  filterBooksBySearch,
+  sortShelfBooks,
+  type ShelfSort,
+} from "@/features/books/utils/shelf-books";
 import { getFriendBooks } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
 import { useTemporaryThemeColor } from "@/lib/use-temporary-theme-color";
@@ -63,6 +72,14 @@ function getShelfBooks(books: Book[], shelf: ShelfType) {
     });
 }
 
+function getDefaultSort(shelf: ShelfType): ShelfSort {
+  return shelf === "read" ? "dateReadDesc" : "titleAsc";
+}
+
+function getSortOptions(shelf: ShelfType) {
+  return shelf === "read" ? READ_SHELF_SORT_OPTIONS : WANT_TO_READ_SORT_OPTIONS;
+}
+
 function getProgressValue(book: Book) {
   if (!book.pageCount) return 0;
   return Math.min(
@@ -79,6 +96,8 @@ export default function FriendBooks() {
   const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sort, setSort] = useState<ShelfSort>(() => getDefaultSort(getShelfType(shelf)));
   const shelfType = getShelfType(shelf);
   const shelfCopy = SHELF_LABELS[shelfType];
 
@@ -101,6 +120,8 @@ export default function FriendBooks() {
 
   useEffect(() => {
     setPage(1);
+    setSearchQuery("");
+    setSort(getDefaultSort(shelfType));
   }, [shelfType, username]);
 
   useTemporaryThemeColor(friend?.themeColor);
@@ -109,8 +130,16 @@ export default function FriendBooks() {
     () => getShelfBooks(books, shelfType),
     [books, shelfType],
   );
-  const totalPages = Math.max(1, Math.ceil(shelfBooks.length / PAGE_SIZE));
-  const currentBooks = shelfBooks.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const filteredBooks = useMemo(
+    () =>
+      sortShelfBooks(
+        filterBooksBySearch(shelfBooks, searchQuery),
+        sort,
+      ),
+    [searchQuery, shelfBooks, sort],
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredBooks.length / PAGE_SIZE));
+  const currentBooks = filteredBooks.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const friendName = friend?.name || friend?.username || "Friend";
   const handleMyBookAdded = (book: Book) => {
     setMyBooks((current) => {
@@ -138,9 +167,35 @@ export default function FriendBooks() {
       <h1 className="text-center text-xl">
         {friendName}'s {shelfCopy.title}
       </h1>
+      <div className="grid items-center gap-3 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+        <div className="lg:col-start-2">
+          <BookListSearch
+            value={searchQuery}
+            onChange={(value) => {
+              setSearchQuery(value);
+              setPage(1);
+            }}
+            placeholder={`Search ${shelfCopy.title.toLowerCase()}`}
+          />
+        </div>
+        <div className="flex flex-wrap justify-center gap-2 lg:col-start-3 lg:justify-self-end">
+          <ShelfSortSelect
+            value={sort}
+            options={getSortOptions(shelfType)}
+            onChange={(value) => {
+              setSort(value);
+              setPage(1);
+            }}
+          />
+        </div>
+      </div>
       {error && <p className="text-center text-sm opacity-80">{error}</p>}
       {currentBooks.length === 0 ? (
-        <p className="text-center text-sm opacity-90">{shelfCopy.empty}</p>
+        <p className="text-center text-sm opacity-90">
+          {shelfBooks.length === 0
+            ? shelfCopy.empty
+            : "No books match these filters"}
+        </p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           {currentBooks.map((book) => (

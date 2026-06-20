@@ -5,17 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface CompletionDatePickerProps {
   date?: Date;
   onChange: (date: Date | undefined) => void;
+  buttonClassName?: string;
+  iconClassName?: string;
 }
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const onlyDigits = (s: string) => s.replace(/\D+/g, "");
 const daysInMonth = (y: number, m0: number) => new Date(y, m0 + 1, 0).getDate();
 
-export default function CompletionDatePicker({ date, onChange }: CompletionDatePickerProps) {
+export default function CompletionDatePicker({
+  date,
+  onChange,
+  buttonClassName,
+  iconClassName,
+}: CompletionDatePickerProps) {
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState<null | "m" | "d" | "y">(null);
   const [mm, setMM] = useState(date ? pad2(date.getMonth() + 1) : "");
@@ -147,9 +155,15 @@ export default function CompletionDatePicker({ date, onChange }: CompletionDateP
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button className="h-6 px-2 text-xs justify-start">
-          <CalendarIcon className="mr-1 h-4 w-4" />
-          {label}
+        <Button
+          type="button"
+          className={cn(
+            "h-6 min-w-0 justify-start gap-1 px-2 text-xs",
+            buttonClassName,
+          )}
+        >
+          <CalendarIcon className={cn("h-4 w-4 shrink-0", iconClassName)} />
+          <span className="min-w-0 truncate">{label}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

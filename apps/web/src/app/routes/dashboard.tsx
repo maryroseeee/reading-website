@@ -29,7 +29,7 @@ import {
   updateThemeColor,
 } from "@/features/auth/api/auth-api";
 import EditProfileForm from "@/features/auth/components/edit-profile-form";
-import { getBooks, updateBook } from "@/features/books/api/books-api";
+import { deleteBook, getBooks, updateBook } from "@/features/books/api/books-api";
 import type { Book } from "@/features/books/types/book";
 import { getFriendRequests, getFriends } from "@/features/friends/api/friends-api";
 import type { Friend } from "@/features/friends/types/friend";
@@ -102,11 +102,18 @@ export default function Dashboard() {
     setBooks((prev) => prev.map((b) => (b._id === book._id ? book : b)));
   };
 
+  const handleBookDeleted = async (book: Book) => {
+    if (!book._id) return;
+    await deleteBook(book._id);
+    setBooks((prev) => prev.filter((b) => b._id !== book._id));
+  };
+
   const renderBookMoveActions = (book: Book, variant?: "compact") => (
     <FriendBookAddActions
       book={book}
       mode="update"
       onBookAdded={handleBookMoved}
+      onBookDeleted={handleBookDeleted}
       compact={variant === "compact"}
       showEditionEdit
     />

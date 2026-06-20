@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { addBook, updateBook } from "../api/books-api";
 import BookEditionEditButton from "./book-edition-edit-button";
 import CompletionDatePicker from "./completion-date-picker";
+import DeleteButton from "./delete-button";
 import type { Book } from "../types/book";
 import {
   getShelfPayload,
@@ -23,6 +24,7 @@ type FriendBookAddActionsProps = {
   compact?: boolean;
   className?: string;
   showEditionEdit?: boolean;
+  onBookDeleted?: (book: Book) => void | Promise<void>;
 };
 
 function getCopyGoogleId(book: Book) {
@@ -40,6 +42,7 @@ export default function FriendBookAddActions({
   compact = false,
   className,
   showEditionEdit = false,
+  onBookDeleted,
 }: FriendBookAddActionsProps) {
   const [addingTarget, setAddingTarget] = useState<ShelfTarget>();
   const [message, setMessage] = useState("");
@@ -53,8 +56,9 @@ export default function FriendBookAddActions({
       : existingBooks.find((existing) => existing.googleId === copyGoogleId));
   const currentTarget = getShelfTarget(existingBook);
   const buttonClassName = compact
-    ? "h-6 w-full px-1 text-[10px]"
+    ? "h-6 w-full min-w-0 px-1 text-[10px] leading-none"
     : "h-7 w-full px-2 text-[11px]";
+  const loadingLabel = compact ? "Adding" : "Adding...";
 
   const handleAdd = async (target: ShelfTarget) => {
     if (currentTarget === target) return;
@@ -91,8 +95,10 @@ export default function FriendBookAddActions({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center rounded-base bg-background/95 text-foreground opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100",
-        compact ? "gap-1 p-1" : "gap-2 p-2",
+        "pointer-events-none absolute inset-0 z-10 rounded-base bg-background/95 text-foreground opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100",
+        compact
+          ? "grid grid-cols-2 content-center items-center gap-1 p-1"
+          : "flex flex-col items-center justify-center gap-2 p-2",
         className,
       )}
       onClick={(event) => event.stopPropagation()}
@@ -105,6 +111,7 @@ export default function FriendBookAddActions({
             onBookAdded?.(updatedBook);
           }}
           compact={compact}
+          className={buttonClassName}
         />
       )}
       <Button
@@ -115,8 +122,8 @@ export default function FriendBookAddActions({
         onClick={() => void handleAdd("wantToRead")}
       >
         {addingTarget === "wantToRead"
-            ? "Adding..."
-            : SHELF_BUTTON_LABELS.wantToRead}
+          ? loadingLabel
+          : SHELF_BUTTON_LABELS.wantToRead}
       </Button>
       <Button
         type="button"
@@ -126,13 +133,21 @@ export default function FriendBookAddActions({
         onClick={() => void handleAdd("currentlyReading")}
       >
         {addingTarget === "currentlyReading"
-            ? "Adding..."
-            : SHELF_BUTTON_LABELS.currentlyReading}
+          ? loadingLabel
+          : SHELF_BUTTON_LABELS.currentlyReading}
       </Button>
-      <div className="flex w-full flex-col gap-1">
+      <div
+        className={cn(
+          "flex min-w-0 w-full flex-col gap-1",
+          compact &&
+            "[&_[data-slot=button]]:w-full [&_[data-slot=button]]:justify-center",
+        )}
+      >
         <CompletionDatePicker
           date={completedDate}
           onChange={setCompletedDate}
+          buttonClassName={buttonClassName}
+          iconClassName={compact ? "h-3 w-3" : undefined}
         />
       </div>
       <Button
@@ -143,10 +158,25 @@ export default function FriendBookAddActions({
         onClick={() => void handleAdd("read")}
       >
         {addingTarget === "read"
-            ? "Adding..."
-            : SHELF_BUTTON_LABELS.read}
+          ? loadingLabel
+          : SHELF_BUTTON_LABELS.read}
       </Button>
-      {message && <p className="text-center text-[11px] font-heading">{message}</p>}
+      {mode === "update" && onBookDeleted && (
+        <DeleteButton
+          className={buttonClassName}
+          onConfirm={() => onBookDeleted(existingBook ?? book)}
+        />
+      )}
+      {message && (
+        <p
+          className={cn(
+            "text-center font-heading",
+            compact ? "col-span-2 text-[10px] leading-none" : "text-[11px]",
+          )}
+        >
+          {message}
+        </p>
+      )}
     </div>
   );
 }

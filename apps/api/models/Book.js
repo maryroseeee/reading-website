@@ -11,10 +11,11 @@ const bookSchema = new mongoose.Schema({
   thumbnail: String,
   points: Number,
   completedDate: Date,
+  shelfAddedAt: Date,
   currentlyReading: { type: Boolean, default: false },
   wantToRead: { type: Boolean, default: false },
   currentPage: { type: Number, default: 0 },
-});
+}, { timestamps: true });
 
 bookSchema.index({ userId: 1, googleId: 1 }, { unique: true });
 

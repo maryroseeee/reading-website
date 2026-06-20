@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 import { updateBook } from "../api/books-api";
 import type { Book } from "../types/book";
@@ -23,11 +24,13 @@ import CompletionDatePicker from "./completion-date-picker";
 type BookShelfChangeButtonProps = {
   book: Book;
   onBookUpdated?: (book: Book) => void;
+  className?: string;
 };
 
 export default function BookShelfChangeButton({
   book,
   onBookUpdated,
+  className,
 }: BookShelfChangeButtonProps) {
   const [open, setOpen] = useState(false);
   const [completedDate, setCompletedDate] = useState<Date | undefined>(
@@ -72,7 +75,12 @@ export default function BookShelfChangeButton({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button" size="sm" disabled={!book._id}>
+        <Button
+          type="button"
+          size="sm"
+          className={cn("w-full", className)}
+          disabled={!book._id}
+        >
           Change shelf
         </Button>
       </DialogTrigger>

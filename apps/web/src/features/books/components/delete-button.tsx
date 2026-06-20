@@ -10,16 +10,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface DeleteButtonProps {
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
+  className?: string;
 }
 
-export default function DeleteButton({ onConfirm }: DeleteButtonProps) {
+export default function DeleteButton({ onConfirm, className }: DeleteButtonProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="bg-main">Delete</Button>
+        <Button className={cn("bg-main", className)}>Delete</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

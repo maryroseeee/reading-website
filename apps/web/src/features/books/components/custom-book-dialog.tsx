@@ -11,11 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 
 import type { Book } from "../types/book";
+import { createCoverDataUrl } from "../utils/cover-image";
+import type { ShelfTarget } from "../utils/shelf-actions";
 import CompletionDatePicker from "./completion-date-picker";
 
 type CustomBookDialogProps = {
   open: boolean;
   initialTitle: string;
+  defaultShelf?: ShelfTarget;
   onOpenChange: (open: boolean) => void;
   onSave: (
     book: Book,
@@ -30,6 +33,7 @@ type CustomBookDialogProps = {
 export default function CustomBookDialog({
   open,
   initialTitle,
+  defaultShelf,
   onOpenChange,
   onSave,
 }: CustomBookDialogProps) {
@@ -44,42 +48,15 @@ export default function CustomBookDialog({
   useEffect(() => {
     if (!open) return;
     setTitle(initialTitle);
-    setCompletedDate(undefined);
-    setCurrentlyReading(false);
-    setWantToRead(false);
-  }, [initialTitle, open]);
+    setCompletedDate(defaultShelf === "read" ? new Date() : undefined);
+    setCurrentlyReading(defaultShelf === "currentlyReading");
+    setWantToRead(defaultShelf === "wantToRead");
+  }, [defaultShelf, initialTitle, open]);
 
-  const handleCoverChange = (file?: File) => {
+  const handleCoverChange = async (file?: File) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const aspect = 2 / 3;
-        const imgW = img.width;
-        const imgH = img.height;
-        let cropW = imgW;
-        let cropH = imgH;
-        if (imgW / imgH > aspect) {
-          cropW = imgH * aspect;
-        } else {
-          cropH = imgW / aspect;
-        }
-        const sx = (imgW - cropW) / 2;
-        const sy = (imgH - cropH) / 2;
-        const canvas = document.createElement("canvas");
-        canvas.width = 200;
-        canvas.height = 300;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-        ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, canvas.width, canvas.height);
-        setCover(canvas.toDataURL("image/jpeg"));
-      };
-      if (typeof reader.result === "string") {
-        img.src = reader.result;
-      }
-    };
-    reader.readAsDataURL(file);
+    const coverDataUrl = await createCoverDataUrl(file);
+    setCover(coverDataUrl);
   };
 
   const handleSave = () => {
@@ -167,7 +144,9 @@ export default function CustomBookDialog({
           <Input
             type="file"
             accept="image/*"
-            onChange={(e) => handleCoverChange(e.target.files?.[0])}
+            onChange={(e) => {
+              void handleCoverChange(e.target.files?.[0]);
+            }}
           />
           {cover && (
             <img src={cover} alt="" className="h-24 w-16 rounded-sm object-cover" />
