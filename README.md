@@ -24,6 +24,8 @@ This project was built as a practical reading competition app: users can sign in
 
 The deployed site includes a **View Recruiter Demo** button on the login page. It signs visitors into a seeded temporary profile with books, reading progress, a demo friend, friend shelves, and comparison data already populated. Recruiters can try edits and hover actions during the session; the temporary demo copy is deleted on logout.
 
+Note: The API is hosted on Render's free tier, so the first demo request after inactivity may take up to a minute while the backend wakes up. After that, the app should respond normally.
+
 ## Screenshots
 
 Screenshots for the main user flows are stored in `docs/screenshots`.
