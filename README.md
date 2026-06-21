@@ -16,8 +16,13 @@ This project was built as a practical reading competition app: users can sign in
 - Hover and dropdown actions for changing shelves, editing editions, setting read dates, and deleting books
 - Per-user theme colors, including pink, blue, navy, black, and other light/dark-friendly options
 - Skeleton loading states and retryable error screens across data-heavy pages
+- Recruiter demo login that opens a populated temporary account without requiring Google sign-in
 - Responsive React UI with reusable feature components and neobrutalist styling
 - Full-stack monorepo structure with a React/Vite frontend and Express/MongoDB API
+
+## Recruiter Demo
+
+The deployed site includes a **View Recruiter Demo** button on the login page. It signs visitors into a seeded temporary profile with books, reading progress, a demo friend, friend shelves, and comparison data already populated. Recruiters can try edits and hover actions during the session; the temporary demo copy is deleted on logout.
 
 ## Screenshots
 

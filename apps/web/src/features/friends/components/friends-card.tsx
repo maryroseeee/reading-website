@@ -21,6 +21,7 @@ interface FriendsCardProps {
   currentUsername?: string;
   friendRequestsControl?: ReactNode;
   onFriendRemoved?: (username: string) => void;
+  readOnly?: boolean;
 }
 
 export default function FriendsCard({
@@ -28,6 +29,7 @@ export default function FriendsCard({
   currentUsername,
   friendRequestsControl,
   onFriendRemoved,
+  readOnly = false,
 }: FriendsCardProps) {
   const navigate = useNavigate();
   const [activeFriend, setActiveFriend] = useState<Friend>();
@@ -104,14 +106,16 @@ export default function FriendsCard({
       )}
 
 <div className="mt-4 flex flex-col gap-2">
-        <AddFriendCombobox canSendFriendRequests={Boolean(currentUsername)} />
+        {!readOnly && (
+          <AddFriendCombobox canSendFriendRequests={Boolean(currentUsername)} />
+        )}
         <Button
           className="w-full bg-background text-foreground"
           onClick={() => navigate("/friends")}
         >
           View Friends
         </Button>
-        {friendRequestsControl}
+        {!readOnly && friendRequestsControl}
       </div>
       {activeFriend?.username &&
         createPortal(
@@ -139,12 +143,14 @@ export default function FriendsCard({
             >
               Check profile
             </button>
-            <RemoveFriendButton
-              compact
-              friendName={activeFriend.name || activeFriend.username}
-              triggerClassName="block w-full rounded-sm px-2 py-1 text-left text-xs hover:bg-main hover:text-main-foreground"
-              onConfirm={() => handleRemoveFriend(activeFriend.username!)}
-            />
+            {!readOnly && (
+              <RemoveFriendButton
+                compact
+                friendName={activeFriend.name || activeFriend.username}
+                triggerClassName="block w-full rounded-sm px-2 py-1 text-left text-xs hover:bg-main hover:text-main-foreground"
+                onConfirm={() => handleRemoveFriend(activeFriend.username!)}
+              />
+            )}
           </div>,
           document.body,
         )}

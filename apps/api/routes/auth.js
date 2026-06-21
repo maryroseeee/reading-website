@@ -3,6 +3,11 @@ import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { env } from '../config/env.js';
+import {
+  deleteDemoSession,
+  isDemoUserId,
+  seedDemoAccount,
+} from '../services/demo-data.js';
 
 
 const router = Router();
@@ -13,6 +18,18 @@ const authCookieOptions = {
   sameSite: isSecureClientOrigin ? 'none' : 'lax',
   secure: isSecureClientOrigin,
 };
+
+function signAuthToken(payload) {
+  return jwt.sign(payload, env.jwtSecret, { expiresIn: '7d' });
+}
+
+function setAuthCookie(res, token) {
+  return res.cookie('rc_token', token, authCookieOptions);
+}
+
+function isDemoSession(data) {
+  return Boolean(data.demo || isDemoUserId(data.uid));
+}
 
 router.post('/google', async (req, res) => {
   const { id_token } = req.body;
@@ -37,17 +54,30 @@ router.post('/google', async (req, res) => {
       { upsert: true }
     ); 
 
-    const token = jwt.sign(
+    const token = signAuthToken(
       { uid: payload.sub, email: payload.email },
-      env.jwtSecret,
-      { expiresIn: '7d' }
     );
-    res
-      .cookie('rc_token', token, authCookieOptions)
-      .json({ ok: true });
+    setAuthCookie(res, token).json({ ok: true });
   } catch (e) {
     console.error(e);
     res.status(401).json({ error: 'Invalid token' });
+  }
+});
+
+router.post('/demo', async (_req, res) => {
+  try {
+    const { sessionId, user: demoUser } = await seedDemoAccount();
+    const token = signAuthToken({
+      uid: demoUser.googleId,
+      email: demoUser.email,
+      demo: true,
+      demoSessionId: sessionId,
+    });
+
+    setAuthCookie(res, token).json({ ok: true });
+  } catch (error) {
+    console.error('Unable to seed demo account', error);
+    res.status(500).json({ error: 'Unable to start demo' });
   }
 });
 
@@ -59,8 +89,9 @@ router.get('/me', async (req, res) => {
     const data = jwt.verify(rc_token, env.jwtSecret);
     const user = await User.findOne({ googleId: data.uid }).select(
       'email name username bio profilePicture themeColor'
-    );
-    res.json(user);
+    ).lean();
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    res.json({ ...user, isDemo: isDemoSession(data) });
   } catch {
     res.status(401).json({ error: 'Unauthorized' });
   }
@@ -103,7 +134,23 @@ router.put('/me/theme-color', async (req, res) => {
   }
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
+  const { rc_token } = req.cookies;
+
+  if (rc_token) {
+    try {
+      const data = jwt.verify(rc_token, env.jwtSecret);
+      if (isDemoSession(data)) {
+        await deleteDemoSession({
+          sessionId: data.demoSessionId,
+          uid: data.uid,
+        });
+      }
+    } catch {
+      // Clearing the cookie is still the correct logout behavior.
+    }
+  }
+
   res.clearCookie('rc_token', authCookieOptions).json({ ok: true });
 });
 

@@ -30,6 +30,8 @@ const userSchema = new mongoose.Schema({
   bio: String,
   profilePicture: String,
   themeColor: { type: String, enum: themeColorNames, default: 'pink' },
+  demoSessionId: String,
+  demoExpiresAt: Date,
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });

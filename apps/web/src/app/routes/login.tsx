@@ -1,17 +1,34 @@
 import { GoogleLogin } from '@react-oauth/google';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChartNoAxesColumnIncreasing, UsersRound } from 'lucide-react';
 
-import { loginWithGoogle } from '@/features/auth/api/auth-api';
+import { Button } from '@/components/ui/button';
+import { loginWithDemo, loginWithGoogle } from '@/features/auth/api/auth-api';
 import { applyThemeColor } from '@/lib/theme-colors';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
 
   useEffect(() => {
     applyThemeColor('orange', false);
   }, []);
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    setAuthError("");
+
+    try {
+      await loginWithDemo();
+      navigate('/dashboard');
+    } catch {
+      setAuthError("Could not start the demo. Try again in a moment.");
+    } finally {
+      setDemoLoading(false);
+    }
+  };
 
   return (
     <div
@@ -99,6 +116,22 @@ export default function Login() {
                 }}
                 onError={() => undefined}
               />
+            </div>
+            <div className="mt-3 space-y-2">
+              <Button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={demoLoading}
+                className="w-full bg-main text-main-foreground"
+              >
+                {demoLoading ? "Loading Demo..." : "View Recruiter Demo"}
+              </Button>
+              <p className="text-xs opacity-75">
+                Try a populated temporary account without signing in.
+              </p>
+              {authError && (
+                <p className="text-xs font-heading text-red-600">{authError}</p>
+              )}
             </div>
           </div>
         </section>

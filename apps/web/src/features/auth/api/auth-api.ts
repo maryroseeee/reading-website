@@ -6,6 +6,10 @@ export async function loginWithGoogle(idToken: string) {
   await apiClient.post("/auth/google", { id_token: idToken });
 }
 
+export async function loginWithDemo() {
+  await apiClient.post("/auth/demo");
+}
+
 export async function getCurrentUser() {
   const res = await apiClient.get<UserProfile>("/auth/me");
   return res.data;

@@ -13,3 +13,11 @@ export function auth(req, res, next) {
     res.status(401).json({ error: "Unauthorized" });
   }
 }
+
+export function requireWritableSession(req, res, next) {
+  if (req.user?.demo) {
+    return res.status(403).json({ error: "Demo mode cannot change friends" });
+  }
+
+  next();
+}

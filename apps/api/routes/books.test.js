@@ -20,8 +20,11 @@ vi.mock('../models/Book.js', () => ({
 
 let app;
 
-function authCookie(uid = 'user-1') {
-  const token = jwt.sign({ uid }, process.env.JWT_SECRET);
+function authCookie(payload = { uid: 'user-1' }) {
+  const token = jwt.sign(
+    typeof payload === 'string' ? { uid: payload } : payload,
+    process.env.JWT_SECRET,
+  );
   return `rc_token=${token}`;
 }
 
@@ -64,6 +67,49 @@ describe('books API', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(savedBooks);
     expect(bookModel.find).toHaveBeenCalledWith({ userId: 'user-1' });
+  });
+
+  it('allows demo write requests against the temporary demo user', async () => {
+    const savedBook = {
+      _id: 'book-1',
+      googleId: 'google-1',
+      title: 'Jane Eyre',
+      userId: 'demo-recruiter-reader:session-1',
+    };
+    bookModel.findOneAndUpdate.mockResolvedValue(savedBook);
+
+    const response = await request(app)
+      .post('/api/books')
+      .set(
+        'Cookie',
+        authCookie({
+          uid: 'demo-recruiter-reader:session-1',
+          demo: true,
+          demoSessionId: 'session-1',
+        }),
+      )
+      .send({
+        googleId: 'google-1',
+        title: 'Jane Eyre',
+        pageCount: 412,
+        completedDate: '2026-01-05T00:00:00.000Z',
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(savedBook);
+    expect(bookModel.findOneAndUpdate).toHaveBeenCalledWith(
+      {
+        userId: 'demo-recruiter-reader:session-1',
+        googleId: 'google-1',
+      },
+      {
+        $set: expect.objectContaining({
+          title: 'Jane Eyre',
+          userId: 'demo-recruiter-reader:session-1',
+        }),
+      },
+      { upsert: true, new: true },
+    );
   });
 
   it('returns the highest quality available Google Books cover', async () => {

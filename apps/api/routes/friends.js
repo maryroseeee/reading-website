@@ -1,7 +1,7 @@
 import { Router } from "express";
 import Book from "../models/Book.js";
 import User from "../models/User.js";
-import { auth } from "../middleware/auth.js";
+import { auth, requireWritableSession } from "../middleware/auth.js";
 
 const router = Router();
 router.use(auth);
@@ -149,7 +149,7 @@ router.get("/:username/friends", async (req, res) => {
   res.json(friend.friends || []);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", requireWritableSession, async (req, res) => {
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: "Username required" });
   const [current, friend] = await Promise.all([
@@ -181,7 +181,7 @@ router.post("/", async (req, res) => {
   res.json({ success: true });
 });
 
-router.post("/accept", async (req, res) => {
+router.post("/accept", requireWritableSession, async (req, res) => {
   const { username, id } = req.body;
   if (!username && !id) {
     return res.status(400).json({ error: "User identifier required" });
@@ -217,7 +217,7 @@ router.post("/accept", async (req, res) => {
   });
 });
 
-router.post("/reject", async (req, res) => {
+router.post("/reject", requireWritableSession, async (req, res) => {
   const { username, id } = req.body;
   if (!username && !id) {
     return res.status(400).json({ error: "User identifier required" });
@@ -236,7 +236,7 @@ router.post("/reject", async (req, res) => {
   res.json({ success: true });
 });
 
-router.delete("/:username", async (req, res) => {
+router.delete("/:username", requireWritableSession, async (req, res) => {
   const { username } = req.params;
   const [current, friend] = await Promise.all([
     User.findOne({ googleId: req.user.uid }),

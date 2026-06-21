@@ -88,6 +88,7 @@ export default function Dashboard() {
         <FriendsCard
           friends={friends}
           currentUsername={user.username}
+          readOnly={user.isDemo}
           onFriendRemoved={handleFriendRemoved}
           friendRequestsControl={
             <FriendRequestsCombobox
@@ -107,6 +108,17 @@ export default function Dashboard() {
             <AlertDescription>
               You will not be able to make friends until you add a username.
               Click Edit Profile to add one.
+            </AlertDescription>
+          </Alert>
+        )}
+        {user.isDemo && (
+          <Alert className="bg-main text-main-foreground">
+            <AlertCircleIcon />
+            <AlertTitle>Recruiter demo</AlertTitle>
+            <AlertDescription>
+              This is a temporary demo account. You can edit shelves, progress,
+              dates, editions, and profile details; the demo copy is deleted
+              when you log out.
             </AlertDescription>
           </Alert>
         )}

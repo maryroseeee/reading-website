@@ -10,7 +10,7 @@
     "lint": "npm run lint --prefix apps/web",
     "test": "npm run test --prefix apps/web && npm run test --prefix apps/api",
     "start": "npm run start --prefix apps/api",
-    "check": "npm run lint && npm run test && npm run build && node --check apps/api/app.js && node --check apps/api/index.js && node --check apps/api/routes/auth.js && node --check apps/api/routes/books.js && node --check apps/api/routes/friends.js && node --check apps/api/middleware/auth.js && node --check apps/api/config/env.js"
+    "check": "npm run lint && npm run test && npm run build && node --check apps/api/app.js && node --check apps/api/index.js && node --check apps/api/routes/auth.js && node --check apps/api/routes/books.js && node --check apps/api/routes/friends.js && node --check apps/api/middleware/auth.js && node --check apps/api/config/env.js && node --check apps/api/models/User.js && node --check apps/api/models/Book.js && node --check apps/api/services/demo-data.js"
   },
   "keywords": [],
   "author": "",

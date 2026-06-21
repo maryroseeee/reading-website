@@ -5,6 +5,7 @@ export type UserProfile = {
   bio?: string;
   profilePicture?: string;
   themeColor?: string;
+  isDemo?: boolean;
 };
 
 export type ProfileFormData = {
