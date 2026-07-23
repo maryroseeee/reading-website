@@ -11,14 +11,26 @@ export default function Login() {
   const navigate = useNavigate();
   const [demoLoading, setDemoLoading] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [showWakeUpNote, setShowWakeUpNote] = useState(false);
 
   useEffect(() => {
     applyThemeColor('orange', false);
   }, []);
 
+  useEffect(() => {
+    if (!demoLoading) return;
+
+    const wakeUpNoteTimer = window.setTimeout(() => {
+      setShowWakeUpNote(true);
+    }, 5000);
+
+    return () => window.clearTimeout(wakeUpNoteTimer);
+  }, [demoLoading]);
+
   const handleDemoLogin = async () => {
     setDemoLoading(true);
     setAuthError("");
+    setShowWakeUpNote(false);
 
     try {
       await loginWithDemo();
@@ -106,6 +118,12 @@ export default function Login() {
               <h2 className="text-3xl">Sign in or start reading.</h2>
               <p className="text-sm opacity-80">Use your Google account to continue or create your shelf.</p>
             </div>
+
+            {showWakeUpNote && (
+              <p className="mb-4 rounded-base border border-border/60 bg-secondary-background px-3 py-2 text-xs leading-relaxed text-foreground/70">
+                The API is hosted on Render’s free tier and may take up to a minute to start after inactivity. Please keep this page open while the server wakes up.
+              </p>
+            )}
 
             <div className="flex min-h-12 items-center justify-center rounded-base border-2 border-border bg-secondary-background p-3 shadow-shadow">
               <GoogleLogin
