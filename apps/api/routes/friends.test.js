@@ -180,6 +180,58 @@ describe("friends search API", () => {
     expect(userModel.find).not.toHaveBeenCalled();
   });
 
+  it.each([undefined, null])(
+    "handles search results with friendRequests=%j while preserving incoming status",
+    async (friendRequests) => {
+      const users = ["none", "incoming"].map((status) => ({
+        _id: new Types.ObjectId(),
+        username: `${status}_reader`,
+        ...(friendRequests === undefined ? {} : { friendRequests }),
+      }));
+      current.friendRequests = [users[1]._id];
+      lean.mockResolvedValue(users);
+
+      const response = await search({ q: "reader" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(
+        users.map((user, index) => ({
+          _id: user._id.toString(),
+          username: user.username,
+          status: ["none", "incoming"][index],
+        })),
+      );
+    },
+  );
+
+  it.each([undefined, null])(
+    "handles current-user friendRequests=%j while preserving sent status",
+    async (friendRequests) => {
+      if (friendRequests === undefined) {
+        delete current.friendRequests;
+      } else {
+        current.friendRequests = friendRequests;
+      }
+      const users = ["none", "sent"].map((status) => ({
+        _id: new Types.ObjectId(),
+        username: `${status}_reader`,
+        friendRequests: status === "sent" ? [current._id] : [],
+      }));
+      lean.mockResolvedValue(users);
+
+      const response = await search({ q: "reader" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(
+        users.map((user, index) => ({
+          _id: user._id.toString(),
+          username: user.username,
+          status: ["none", "sent"][index],
+        })),
+      );
+    },
+  );
+
   it("preserves friend exclusions, the result limit, statuses, and response fields", async () => {
     const users = ["none", "sent", "incoming", "both"].map((status) => ({
       _id: new Types.ObjectId(),

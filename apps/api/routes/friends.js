@@ -54,9 +54,9 @@ router.get("/search", async (req, res) => {
 
   const results = users.map((u) => {
     let status = "none";
-    if (u.friendRequests.some((id) => id.equals(current._id))) {
+    if ((u.friendRequests ?? []).some((id) => id.equals(current._id))) {
       status = "sent";
-    } else if (current.friendRequests.some((id) => id.equals(u._id))) {
+    } else if ((current.friendRequests ?? []).some((id) => id.equals(u._id))) {
       status = "incoming";
     }
     return {
