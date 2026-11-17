@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import { auth, requireWritableSession } from "../middleware/auth.js";
 
 const router = Router();
+const MAX_SEARCH_QUERY_LENGTH = 100;
 router.use(auth);
 
 router.get("/requests", async (req, res) => {
@@ -16,13 +17,32 @@ router.get("/requests", async (req, res) => {
 
 router.get("/search", async (req, res) => {
   const { q } = req.query;
-  if (!q) {
+  if (q === undefined) {
+    return res.json([]);
+  }
+  if (typeof q !== "string") {
+    return res.status(400).json({ error: "Search query must be a string" });
+  }
+  if (q.length > MAX_SEARCH_QUERY_LENGTH) {
+    return res.status(400).json({
+      error: `Search query must be at most ${MAX_SEARCH_QUERY_LENGTH} characters`,
+    });
+  }
+  if (q.includes("\0")) {
+    return res.status(400).json({ error: "Search query must not contain null bytes" });
+  }
+  const query = q.trim();
+  if (!query) {
     return res.json([]);
   }
   const current = await User.findOne({
     googleId: req.user.uid,
   }).select("friendRequests");
-  const regex = new RegExp(q, "i");
+  if (!current) {
+    return res.status(404).json({ error: "User not found" });
+  }
+  // Treat user input as literal text rather than regular-expression syntax.
+  const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
   const users = await User.find({
     _id: { $ne: current._id },
     $or: [{ username: regex }, { name: regex }],
