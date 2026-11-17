@@ -141,7 +141,7 @@ function CarouselShelfSkeleton({ title }: { title: string }) {
     <div className="min-w-0">
       <h2 className="mb-2 text-left text-xl">{title}</h2>
       <div className="relative rounded-base border-2 border-border bg-main p-2 text-main-foreground shadow-shadow">
-        <div className="grid grid-cols-2 gap-2 px-10 md:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-2 px-10 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
           {items(4).map((item) => (
             <div
               key={item}
@@ -162,7 +162,7 @@ function CarouselShelfSkeleton({ title }: { title: string }) {
 
 export function BookGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {items(10).map((item) => (
         <div key={item} className="flex h-full flex-col">
           <div className="flex h-[390px] flex-col overflow-hidden rounded-base border-2 border-border bg-main p-2 text-main-foreground shadow-shadow">
@@ -183,14 +183,7 @@ export function BookGridSkeleton() {
 
 export function DashboardPageSkeleton() {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)",
-      }}
-      className="items-start gap-8 px-6 pb-24 pt-6"
-    >
+    <div className="grid min-h-screen grid-cols-1 items-start gap-8 px-6 pb-24 pt-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
       <div className="min-w-0 flex flex-col gap-4">
         <ProfileCardSkeleton />
         <CurrentlyReadingSkeleton />
@@ -293,14 +286,7 @@ export function FriendsPageSkeleton() {
 
 export function FriendProfilePageSkeleton() {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)",
-      }}
-      className="items-start gap-8 p-6"
-    >
+    <div className="grid min-h-screen grid-cols-1 items-start gap-8 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
       <div className="min-w-0 flex flex-col gap-4">
         <Skeleton className="h-8 w-8" />
         <ProfileCardSkeleton />

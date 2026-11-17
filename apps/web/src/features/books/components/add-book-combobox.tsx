@@ -151,14 +151,14 @@ export default function AddBookCombobox({
                       className="w-10 h-14 object-cover flex-none rounded-sm"
                     />
                   )}
-                  <div className="flex flex-col gap-1 w-full">
+                  <div className="flex min-w-0 flex-1 flex-col gap-1 break-words">
                     <div className="font-medium leading-tight">
                       {item.selected.title}
                     </div>
                     <div className="text-xs opacity-80">
                       {(item.selected.authors || []).join(", ")}
                     </div>
-                    <div className="flex gap-2 mt-1 items-start">
+                    <div className="flex flex-wrap gap-2 mt-1 items-start">
                       <div className="flex flex-col gap-2">
                         {isReadShelfAdd && (
                           <p className="text-xs font-heading">Read date</p>

@@ -62,7 +62,10 @@ export default function CurrentlyReadingCard({
               return (
                 <CarouselItem key={key} className="min-w-0 basis-full">
                   <div className="min-w-0 rounded-base border-2 border-border bg-background p-3 text-foreground shadow-shadow">
-                    <div className="group relative flex gap-3 overflow-hidden rounded-base">
+                    <div
+                      tabIndex={renderBookOverlay ? 0 : undefined}
+                      className="group relative flex flex-wrap gap-3 overflow-hidden rounded-base"
+                    >
                       <div className="h-32 w-20 flex-none overflow-hidden rounded-sm border-2 border-border bg-secondary-background">
                         {book.thumbnail && (
                           <img
@@ -72,7 +75,7 @@ export default function CurrentlyReadingCard({
                           />
                         )}
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1 basis-24">
                         <p className="line-clamp-3 text-base font-heading leading-tight" title={book.title}>
                           {book.title}
                         </p>
@@ -89,7 +92,7 @@ export default function CurrentlyReadingCard({
                     </div>
                     <div className="mt-3 space-y-2">
                       {(onPageChange || onRemove) && (
-                        <div className="min-w-0 flex items-center gap-2">
+                        <div className="min-w-0 flex flex-wrap items-center gap-2">
                           {onPageChange && (
                             <>
                               <Input
@@ -104,7 +107,7 @@ export default function CurrentlyReadingCard({
                                   }));
                                 }}
                                 placeholder="Page"
-                                className="h-9"
+                                className="h-9 min-w-0 flex-1 basis-16"
                               />
                               <Button
                                 size="sm"

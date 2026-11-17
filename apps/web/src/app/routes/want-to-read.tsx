@@ -144,7 +144,7 @@ export default function WantToRead() {
             : "No want-to-read books yet"}
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {currentBooks.map((book) => (
             <BookCard
               key={book._id}

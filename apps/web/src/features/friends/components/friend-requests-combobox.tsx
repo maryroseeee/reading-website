@@ -67,8 +67,9 @@ export default function FriendRequestsCombobox({
               <CommandItem
                 key={r._id}
                 value={`${r.name || ""} ${r.username || ""}`}
+                className="flex-wrap"
               >
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex min-w-0 basis-full items-center gap-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
                       src={r.profilePicture || "/default-avatar.png"}

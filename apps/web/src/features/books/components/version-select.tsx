@@ -63,7 +63,7 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
         if (found) onChange(found);
       }}
     >
-      <SelectTrigger className="w-[140px]">
+      <SelectTrigger className="w-[140px] max-w-full shrink-0">
         <span>Change version</span>
       </SelectTrigger>
       <SelectContent>
@@ -111,7 +111,7 @@ export default function VersionSelect({ versions, selected, onChange }: VersionS
             )}
             
             {versions.some((v) => v.thumbnail) && (
-              <div className="flex gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-2">
                 {versions
                   .filter((v) => v.thumbnail)
                   .map((v) => (

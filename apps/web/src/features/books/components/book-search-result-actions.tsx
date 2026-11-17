@@ -29,7 +29,7 @@ export default function BookSearchResultActions({
 }: BookSearchResultActionsProps) {
   if (addedBook?._id) {
     return (
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           className="bg-green-500 text-white"
@@ -47,8 +47,8 @@ export default function BookSearchResultActions({
   }
 
   return (
-    <div className="flex gap-2">
-      <div className="flex flex-col gap-2">
+    <div className="flex flex-wrap gap-2">
+      <div className="flex min-w-0 flex-col gap-2">
         <CompletionDatePicker
           date={result.completedDate}
           onChange={(date) =>

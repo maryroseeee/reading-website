@@ -124,8 +124,8 @@ export default function AddFriendCombobox({
                 value={`${u.name || ""} ${u.username || ""}`}
                 onSelect={() => {}}
               >
-                <div className="flex items-center justify-between gap-2 w-full">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 w-full">
+                  <div className="flex min-w-0 flex-1 basis-28 items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage
                         src={u.profilePicture || "/default-avatar.png"}
@@ -140,7 +140,7 @@ export default function AddFriendCombobox({
                     <p className="text-xs break-all">{u.name || u.username}</p>
                   </div>
                   {u.status === "incoming" ? (
-                    <div className="flex gap-1">
+                    <div className="flex shrink-0 gap-1">
                       <Button
                         size="sm"
                         onMouseDown={(e) => e.preventDefault()}

@@ -52,7 +52,7 @@ export default function Search() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search books"
-          className="border p-2 flex-1"
+          className="min-w-0 border p-2 flex-1"
         />
         <Button type="submit" disabled={isSearching} className="border px-4">
           Search
@@ -67,7 +67,7 @@ export default function Search() {
       {isSearching ? (
         <BookGridSkeleton />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {results.map((result, index) => (
             <BookCard
               key={result.selected.googleId}

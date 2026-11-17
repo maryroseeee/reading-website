@@ -62,14 +62,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 2fr)",
-      }}
-      className="gap-8 px-6 pt-6 pb-24 items-start"
-    >
+    <div className="grid min-h-screen grid-cols-1 items-start gap-8 px-6 pt-6 pb-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
       <div className="min-w-0 flex flex-col gap-4">
         <DashboardProfileCard
           user={user}

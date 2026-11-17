@@ -72,10 +72,13 @@ export default function ShelfCard({
 	            sortedBooks.map((b) => (
 	            <CarouselItem
 	              key={b._id ?? b.title}
-	              className="pl-2 basis-1/2 md:basis-1/3 xl:basis-1/4"
+	              className="pl-2 basis-full sm:basis-1/2 md:basis-1/3 xl:basis-1/4"
             >
               {/* FIXED HEIGHT CARD so all are equal */}
-              <div className="group relative flex h-[280px] flex-col overflow-hidden rounded-base border-2 border-border bg-background p-2 text-foreground shadow-shadow">
+              <div
+                tabIndex={renderBookOverlay ? 0 : undefined}
+                className="group relative flex h-[280px] flex-col overflow-hidden rounded-base border-2 border-border bg-background p-2 text-foreground shadow-shadow"
+              >
                 {/* Cover: uniform 2:3, capped so text fits */}
                 <div
                   className="w-full border-2 border-border rounded-sm overflow-hidden bg-background flex-none"

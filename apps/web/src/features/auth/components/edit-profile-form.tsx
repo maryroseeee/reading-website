@@ -85,33 +85,33 @@ export default function EditProfileForm({ onSuccess }: { onSuccess: (data: UserP
   };
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-2">
+    <form onSubmit={onSubmit} className="flex min-w-0 flex-col gap-2">
       <input
         name="name"
         value={form.name}
         onChange={onChange}
         placeholder="Display name"
-        className="border p-2"
+        className="w-full min-w-0 border p-2"
       />
       <input
         name="username"
         value={form.username}
         onChange={onChange}
         placeholder="Username"
-        className="border p-2"
+        className="w-full min-w-0 border p-2"
       />
       <textarea
         name="bio"
         value={form.bio}
         onChange={onChange}
         placeholder="Bio"
-        className="border p-2"
+        className="w-full min-w-0 border p-2"
       />
       <input
         type="file"
         accept="image/*"
         onChange={onFileChange}
-        className="border p-2"
+        className="w-full min-w-0 border p-2"
       />
       <Button type="submit" className="bg-main text-white p-2">Save</Button>
       {message && <p>{message}</p>}

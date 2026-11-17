@@ -95,7 +95,7 @@ export default function FriendBookAddActions({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute inset-0 z-10 rounded-base bg-background/95 text-foreground opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100",
+        "pointer-events-none absolute inset-0 z-10 rounded-base bg-background/95 text-foreground opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100",
         compact
           ? "grid grid-cols-2 content-center items-center gap-1 p-1"
           : "flex flex-col items-center justify-center gap-2 p-2",

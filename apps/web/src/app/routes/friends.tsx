@@ -85,7 +85,7 @@ export default function Friends() {
             <li
               key={f._id}
               style={getThemeColorCssVars(f.themeColor)}
-              className="flex items-center justify-between gap-4 rounded-base border-2 border-border bg-main p-4 text-main-foreground shadow-shadow"
+              className="flex flex-col gap-4 rounded-base border-2 border-border bg-main p-4 text-main-foreground shadow-shadow sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0 flex flex-1 items-center gap-4">
                 <Avatar className="h-16 w-16 flex-none">
@@ -111,7 +111,7 @@ export default function Friends() {
                 </div>
               </div>
               {f.username && (
-                <div className="flex flex-none gap-2">
+                <div className="flex flex-none flex-wrap gap-2">
                   <Button
                     onClick={() => navigate(`/compare/${encodeURIComponent(f.username!)}`)}
                     className="rounded-base border-2 border-border bg-background px-4 py-2 text-sm text-foreground shadow-shadow"
