@@ -4,6 +4,7 @@ import { applyThemeColor } from "@/lib/theme-colors";
 
 const THEME_VARIABLES = [
   "--background",
+  "--secondary-background",
   "--foreground",
   "--main",
   "--main-foreground",

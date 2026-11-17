@@ -10,6 +10,8 @@ export type ThemeColor = {
   darkForeground?: string;
   background: string;
   darkBackground: string;
+  secondaryBackground?: string;
+  darkSecondaryBackground?: string;
   charts: [string, string, string, string, string];
   darkCharts: [string, string, string, string, string];
 };
@@ -184,6 +186,21 @@ export const THEME_COLORS: ThemeColor[] = [
     darkCharts: ["#2D5BBA", "#E0B700", "#00BD84", "#FF4D61", "#7A83FF"],
   },
   {
+    name: "burgundy",
+    main: "#52171C",
+    darkMain: "#52171C",
+    mainForeground: "oklch(100% 0 0)",
+    darkMainForeground: "oklch(100% 0 0)",
+    foreground: "oklch(100% 0 0)",
+    darkForeground: "oklch(100% 0 0)",
+    background: "#985B5D",
+    darkBackground: "#985B5D",
+    secondaryBackground: "#985B5D",
+    darkSecondaryBackground: "#985B5D",
+    charts: ["#52171C", "#FACC00", "#00D696", "#FF6678", "#7A83FF"],
+    darkCharts: ["#52171C", "#E0B700", "#00BD84", "#FF4D61", "#7A83FF"],
+  },
+  {
     name: "black",
     main: "oklch(0% 0 0)",
     darkMain: "oklch(100% 0 0)",
@@ -221,6 +238,12 @@ export function applyThemeColor(name: string, persist = true) {
     : color.foreground ?? "oklch(0% 0 0)";
 
   root.style.setProperty("--background", isDark ? color.darkBackground : color.background);
+  root.style.setProperty(
+    "--secondary-background",
+    isDark
+      ? color.darkSecondaryBackground ?? "oklch(23.93% 0 0)"
+      : color.secondaryBackground ?? "oklch(100% 0 0)",
+  );
   root.style.setProperty("--foreground", foreground);
   root.style.setProperty("--main", isDark ? color.darkMain : color.main);
   root.style.setProperty("--main-foreground", mainForeground);
@@ -257,6 +280,9 @@ export function getThemeColorCssVars(name: string | null | undefined) {
 
   return {
     "--background": isDark ? color.darkBackground : color.background,
+    "--secondary-background": isDark
+      ? color.darkSecondaryBackground ?? "oklch(23.93% 0 0)"
+      : color.secondaryBackground ?? "oklch(100% 0 0)",
     "--foreground": foreground,
     "--main": isDark ? color.darkMain : color.main,
     "--main-foreground": mainForeground,

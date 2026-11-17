@@ -19,6 +19,7 @@ const themeColorNames = [
   'pink',
   'rose',
   'navy',
+  'burgundy',
   'black',
 ];
 
