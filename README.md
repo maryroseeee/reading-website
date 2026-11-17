@@ -26,6 +26,12 @@ The deployed site includes a **View Recruiter Demo** button on the login page. I
 
 Note: The API is hosted on Render's free tier, so the first demo request after inactivity may take up to a minute while the backend wakes up. After that, the app should respond normally.
 
+## Production API Routing
+
+The production frontend sends API requests to `/api` on the website's own origin. Vercel forwards these requests to the Render API using the first rewrite in `apps/web/vercel.json`, before the React route fallback. This keeps the HTTP-only authentication cookie on the website's origin so Safari can retain the login session.
+
+`VITE_API_URL` overrides the API URL only during local development; production builds always use `/api`, including when an older absolute API URL is still configured in Vercel. If the Render API address changes, update the rewrite destination. Keep Render's `CLIENT_ORIGIN` set to the HTTPS frontend origin so authentication cookies remain secure. Production previews served outside Vercel also need to proxy `/api` to the Express API.
+
 ## Screenshots
 
 Screenshots for the main user flows are stored in `docs/screenshots`.
