@@ -74,7 +74,7 @@ The API is organized by domain:
 | `/api/books` | Public Google Books search; authenticated saved-book reads and writes |
 | `/api/friends` | User search, requests, friend lists, and friend data for comparison |
 
-Book queries are scoped to the signed-in user. A compound unique index on user ID and book ID prevents duplicate saved editions per user. Friend shelf access checks the friendship before returning books.
+Saved-book reads and writes are scoped to the signed-in user, Google Books search is publicly accessible. A compound unique index on `userId` and `googleId` prevents duplicate saved records with the same book identifier for a user. Manually entered books receive generated identifiers. Friend shelf access checks the friendship before returning books.
 
 ## Local Setup
 
