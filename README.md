@@ -1,260 +1,116 @@
-# Reading Website
+# Reading Tracker
 
-A full-stack social reading tracker for logging books, tracking yearly reading stats, organizing shelves, and comparing progress with friends.
+A full-stack social reading tracker for organizing books, tracking yearly reading activity, and comparing progress with friends. Built with a React/TypeScript frontend and an Express/MongoDB backend.
 
-This project was built as a practical reading competition app: users can sign in with Google, search Google Books, add custom editions, manage books across reading shelves, track current reading progress, customize their profile/theme, and view friends' reading activity with polished loading and error states.
+**[Open the live application →](https://reading-website-nine.vercel.app)**
 
-## Highlights
+## Live Demo
 
-- Google OAuth authentication with protected app routes
-- Google Books search with flexible matching and manual "add your own version" fallback
-- Three-shelf book workflow: read books, currently reading, and want to read
-- Completion date tracking, points calculation, page progress, and reading charts with clear totals
-- Search, sorting, pagination, and add-book actions on shelf pages
-- Friend requests, friend profiles, friend reading shelves, and comparison charts
-- Friend shelf filtering/search with quick actions to add a friend's book to your own shelves
-- Hover and dropdown actions for changing shelves, editing editions, setting read dates, and deleting books
-- Per-user theme colors, including pink, blue, navy, black, and other light/dark-friendly options
-- Skeleton loading states and retryable error screens across data-heavy pages
-- Recruiter demo login that opens a populated temporary account without requiring Google sign-in
-- Responsive React UI with reusable feature components and neobrutalist styling
-- Full-stack monorepo structure with a React/Vite frontend and Express/MongoDB API
+Select **View Recruiter Demo** on the login page to explore a populated temporary account **without Google authentication**. No account setup is required.
 
-## Recruiter Demo
+1. Review yearly reading totals and current reading progress on the dashboard.
+2. Open a reading shelf, edit a book, or add an edition through search or manual entry.
+3. Explore the seeded friend's profile, shelves, and reading comparison.
 
-The deployed site includes a **View Recruiter Demo** button on the login page. It signs visitors into a seeded temporary profile with books, reading progress, a demo friend, friend shelves, and comparison data already populated. Recruiters can try edits and hover actions during the session; the temporary demo copy is deleted on logout.
+The API runs on Render's free tier. The initial demo login after inactivity may take about a minute while the backend wakes up.
 
-Note: The API is hosted on Render's free tier, so the first demo request after inactivity may take up to a minute while the backend wakes up. After that, the app should respond normally.
+## Technical Highlights
 
-## Production API Routing
-
-The production frontend sends API requests to `/api` on the website's own origin. Vercel forwards these requests to the Render API using the first rewrite in `apps/web/vercel.json`, before the React route fallback. This keeps the HTTP-only authentication cookie on the website's origin so Safari can retain the login session.
-
-`VITE_API_URL` overrides the API URL only during local development; production builds always use `/api`, including when an older absolute API URL is still configured in Vercel. If the Render API address changes, update the rewrite destination. Keep Render's `CLIENT_ORIGIN` set to the HTTPS frontend origin so authentication cookies remain secure. Production previews served outside Vercel also need to proxy `/api` to the Express API.
+- **Full-stack application:** React and TypeScript handle the client; an Express API in JavaScript persists users, books, and friendships in MongoDB through Mongoose.
+- **Authentication:** Google OAuth sign-in verifies Google ID tokens on the server, then issues JWTs in HTTP-only cookies. Frontend session checks protect app routes, and API middleware verifies authenticated book and friend operations.
+- **Book discovery and fallback:** The API combines and deduplicates multiple Google Books searches, retaining results when an individual query fails. The frontend groups editions and supports manual entry when results are incomplete or search is unavailable.
+- **Reading and social workflows:** Read, Currently Reading, and Want To Read shelves track completion dates and page progress. Yearly summaries total books, pages, and page-based points. Friend requests, friend shelves, and comparison views support shared reading goals.
+- **Temporary demo sessions:** Each session seeds separate reader and friend profiles with books. Visitors can edit books; friendship changes are disabled. Logout deletes the session's profiles and books. Starting a new demo also cleans up demo records older than 24 hours.
+- **Automated verification:** Frontend component and utility tests and backend route tests run through a root verification command. GitHub Actions checks lint, tests, the frontend build, and backend JavaScript syntax on pushes and pull requests.
 
 ## Screenshots
 
-Screenshots for the main user flows are stored in `docs/screenshots`.
+**Dashboard: profile, yearly totals, and current reading progress**
 
-### Login
+![Reading dashboard with yearly totals and current reading progress](docs/screenshots/Dashboard.png)
 
-![Login page](docs/screenshots/Login.png)
+| Reading shelf | Friend comparison |
+| --- | --- |
+| ![Read books shelf](docs/screenshots/Read.png) | ![Yearly reading comparison with a friend](docs/screenshots/chart%20comparison.png) |
 
-### Dashboard
-
-![Dashboard overview](docs/screenshots/Dashboard.png)
-
-### Book Shelves
-
-![Read books shelf](docs/screenshots/Read.png)
-
-![Want to read shelf](docs/screenshots/Want%20To%20Read.png)
-
-### Friends Page and Compare
-
-![Friends page](docs/screenshots/Friends.png)
-
-![Chart comparison](docs/screenshots/chart%20comparison.png)
+More screenshots, including login, friends, and the want-to-read shelf, are in [docs/screenshots](docs/screenshots).
 
 ## Tech Stack
 
-**Frontend**
-
-- React
-- TypeScript
-- Vite
-- React Router
-- Tailwind CSS
-- Radix UI primitives
-- Google OAuth client
-- Axios
-
-**Backend**
-
-- Node.js
-- Express
-- MongoDB
-- Mongoose
-- JWT auth with HTTP-only cookies
-- Google Auth Library
-- Google Books API
-
-**Tooling**
-
-- ESLint
-- TypeScript project build
-- Concurrent frontend/API development scripts
-- Root-level verification command for frontend and backend checks
-
-## Core Features
-
-### Books and Shelves
-
-Users can search for books, choose an edition, upload/customize cover data, and place each book onto a shelf from the dashboard, search page, or shelf pages:
-
-- **Read Books**: requires a completion date and contributes to yearly stats.
-- **Currently Reading**: tracks current page and displays a progress bar.
-- **Want To Read**: keeps future reads separate from completed books.
-
-Books can be moved between shelves later. Existing shelf actions are disabled so users cannot accidentally re-add a book to the same shelf, and moving a book to Read requires an explicit completion date.
-
-Shelf pages include:
-
-- search across title, author, genre/category, and page count
-- sorting by date added to shelf, date read, title, author, pages, and points
-- pagination for larger collections
-- dropdown edit controls for changing shelves, changing editions, editing read dates, and deleting books
-- consistent book card sizing with preserved title/author details
-
-Dashboard book hovers also support quick shelf changes, edition edits, and deletion without leaving the page.
-
-### Reading Analytics
-
-The dashboard includes charts and totals for yearly reading activity:
-
-- books read
-- pages read
-- points earned
-- author and genre/category summaries
-
-The scoring model is calculated from page count and stored with each saved book.
-
-### Social Reading
-
-Users can:
-
-- set a unique username before sending friend requests
-- search for other users
-- send, accept, or reject friend requests
-- view a friend's profile and shelves
-- search and sort friend shelf views
-- add a friend's book to their own shelves
-- compare reading stats against a friend
-
-Friend profile pages use the friend's theme color so the viewed profile feels like that user's space.
-
-### Personalization
-
-Users can update their display name, username, bio, avatar, and app theme color. Theme settings persist per signed-in user, so different accounts can keep different color preferences.
-
-The app includes a custom login screen with a fixed orange theme, grid background, and classic-book preview content. App themes include light and dark-friendly color handling, including navy and black themes with adjusted foreground text for readable cards and buttons.
-
-### User Experience and Reliability
-
-The app includes visible async states and guardrails for common failure paths:
-
-- skeleton placeholders while dashboards, shelves, profiles, comparison charts, and search data load
-- retryable error states when required page data fails
-- protected route session checks before signed-in pages render
-- disabled friend request actions until the user sets a username
-- Google Books fallback flow when search is unavailable or a result is missing
-- manual custom-book creation when API results are incomplete
+| Area | Technologies |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, React Router, Tailwind CSS, Radix UI, Axios |
+| Backend | Node.js, Express 5, MongoDB, Mongoose, Google Auth Library, JSON Web Tokens |
+| Testing and tooling | Vitest, React Testing Library, Supertest, ESLint, GitHub Actions |
+| Hosting | Vercel frontend, Render API |
 
 ## Architecture
 
-This repository is organized as a small full-stack monorepo.
-
-```text
-apps/
-  api/    Express API, MongoDB models, auth middleware, route modules
-  web/    React app, feature modules, shared UI, app routes
-docs/     project structure notes
-```
-
-The frontend follows a feature-oriented structure inspired by Bulletproof React:
+The repository contains three separate npm projects: root orchestration scripts and two applications.
 
 ```text
 apps/web/src/
-  app/          app composition and route pages
-  components/   shared UI primitives
-  config/       browser environment config
-  features/     auth, books, and friends domain modules
-  lib/          reusable client libraries
-  utils/        shared utilities
+  app/          Application composition and route pages
+  features/     auth, books, friends, and dashboard modules
+  components/   Shared UI and loading/error states
+  config/       Browser environment configuration
+  lib/          API client and shared helpers
+  utils/        Shared utilities
+apps/api/
+  routes/       Express route modules
+  middleware/   Authentication and demo write restrictions
+  models/       Mongoose User and Book schemas
+  services/     Demo seeding and cleanup
+  config/       Server environment configuration
 ```
 
-Feature modules own their domain-specific API calls, components, types, and utilities:
+Frontend features keep domain-specific API calls, components, hooks, types, and utilities together where needed. Routes compose these modules. The shared Axios client sends cookie credentials; data-heavy pages provide loading placeholders and retryable errors.
 
-```text
-features/
-  auth/
-    api/
-    components/
-    types/
+The API is organized by domain:
 
-  books/
-    api/
-    components/
-    types/
-    utils/
+| Route prefix | Responsibilities |
+| --- | --- |
+| `/api/auth` | Google and demo login, session lookup, profile/theme updates, logout |
+| `/api/books` | Public Google Books search; authenticated saved-book reads and writes |
+| `/api/friends` | User search, requests, friend lists, and friend data for comparison |
 
-  friends/
-    api/
-    components/
-    types/
-    utils/
-```
+Book queries are scoped to the signed-in user. A compound unique index on user ID and book ID prevents duplicate saved editions per user. Friend shelf access checks the friendship before returning books.
 
-This keeps app routes focused on composition while reusable behavior lives with the feature that owns it.
+## Local Setup
 
-## API Overview
-
-The Express API exposes route modules for:
-
-- `auth`: Google sign-in, current user session, profile updates, theme updates
-- `books`: saved books, Google Books search, shelf updates, deletion
-- `friends`: friend search, requests, friend lists, friend books, social comparison data
-
-Authentication is handled through middleware that verifies the signed-in user before protected book and friend operations.
-
-## Available Scripts
-
-```bash
-npm run dev       # Start API and web app together
-npm run dev:web   # Start only the Vite frontend
-npm run dev:api   # Start only the Express API
-npm run build     # Build the frontend
-npm run lint      # Lint the frontend
-npm run test      # Run frontend component tests and API tests
-npm run check     # Run lint, tests, build, and backend syntax checks
-```
-
-## Verification
-
-Use Node.js 22 LTS (22.12 or newer). The root, frontend, and API are separate npm projects, so install each project's dependencies from its committed lockfile:
+Use **Node.js 22.12 or newer within Node 22** and npm, plus a local or hosted MongoDB database. From the repository root:
 
 ```bash
 npm ci
 npm ci --prefix apps/web
 npm ci --prefix apps/api
+cp apps/web/.env.example apps/web/.env
+cp apps/api/.env.example apps/api/.env
 ```
 
-The main project verification command, run from the repository root, is:
+Set `MONGO_URI` and `JWT_SECRET` in the API environment file. For Google sign-in, set matching `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID` values in the API and frontend files. `GOOGLE_BOOKS_API_KEY` is optional; demo login bypasses Google authentication but still needs MongoDB and a JWT secret.
 
 ```bash
-npm run check
+npm run dev
 ```
 
-It runs the frontend lint/build pipeline, automated tests, and syntax-checks the backend route, middleware, and config files.
+Open [localhost:5173](http://localhost:5173). The API defaults to port 4000. See [development setup](docs/development.md#environment-configuration) for environment variables, individual service commands, and troubleshooting.
 
-### GitHub Actions CI
+## Testing and CI
 
-The `CI` workflow in `.github/workflows/ci.yml` runs on pushes to any branch and on pull requests. It checks out the code, sets up Node.js 22, caches npm downloads using all three lockfiles, installs dependencies with the commands above, and runs `npm run check`.
+Run from the repository root:
 
-CI does not need environment files, repository secrets, a running API, or MongoDB. API tests use mocked models and external requests with a test-only JWT secret; the frontend builds with its default configuration. This validates the test suites and build, but does not exercise deployed services or a real database.
+```bash
+npm test         # Frontend and API tests
+npm run build    # TypeScript check and Vite production build
+npm run check    # Lint, tests, build, and backend syntax checks
+```
 
-Keep all three `package-lock.json` files committed. When intentionally changing a dependency, update the lockfile in that package's directory and rerun the clean installs and `npm run check`. The frontend lockfile uses `react-day-picker` 8.10.2, whose React peer dependency includes React 19, so normal `npm ci` works without bypassing peer dependency checks.
+Tests cover shelf transitions and sorting, book components, API URL selection, authenticated routes, demo login/logout, partial search failures, and friend search input validation. API tests mock database models and external calls, so verification needs no running database, API server, or environment files. It does not exercise deployed services or real database integration.
 
-After pushing these files, open the repository's **Actions** tab, select **CI**, and confirm **Lint, test, and build** passes, including all three install steps and project verification. Open or update a pull request to confirm the same check appears there. The first GitHub run also verifies the hosted Ubuntu runner and action setup, which local macOS checks cannot fully reproduce. Optionally require this check in the default branch's protection rules after the first successful run.
+The [CI workflow](.github/workflows/ci.yml) uses Node.js 22 and runs `npm run check` after installing all three projects from their lockfiles.
 
-## What This Project Demonstrates
+## Additional Documentation
 
-- Building a full-stack authenticated application from end to end
-- Designing domain-based frontend architecture instead of placing all logic in routes
-- Integrating third-party APIs while handling imperfect search results and fallback workflows
-- Modeling social features with backend validation and user-facing UI states
-- Implementing loading, error, empty, and fallback states for async workflows
-- Managing protected routes, persisted user settings, and authenticated API calls
-- Creating a polished, iterative UI with reusable components and responsive layouts
-- Maintaining a monorepo with root-level scripts and a clear verification path
-- Adding automated frontend component tests and backend API route tests
+- [Development](docs/development.md): environment configuration, scripts, dependency and lockfile maintenance, and CI troubleshooting.
+- [Deployment](docs/deployment.md): Vercel/Render configuration, production API routing, authentication cookies, and preview requirements.
