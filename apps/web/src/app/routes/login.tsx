@@ -10,22 +10,39 @@ import { applyThemeColor } from '@/lib/theme-colors';
 export default function Login() {
   const navigate = useNavigate();
   const [demoLoading, setDemoLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [authError, setAuthError] = useState("");
   const [showWakeUpNote, setShowWakeUpNote] = useState(false);
+  const authLoading = demoLoading || googleLoading;
 
   useEffect(() => {
     applyThemeColor('orange', false);
   }, []);
 
   useEffect(() => {
-    if (!demoLoading) return;
+    if (!authLoading) return;
 
     const wakeUpNoteTimer = window.setTimeout(() => {
       setShowWakeUpNote(true);
     }, 5000);
 
     return () => window.clearTimeout(wakeUpNoteTimer);
-  }, [demoLoading]);
+  }, [authLoading]);
+
+  const handleGoogleLogin = async (credential: string) => {
+    setGoogleLoading(true);
+    setAuthError("");
+    setShowWakeUpNote(false);
+
+    try {
+      await loginWithGoogle(credential);
+      navigate('/dashboard');
+    } catch {
+      setAuthError("Could not sign in with Google. Try again in a moment.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleDemoLogin = async () => {
     setDemoLoading(true);
@@ -119,8 +136,8 @@ export default function Login() {
               <p className="text-sm opacity-80">Use your Google account to continue or create your shelf.</p>
             </div>
 
-            {showWakeUpNote && (
-              <p className="mb-4 rounded-base border border-border/60 bg-secondary-background px-3 py-2 text-xs leading-relaxed text-foreground/70">
+            {authLoading && showWakeUpNote && (
+              <p role="status" className="mb-4 rounded-base border border-border/60 bg-secondary-background px-3 py-2 text-xs leading-relaxed text-foreground/70">
                 The API is hosted on Render’s free tier and may take up to a minute to start after inactivity. Please keep this page open while the server wakes up.
               </p>
             )}
@@ -129,17 +146,16 @@ export default function Login() {
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   if (!credentialResponse.credential) return;
-                  await loginWithGoogle(credentialResponse.credential);
-                  navigate('/dashboard');
+                  await handleGoogleLogin(credentialResponse.credential);
                 }}
-                onError={() => undefined}
+                onError={() => setAuthError("Could not sign in with Google. Try again in a moment.")}
               />
             </div>
             <div className="mt-3 space-y-2">
               <Button
                 type="button"
                 onClick={handleDemoLogin}
-                disabled={demoLoading}
+                disabled={authLoading}
                 className="w-full bg-main text-main-foreground"
               >
                 {demoLoading ? "Loading Demo..." : "View Recruiter Demo"}
