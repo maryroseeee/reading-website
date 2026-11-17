@@ -221,13 +221,31 @@ npm run check     # Run lint, tests, build, and backend syntax checks
 
 ## Verification
 
-The main project verification command is:
+Use Node.js 22 LTS (22.12 or newer). The root, frontend, and API are separate npm projects, so install each project's dependencies from its committed lockfile:
+
+```bash
+npm ci
+npm ci --prefix apps/web
+npm ci --prefix apps/api
+```
+
+The main project verification command, run from the repository root, is:
 
 ```bash
 npm run check
 ```
 
 It runs the frontend lint/build pipeline, automated tests, and syntax-checks the backend route, middleware, and config files.
+
+### GitHub Actions CI
+
+The `CI` workflow in `.github/workflows/ci.yml` runs on pushes to any branch and on pull requests. It checks out the code, sets up Node.js 22, caches npm downloads using all three lockfiles, installs dependencies with the commands above, and runs `npm run check`.
+
+CI does not need environment files, repository secrets, a running API, or MongoDB. API tests use mocked models and external requests with a test-only JWT secret; the frontend builds with its default configuration. This validates the test suites and build, but does not exercise deployed services or a real database.
+
+Keep all three `package-lock.json` files committed. When intentionally changing a dependency, update the lockfile in that package's directory and rerun the clean installs and `npm run check`. The frontend lockfile uses `react-day-picker` 8.10.2, whose React peer dependency includes React 19, so normal `npm ci` works without bypassing peer dependency checks.
+
+After pushing these files, open the repository's **Actions** tab, select **CI**, and confirm **Lint, test, and build** passes, including all three install steps and project verification. Open or update a pull request to confirm the same check appears there. The first GitHub run also verifies the hosted Ubuntu runner and action setup, which local macOS checks cannot fully reproduce. Optionally require this check in the default branch's protection rules after the first successful run.
 
 ## What This Project Demonstrates
 
